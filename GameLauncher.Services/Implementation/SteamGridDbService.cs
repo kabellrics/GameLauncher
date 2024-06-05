@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GameLauncher.Services.Interface;
 using GameLauncher.Services.Utilitaire.SteamGridDB;
 using RestSharp;
 using RestSharp.Authenticators;
 
 namespace GameLauncher.Services.Implementation;
-public class SteamGridDbService
+public class SteamGridDbService : ISteamGridDbService
 {
     private string apipath = @"https://www.steamgriddb.com/api/v2";
     private RestClient sgdbclient;

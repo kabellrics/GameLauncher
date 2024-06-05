@@ -20,6 +20,9 @@ public class Program
         builder.Services.AddDbContext<GameLauncherContext>(options =>
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddScoped<ISteamGameFinderService, SteamGameFinderService>();
+        builder.Services.AddScoped<IEAOriginGameFinderService, EAOriginGameFinderService>();
+        builder.Services.AddScoped<IEpicGameFinderService, EpicGameFinderService>();
+        builder.Services.AddScoped<ISteamGridDbService, SteamGridDbService>();
         builder.Services.AddScoped<IAssetDownloader, AssetDownloader>();
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

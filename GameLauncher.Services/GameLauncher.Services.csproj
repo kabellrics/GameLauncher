@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GameFinder.StoreHandlers.EADesktop" Version="4.2.1" />
+    <PackageReference Include="GameFinder.StoreHandlers.EGS" Version="4.2.1" />
     <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="111.2.0" />
@@ -18,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Utilitaire\EAOrigin\" />
     <Folder Include="Utilitaire\SteamGridDB\" />
   </ItemGroup>
 

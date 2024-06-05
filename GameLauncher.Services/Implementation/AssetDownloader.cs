@@ -32,4 +32,17 @@ public class AssetDownloader : IAssetDownloader
             Console.WriteLine("Échec du téléchargement. Statut: " + response.StatusCode);
         }
     }
+    public string CreateItemAssetFolder(Guid guid)
+    {
+        string currentUser = Environment.UserName;
+
+        string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        // Construit le chemin complet vers le nouveau dossier
+        string targetPath = Path.Combine(documentsPath, "GameLauncher", "Assets", guid.ToString());
+
+        // Crée le dossier (et tous les dossiers parents si nécessaire)
+        Directory.CreateDirectory(targetPath);
+        return targetPath;
+    }
 }

@@ -8,15 +8,32 @@ namespace GameLauncher.API.Controllers;
 [ApiController]
 public class GameFinderController : ControllerBase
 {
-    private readonly ISteamGameFinderService steamGameFinderService;
-    public GameFinderController(ISteamGameFinderService steamGameFinderService)
+    private readonly ISteamGameFinderService SteamGameFinderService;
+    private readonly IEAOriginGameFinderService EAOriginGameFinderService;
+    private readonly IEpicGameFinderService EpicGameFinderService;
+    public GameFinderController(ISteamGameFinderService steamGameFinderService, IEAOriginGameFinderService eAOriginGameFinderService, IEpicGameFinderService epicGameFinderService)
     {
-        this.steamGameFinderService = steamGameFinderService;
+        this.SteamGameFinderService = steamGameFinderService;
+        this.EAOriginGameFinderService = eAOriginGameFinderService;
+        this.EpicGameFinderService = epicGameFinderService;
+
     }
     [HttpGet("/GetSteamGame")]
     public async Task<ActionResult> GetSteamGame()
     {
-       await steamGameFinderService.GetGameAsync();
+       await SteamGameFinderService.GetGameAsync();
+        return Ok();
+    }
+    [HttpGet("/GetEAOriginGame")]
+    public async Task<ActionResult> GetEAOriginGame()
+    {
+       await EAOriginGameFinderService.GetGameAsync();
+        return Ok();
+    }
+    [HttpGet("/GetEpicGame")]
+    public async Task<ActionResult> GetEpicGame()
+    {
+       await EpicGameFinderService.GetGameAsync();
         return Ok();
     }
 }
