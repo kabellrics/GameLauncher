@@ -1,0 +1,6 @@
+@GameLauncher.API_HostAddress = http://localhost:5299
+
+GET {{GameLauncher.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

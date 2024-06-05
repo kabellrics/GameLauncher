@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "GameLauncher.Admin (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "GameLauncher.Admin (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}
