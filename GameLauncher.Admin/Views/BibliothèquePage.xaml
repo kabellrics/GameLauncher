@@ -6,34 +6,35 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:models="using:GameLauncher.Admin.Core.Models"
+    xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
+    xmlns:models="using:GameLauncher.ObservableObjet"
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
         <controls:AdaptiveGridView
             animations:Connected.ListItemElementName="itemThumbnail"
             animations:Connected.ListItemKey="animationKeyContentGrid"
-            DesiredWidth="180"
-            ItemHeight="160"
+            DesiredWidth="200"
+            ItemHeight="360"
             IsItemClickEnabled="True"
             ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
             ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-            SelectionMode="None"
+            SelectionMode="Single"
             StretchContentForSingleRow="False">
             <controls:AdaptiveGridView.ItemTemplate>
-                <DataTemplate x:DataType="models:SampleOrder">
+                <DataTemplate x:DataType="models:ObservableItem">
                     <Grid
                         x:Name="itemThumbnail"
                         Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <FontIcon
-                                Glyph="{x:Bind Symbol}"
-                                AutomationProperties.Name="{x:Bind SymbolName}" />
+                            <winuicontrols:ConstrainedBox AspectRatio="2:3">
+                                <Image Source="{Binding Cover,Mode=OneWay}" Stretch="Fill"/>
+                            </winuicontrols:ConstrainedBox>
                             <TextBlock
                                 Margin="{StaticResource XXSmallTopMargin}"
                                 HorizontalAlignment="Center"
                                 Style="{ThemeResource BodyTextStyle}"
-                                Text="{x:Bind Company}" />
+                                Text="{x:Bind Name}" />
                         </StackPanel>
                     </Grid>
                 </DataTemplate>

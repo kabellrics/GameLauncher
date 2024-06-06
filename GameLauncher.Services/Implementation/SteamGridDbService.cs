@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GameLauncher.Services.Interface;
-using GameLauncher.Services.Utilitaire.SteamGridDB;
+using GameLauncher.Models.SteamGridDB;
 using RestSharp;
 using RestSharp.Authenticators;
 

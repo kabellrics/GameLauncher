@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GameLauncher.DAL;
 using GameLauncher.Models;
 using GameLauncher.Services.Interface;
-using GameLauncher.Services.Utilitaire;
+using GameLauncher.Models.Steam;
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 using Newtonsoft.Json;
@@ -81,6 +81,7 @@ namespace GameLauncher.Services.Implementation
                             game.SearchName = steamname;
                             game.Path = $"steam://rungameid/{game.StoreId.ToString()}";
                             game.Platformes = dbContext.Platformes.First(x=> x.Name== "Steam");
+                            game.LUPlatformesId = game.Platformes.ID;
                             game.Logo = string.Empty;
                             game.Cover = string.Empty;
                             game.Banner = string.Empty;
@@ -199,6 +200,7 @@ namespace GameLauncher.Services.Implementation
                 else
                 {
                     var dbdev = dbContext.Editeurs.First(x => x.Name == dev);
+                    if (dbdev.Items == null) dbdev.Items = new List<Item>();
                     dbdev.Items.Add(game);
                     dbContext.Editeurs.Update(dbdev);
                     yield return dbdev;
@@ -219,6 +221,7 @@ namespace GameLauncher.Services.Implementation
                 else
                 {
                     var dbdev = dbContext.Develloppeurs.First(x => x.Name == dev);
+                    if (dbdev.Items == null) dbdev.Items = new List<Item>();
                     dbdev.Items.Add(game);
                     dbContext.Develloppeurs.Update(dbdev);
                     yield return dbdev;

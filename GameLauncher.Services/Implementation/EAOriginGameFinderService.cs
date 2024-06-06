@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using GameLauncher.DAL;
 using GameLauncher.Services.Interface;
 using GameLauncher.Models;
-using GameLauncher.Services.Utilitaire.EAOrigin;
+using GameLauncher.Models.EAOrigin;
 
 namespace GameLauncher.Services.Implementation;
 public class EAOriginGameFinderService : IEAOriginGameFinderService
@@ -78,6 +78,7 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
                                 exe.Path = $"{item.BaseInstallPath.GetFullPath()}/{getExeName(notrialexe.filePath)}";
                                 exe.StoreId = item.EADesktopGameId.Value;
                                 exe.Platformes = dbContext.Platformes.First(x => x.Name == "EA Origin");
+                                exe.LUPlatformesId = exe.Platformes.ID;
                                 resultlist.Add(exe);
                             }
                         }
@@ -137,7 +138,7 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
             if (firsthero != null)
             {
                 assetDownloader.DownloadFile(firsthero.url, Path.Combine(assetfolder, "banner.jpg"));
-                game.Cover = Path.Combine(assetfolder, "banner.jpg");
+                game.Banner = Path.Combine(assetfolder, "banner.jpg");
             }
         }
     }

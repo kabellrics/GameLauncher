@@ -1,4 +1,4 @@
-﻿using GameLauncher.Services.Utilitaire.SteamGridDB;
+﻿using GameLauncher.Models.SteamGridDB;
 
 namespace GameLauncher.Services.Interface;
 public interface ISteamGridDbService

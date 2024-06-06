@@ -23,6 +23,8 @@ public class Program
         builder.Services.AddScoped<IEAOriginGameFinderService, EAOriginGameFinderService>();
         builder.Services.AddScoped<IEpicGameFinderService, EpicGameFinderService>();
         builder.Services.AddScoped<ISteamGridDbService, SteamGridDbService>();
+        builder.Services.AddScoped<IScreenscraperService, ScreenscraperService>();
+        builder.Services.AddScoped<IIGDBService, IGDBService>();
         builder.Services.AddScoped<IItemsService, ItemsService>();
         builder.Services.AddScoped<IAssetDownloader, AssetDownloader>();
         builder.Services.AddControllers();

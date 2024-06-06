@@ -3,6 +3,7 @@
 using GameLauncher.Admin.Contracts.ViewModels;
 using GameLauncher.Admin.Core.Contracts.Services;
 using GameLauncher.Admin.Core.Models;
+using GameLauncher.ObservableObjet;
 
 namespace GameLauncher.Admin.ViewModels;
 
@@ -11,7 +12,7 @@ public partial class BibliothèqueDetailViewModel : ObservableRecipient, INaviga
     private readonly ISampleDataService _sampleDataService;
 
     [ObservableProperty]
-    private SampleOrder? item;
+    private ObservableItem? item;
 
     public BibliothèqueDetailViewModel(ISampleDataService sampleDataService)
     {
@@ -20,10 +21,11 @@ public partial class BibliothèqueDetailViewModel : ObservableRecipient, INaviga
 
     public async void OnNavigatedTo(object parameter)
     {
-        if (parameter is long orderID)
+        if (parameter is ObservableItem itemvm)
         {
-            var data = await _sampleDataService.GetContentGridDataAsync();
-            Item = data.First(i => i.OrderID == orderID);
+            item = itemvm;
+            //var data = await _sampleDataService.GetContentGridDataAsync();
+            //Item = data.First(i => i.OrderID == orderID);
         }
     }
 

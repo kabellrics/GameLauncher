@@ -7,7 +7,8 @@ using GameLauncher.Admin.Models;
 using GameLauncher.Admin.Services;
 using GameLauncher.Admin.ViewModels;
 using GameLauncher.Admin.Views;
-
+using GameLauncher.AdminProvider;
+using GameLauncher.AdminProvider.Interface;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
@@ -68,6 +69,7 @@ public partial class App : Application
             // Core Services
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
+            services.AddSingleton<IItemProvider, ItemProvider>();
 
             // Views and ViewModels
             services.AddTransient<SettingsViewModel>();

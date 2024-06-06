@@ -9,7 +9,10 @@ using GameFinder.StoreHandlers.EGS;
 using GameLauncher.DAL;
 using GameLauncher.Models;
 using GameLauncher.Services.Interface;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NexusMods.Paths;
+using RestSharp;
 
 namespace GameLauncher.Services.Implementation;
 public class EpicGameFinderService : IEpicGameFinderService
@@ -28,56 +31,203 @@ public class EpicGameFinderService : IEpicGameFinderService
         var resultlist = new List<Item>();
         var handler = new EGSHandler(WindowsRegistry.Shared, FileSystem.Shared);
         var results = handler.FindAllGames();
-        foreach (var result in results) { 
-        Item item = new Item();
-            item.Name = result.AsT0.DisplayName;
-            item.SearchName = item.Name;
-            item.StoreId = result.AsT0.CatalogItemId.Value;
-            item.Platformes = dbContext.Platformes.First(x => x.Name == "Epic Games Store");
-            item.Path = $"com.epicgames.launcher://apps/{item.StoreId}?action=launch&silent=true";
-            item.Logo = string.Empty;
-            item.Cover = string.Empty;
-            item.Banner = string.Empty;
-            item.Artwork = string.Empty;
-            item.Video = string.Empty;
-            item.Description = string.Empty;
-            item.ReleaseDate = DateTime.MinValue;
-            item.Develloppeurs = new List<Develloppeur>();
-            item.Editeurs = new List<Editeur>();
-            item.MetadataGenres = new List<MetadataGenre>();
-            dbContext.Items.Add(item);
-            LookForSteamGridDBAsset(item);
+        foreach (var result in results)
+        {
+            if (!dbContext.Items.Any(x => x.StoreId == result.AsT0.CatalogItemId.Value))
+            {
+                Item item = new Item();
+                item.Name = result.AsT0.DisplayName;
+                item.SearchName = item.Name;
+                item.StoreId = result.AsT0.CatalogItemId.Value;
+                item.Platformes = dbContext.Platformes.First(x => x.Name == "Epic Games Store");
+                item.LUPlatformesId = item.Platformes.ID;
+                item.Path = $"com.epicgames.launcher://apps/{item.StoreId}?action=launch&silent=true";
+                item.Logo = string.Empty;
+                item.Cover = string.Empty;
+                item.Banner = string.Empty;
+                item.Artwork = string.Empty;
+                item.Video = string.Empty;
+                item.Description = string.Empty;
+                item.ReleaseDate = DateTime.MinValue;
+                item.Develloppeurs = new List<Develloppeur>();
+                item.Editeurs = new List<Editeur>();
+                item.MetadataGenres = new List<MetadataGenre>();
+                dbContext.Items.Add(item);
+                await GetEpicData(item);
+            }
         }
         dbContext.SaveChanges();
     }
-    private void LookForSteamGridDBAsset(Item game)
+
+    private async Task GetEpicData(Item item)
     {
-        var listgames = steangriddbService.SearchByName(game.Name);
+        string _endpoint = "https://graphql.epicgames.com/graphql";
+        RestClient _client;
+        _client = new RestClient();
+        var query = @"
+query searchStoreQuery($allowCountries: String, $category: String, $country: String!, $keywords: String, $locale: String, $sortBy: String, $sortDir: String) {
+  Catalog {
+    searchStore(
+      allowCountries: $allowCountries
+      category: $category
+      country: $country
+      keywords: $keywords
+      locale: $locale
+      sortBy: $sortBy
+      sortDir: $sortDir
+    ) {
+      elements {
+        title
+        id
+        namespace
+        description
+        effectiveDate
+        keyImages {
+          type
+          url
+        }
+        productSlug
+        urlSlug
+        url
+        items {
+          id
+          namespace
+        }
+        customAttributes {
+          key
+          value
+        }
+        categories {
+          path
+        }        
+      }
+    }
+  }
+}";
+        var request = new RestRequest(_endpoint, Method.Post);
+        request.AddJsonBody(new
+        {
+            query,
+            variables = new
+            {
+                keywords = item.SearchName,
+                locale = "fr-FR",
+                allowCountries = "FR",
+                country = "FR",
+                sortBy = "title",
+                sortDir = "ASC",
+                category = "games"
+            }
+        });
+
+        var response = await _client.ExecuteAsync(request);
+        if (response.IsSuccessful)
+        {
+            var epicdata = JsonConvert.DeserializeObject<GameLauncher.Models.EpicGame.Response>(response.Content);
+            var epicdatagame = epicdata.Data.Catalog.SearchStore.Elements.FirstOrDefault();
+            if (epicdatagame != null)
+            {
+                item.Description = epicdatagame.Description;
+                item.ReleaseDate = epicdatagame.EffectiveDate;
+
+                var editor = epicdatagame.CustomAttributes.FirstOrDefault(x => x.Key == "publisherName");
+                if (editor != null)
+                    item.Editeurs.Add(ExtractEditor(editor, item));
+                var dev = epicdatagame.CustomAttributes.FirstOrDefault(x => x.Key == "developerName");
+                if (dev != null)
+                    item.Develloppeurs.Add(ExtractDev(dev, item));
+
+                var assetfolder = assetDownloader.CreateItemAssetFolder(item.ID);
+                var firstlogo = epicdatagame.KeyImages.FirstOrDefault(x => x.Type == "ProductLogo");
+                var firstboxart = epicdatagame.KeyImages.FirstOrDefault(x => x.Type == "OfferImageTall");
+                var firstartwork = epicdatagame.KeyImages.FirstOrDefault(x => x.Type == "OfferImageWide");
+                if (firstlogo != null)
+                {
+                    assetDownloader.DownloadFile(firstlogo.Url, Path.Combine(assetfolder, "logo.png"));
+                    item.Logo = Path.Combine(assetfolder, "logo.png");
+                }
+                if (firstboxart != null)
+                {
+                    assetDownloader.DownloadFile(firstboxart.Url, Path.Combine(assetfolder, "cover.jpg"));
+                    item.Cover = Path.Combine(assetfolder, "cover.jpg");
+                }
+                if (firstartwork != null)
+                {
+                    assetDownloader.DownloadFile(firstartwork.Url, Path.Combine(assetfolder, "artwork.jpg"));
+                    item.Artwork = Path.Combine(assetfolder, "artwork.jpg");
+                }
+            }
+        }
+        var listgames = steangriddbService.SearchByName(item.Name);
         var firstgame = listgames.FirstOrDefault();
         if (firstgame != null)
         {
-            var assetfolder = assetDownloader.CreateItemAssetFolder(game.ID);
-            var listlogo = steangriddbService.GetLogoForId(firstgame.id);
-            var listboxart = steangriddbService.GetGridBoxartForId(firstgame.id);
-            var listhero = steangriddbService.GetHeroesForId(firstgame.id);
-            var firstlogo = listlogo.FirstOrDefault();
-            var firstboxart = listboxart.FirstOrDefault();
-            var firsthero = listhero.FirstOrDefault();
-            if (firstlogo != null)
+            var assetfolder = assetDownloader.CreateItemAssetFolder(item.ID);
+
+            if (string.IsNullOrEmpty(item.Logo))
             {
-                assetDownloader.DownloadFile(firstlogo.url, Path.Combine(assetfolder, "logo.png"));
-                game.Logo = Path.Combine(assetfolder, "logo.png");
+                var listlogo = steangriddbService.GetLogoForId(firstgame.id);
+                var firstlogo = listlogo.FirstOrDefault();
+                if (firstlogo != null)
+                {
+                    assetDownloader.DownloadFile(firstlogo.url, Path.Combine(assetfolder, "logo.png"));
+                    item.Logo = Path.Combine(assetfolder, "logo.png");
+                }
             }
-            if (firstboxart != null)
+            if (string.IsNullOrEmpty(item.Cover))
             {
-                assetDownloader.DownloadFile(firstboxart.url, Path.Combine(assetfolder, "cover.jpg"));
-                game.Cover = Path.Combine(assetfolder, "cover.jpg");
+                var listboxart = steangriddbService.GetGridBoxartForId(firstgame.id);
+                var firstboxart = listboxart.FirstOrDefault();
+                if (firstboxart != null)
+                {
+                    assetDownloader.DownloadFile(firstboxart.url, Path.Combine(assetfolder, "cover.jpg"));
+                    item.Cover = Path.Combine(assetfolder, "cover.jpg");
+                }
             }
-            if (firsthero != null)
+            if (string.IsNullOrEmpty(item.Banner))
             {
-                assetDownloader.DownloadFile(firsthero.url, Path.Combine(assetfolder, "banner.jpg"));
-                game.Cover = Path.Combine(assetfolder, "banner.jpg");
+                var listhero = steangriddbService.GetHeroesForId(firstgame.id);
+                var firsthero = listhero.FirstOrDefault();
+                if (firsthero != null)
+                {
+                    assetDownloader.DownloadFile(firsthero.url, Path.Combine(assetfolder, "banner.jpg"));
+                    item.Banner = Path.Combine(assetfolder, "banner.jpg");
+                }
             }
+        }
+    }
+    private Editeur ExtractEditor(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
+    {
+        if (!dbContext.Editeurs.Any(x => x.Name == data.Value))
+        {
+            var dbdev = new Editeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<Item>() { game } };
+            dbContext.Editeurs.Add(dbdev);
+            return dbdev;
+        }
+        else
+        {
+            var dbdev = dbContext.Editeurs.First(x => x.Name == data.Value);
+            if (dbdev.Items == null) dbdev.Items = new List<Item>();
+            dbdev.Items.Add(game);
+            dbContext.Editeurs.Update(dbdev);
+            return dbdev;
+        }
+    }
+    private Develloppeur ExtractDev(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
+    {
+        if (!dbContext.Develloppeurs.Any(x => x.Name == data.Value))
+        {
+            var dbdev = new Develloppeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<Item>() { game } };
+            dbContext.Develloppeurs.Add(dbdev);
+            return dbdev;
+        }
+        else
+        {
+            var dbdev = dbContext.Develloppeurs.First(x => x.Name == data.Value);
+            if (dbdev.Items == null) dbdev.Items = new List<Item>();
+            dbdev.Items.Add(game);
+            dbContext.Develloppeurs.Update(dbdev);
+            return dbdev;
         }
     }
 }

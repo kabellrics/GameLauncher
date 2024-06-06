@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.0.240109" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6">
@@ -40,6 +41,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameLauncher.Admin.Core\GameLauncher.Admin.Core.csproj" />
+    <ProjectReference Include="..\GameLauncher.AdminProvider\GameLauncher.AdminProvider.csproj" />
+    <ProjectReference Include="..\GameLauncher.ObservableObjet\GameLauncher.ObservableObjet.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
