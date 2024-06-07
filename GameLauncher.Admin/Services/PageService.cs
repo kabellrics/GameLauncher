@@ -24,6 +24,7 @@ public class PageService : IPageService
         Configure<CollectionsViewModel, CollectionsPage>();
         Configure<GenresViewModel, GenresPage>();
         Configure<SettingsViewModel, SettingsPage>();
+        Configure<StoreImporterViewModel, StoreImporterPage>();
     }
 
     public Type GetPageType(string key)

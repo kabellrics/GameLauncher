@@ -90,7 +90,11 @@ namespace GameLauncher.ObservableObjet
         }
         public string Cover
         {
-            get => Item.Cover;
+            get
+            {
+                if(string.IsNullOrEmpty(Item.Cover)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
+                return Item.Cover;
+            }
             set
             {
                 SetProperty(Item.Cover, value, Item, (syteme, item) => Item.Cover = item);
@@ -98,7 +102,11 @@ namespace GameLauncher.ObservableObjet
         }
         public string Logo
         {
-            get => Item.Logo;
+            get 
+            {
+                if (string.IsNullOrEmpty(Item.Cover)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
+                return Item.Logo;
+        }
             set
             {
                 SetProperty(Item.Logo, value, Item, (syteme, item) => Item.Logo = item);
@@ -106,7 +114,10 @@ namespace GameLauncher.ObservableObjet
         }
         public string Banner
         {
-            get => Item.Banner;
+            get {
+                if (string.IsNullOrEmpty(Item.Cover)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
+                return Item.Banner;
+            }
             set
             {
                 SetProperty(Item.Banner, value, Item, (syteme, item) => Item.Banner = item);
@@ -114,7 +125,10 @@ namespace GameLauncher.ObservableObjet
         }
         public string Artwork
         {
-            get => Item.Artwork;
+            get {
+                if (string.IsNullOrEmpty(Item.Cover)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
+                return Item.Artwork;
+            }
             set
             {
                 SetProperty(Item.Artwork, value, Item, (syteme, item) => Item.Artwork = item);

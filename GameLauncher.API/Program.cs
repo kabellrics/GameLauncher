@@ -26,6 +26,11 @@ public class Program
         builder.Services.AddScoped<IScreenscraperService, ScreenscraperService>();
         builder.Services.AddScoped<IIGDBService, IGDBService>();
         builder.Services.AddScoped<IItemsService, ItemsService>();
+        builder.Services.AddScoped<IPlateformeService, PlateformeService>();
+        builder.Services.AddScoped<IGenreService, GenreService>();
+        builder.Services.AddScoped<IMetadataService, MetadataService>();
+        builder.Services.AddScoped<IEditeurService, EditeurService>();
+        builder.Services.AddScoped<IDevService, DevService>();
         builder.Services.AddScoped<IAssetDownloader, AssetDownloader>();
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

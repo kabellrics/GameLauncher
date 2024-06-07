@@ -12,8 +12,6 @@
 
     <Grid x:Name="ContentArea">
         <controls:AdaptiveGridView
-            animations:Connected.ListItemElementName="itemThumbnail"
-            animations:Connected.ListItemKey="animationKeyContentGrid"
             DesiredWidth="200"
             ItemHeight="360"
             IsItemClickEnabled="True"

@@ -9,6 +9,7 @@ using GameLauncher.Admin.ViewModels;
 using GameLauncher.Admin.Views;
 using GameLauncher.AdminProvider;
 using GameLauncher.AdminProvider.Interface;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
@@ -72,6 +73,8 @@ public partial class App : Application
             services.AddSingleton<IItemProvider, ItemProvider>();
 
             // Views and ViewModels
+            services.AddTransient<StoreImporterViewModel>();
+            services.AddTransient<StoreImporterPage>();
             services.AddTransient<SettingsViewModel>();
             services.AddTransient<SettingsPage>();
             services.AddTransient<GenresViewModel>();

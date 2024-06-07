@@ -19,9 +19,22 @@ namespace GameLauncher.AdminProvider
         public async IAsyncEnumerable<ObservableItem> GetAllItems()
         {
             var items = await apiconnector.GetItemsAsync();
-            foreach (var item in items)
+            foreach (var item in items.OrderBy(x=>x.Name))
             {
-                yield return new ObservableItem(item);
+                var obsItem = new ObservableItem(item);
+                var devs = await apiconnector.GetDevsByItemAsync(item.ID);
+                foreach (var dev in devs.OrderBy(x => x.Name))
+                    obsItem.Develloppeurs.Add(new ObservableDevelloppeur(dev));
+                var edits = await apiconnector.GetEditeursByItemAsync(item.ID);
+                foreach (var edit in edits.OrderBy(x => x.Name))
+                    obsItem.Editeurs.Add(new ObservableEditeur(edit));
+                var genres = await apiconnector.GetGenresByItemAsync(item.ID);
+                foreach (var genre in genres.OrderBy(x => x.Name))
+                    obsItem.Genres.Add(new ObservableGenre(genre));
+                var metagenres = await apiconnector.GetMetadataGenresByItemAsync(item.ID);
+                foreach (var metagenre in metagenres.OrderBy(x => x.Name))
+                    obsItem.Genres.Add(new ObservableMetadataGenre(metagenre));
+                yield return obsItem;
             }
         }
     }

@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="EpicGamesStoreNET" Version="1.0.2" />
-    <PackageReference Include="GameFinder.StoreHandlers.EADesktop" Version="4.2.1" />
-    <PackageReference Include="GameFinder.StoreHandlers.EGS" Version="4.2.1" />
+    <PackageReference Include="GameFinder.StoreHandlers.EADesktop" Version="4.2.2" />
+    <PackageReference Include="GameFinder.StoreHandlers.EGS" Version="4.2.2" />
     <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="111.2.0" />

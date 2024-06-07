@@ -48,7 +48,12 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf0e2;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Steam" helpers:NavigationHelper.NavigateTo="GameLauncher.Admin.ViewModels.SteamViewModel">
+                <NavigationViewItem x:Uid="Shell_StoreImporter" helpers:NavigationHelper.NavigateTo="GameLauncher.Admin.ViewModels.StoreImporterViewModel">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7FC;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!--<NavigationViewItem x:Uid="Shell_Steam" helpers:NavigationHelper.NavigateTo="GameLauncher.Admin.ViewModels.SteamViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
                     </NavigationViewItem.Icon>
@@ -62,7 +67,7 @@
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
                     </NavigationViewItem.Icon>
-                </NavigationViewItem>
+                </NavigationViewItem>-->
                 <NavigationViewItem x:Uid="Shell_ImportEmulateur" helpers:NavigationHelper.NavigateTo="GameLauncher.Admin.ViewModels.ImportEmulateurViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
