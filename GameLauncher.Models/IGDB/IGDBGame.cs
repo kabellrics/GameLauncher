@@ -7,10 +7,11 @@ namespace GameLauncher.Models.IGDB
     public class IGDBGame
     {
         public int id { get; set; }
-        //public List<Artwork> artworks { get; set; }
+        public List<Artwork> artworks { get; set; }
         public Cover cover { get; set; }
         public int first_release_date { get; set; }
-        //public List<Genre> genres { get; set; }
+        public List<Genre> genres { get; set; }
+        public List<InvolvedCompany> involved_companies { get; set; }
         public string name { get; set; }
         //public List<Screenshot> screenshots { get; set; }
         public string storyline { get; set; }
