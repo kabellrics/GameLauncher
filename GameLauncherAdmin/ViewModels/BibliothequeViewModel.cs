@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-
+using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GameLauncher.AdminProvider.Interface;
@@ -19,7 +19,7 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
     private readonly IItemProvider _itemProvider;
 
     public ObservableCollection<ObservableItem> Source { get; } = new ObservableCollection<ObservableItem>();
-
+    public ObservableGroupedCollection<string, ObservableItem> GroupedItems{get; private set;} = new();
     public BibliothequeViewModel(INavigationService navigationService, ISampleDataService sampleDataService, IItemProvider itemProvider)
     {
         _navigationService = navigationService;
@@ -30,8 +30,13 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
     public async void OnNavigatedTo(object parameter)
     {
         Source.Clear();
-        await InitializeData(_itemProvider.GetAllItems());
-
+        GroupedItems.Clear();
+        var obsitems = await _itemProvider.GetAllItemsAsync();
+        GroupedItems = new ObservableGroupedCollection<string, ObservableItem>(
+            obsitems.GroupBy(x => x.Platforme.Name).OrderBy(g => g.Key)
+            );
+        OnPropertyChanged(nameof(GroupedItems));
+        await InitializeData(_itemProvider.GetAllItemsAsyncEnumerable());
         //// TODO: Replace with real data.
         //var data = await _sampleDataService.GetContentGridDataAsync();
         //foreach (var item in data)

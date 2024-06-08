@@ -27,4 +27,9 @@ public class IGDBController : ControllerBase
     {
         return Ok(_Service.GetVideosByGameId(id));
     }
+    [HttpGet("GetCompaniesName/{ids}")]
+    public async Task<ActionResult> GetCompaniesName(string ids)
+    {
+        return Ok(_Service.GetCompaniesDetail(ids.Split(',').ToList()));
+    }
 }

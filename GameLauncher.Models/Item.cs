@@ -61,10 +61,6 @@ public class Item
     {
         get; set;
     }
-    public List<MetadataGenre> MetadataGenres
-    {
-        get; set;
-    }
     public List<Genre> Genres
     {
         get; set;

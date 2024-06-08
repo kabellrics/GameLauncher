@@ -8,19 +8,42 @@
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
     xmlns:models="using:GameLauncher.ObservableObjet"
+    xmlns:collections="using:CommunityToolkit.Common.Collections"
+    xmlns:collections1="using:CommunityToolkit.Mvvm.Collections"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <CollectionViewSource
+            x:Name="ItemsViewSource"
+            IsSourceGrouped="True"
+            Source="{x:Bind ViewModel.GroupedItems, Mode=OneWay}" />
+
+    </Page.Resources>
+
     <Grid x:Name="ContentArea">
+        <!--ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"-->
         <controls:AdaptiveGridView
             animations:Connected.ListItemElementName="itemThumbnail"
             animations:Connected.ListItemKey="animationKeyContentGrid"
+            ItemsSource="{x:Bind ItemsViewSource.View,Mode=OneWay}"
             DesiredWidth="200"
             ItemHeight="360"
             IsItemClickEnabled="True"
             ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-            ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-            SelectionMode="None"
+            SelectionMode="Multiple"
             StretchContentForSingleRow="False">
+            <controls:AdaptiveGridView.GroupStyle>
+                <GroupStyle HidesIfEmpty="True">
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate x:DataType="collections1:IReadOnlyObservableGroup">
+                            <TextBlock
+                                    FontSize="24"
+                                    Foreground="{ThemeResource SystemControlHighlightAccentBrush}"
+                                    Text="{x:Bind Key}" />
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </controls:AdaptiveGridView.GroupStyle>
             <controls:AdaptiveGridView.ItemTemplate>
                 <DataTemplate x:DataType="models:ObservableItem">
                     <Grid

@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using GameLauncher.Models.IGDB;
 using GameLauncher.Services.Interface;
+using System.Xml.Linq;
 
 namespace GameLauncher.Services.Implementation;
 public class IGDBService : IIGDBService
@@ -45,6 +46,28 @@ public class IGDBService : IIGDBService
         {
             //throw;
         }
+    }
+    public IEnumerable<Company> GetCompaniesDetail(IEnumerable<string> involvedComps)
+    {
+        try
+        {
+            string urlrequest = "https://api.igdb.com/v4/companies"; ;
+            var client = new RestClient();
+            var request = new RestRequest(urlrequest, Method.Post);
+            request.AddHeader("Client-ID", clientid);
+            request.AddHeader("Authorization", $"Bearer {Bearer}");
+            request.AddHeader("Accept", "application/json");
+            request.AddBody($"fields name; where id = ({string.Join(',',involvedComps)});");
+            var requesturi = client.BuildUri(request);
+
+            var response = client.Execute<IEnumerable<Company>>(request, Method.Post);
+            return (IEnumerable<Company>)response.Data;
+        }
+        catch (Exception ex)
+        {
+            //throw;
+        }
+        return null;
     }
     public IEnumerable<SearchResult> GetGameByName(string name)
     {

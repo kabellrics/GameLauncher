@@ -7,6 +7,7 @@ public interface IIGDBService
     //IEnumerable<Artwork> GetArtworksByGameId(int id);
     string GetCoverLink(string hash);
     IGDBGame GetDetailsGame(int id);
+    IEnumerable<Company> GetCompaniesDetail(IEnumerable<string> involvedComps);
     //IEnumerable<Company> GetDevByGameId(IEnumerable<InvolvedCompany> involvedComps);
     IEnumerable<SearchResult> GetGameByName(string name);
     //IEnumerable<Genre> GetGenresByGameId(int id);

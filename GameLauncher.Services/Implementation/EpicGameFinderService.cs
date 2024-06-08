@@ -51,7 +51,6 @@ public class EpicGameFinderService : IEpicGameFinderService
                 item.ReleaseDate = DateTime.MinValue;
                 item.Develloppeurs = new List<Develloppeur>();
                 item.Editeurs = new List<Editeur>();
-                item.MetadataGenres = new List<MetadataGenre>();
                 dbContext.Items.Add(item);
                 await GetEpicData(item);
             }

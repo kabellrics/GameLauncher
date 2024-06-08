@@ -14,10 +14,6 @@ namespace GameLauncher.DAL
         {
             get; set;
         }
-        public DbSet<MetadataGenre> MetadataGenres
-        {
-            get; set;
-        }
         public DbSet<LUProfile> Profiles
         {
         get; set; }

@@ -21,8 +21,4 @@ public class Genre
     {
         get; set;
     }
-    public List<MetadataGenre> SubGenres
-    {
-        get; set;
-    }
 }

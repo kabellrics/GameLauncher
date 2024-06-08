@@ -19,22 +19,8 @@ namespace GameLauncher.ObservableObjet
                 item.Editeurs?.Select(x => new ObservableEditeur(x)) ?? Enumerable.Empty<ObservableEditeur>());
             Develloppeurs = new ObservableCollection<ObservableDevelloppeur>(
                 item.Develloppeurs?.Select(x => new ObservableDevelloppeur(x)) ?? Enumerable.Empty<ObservableDevelloppeur>());
-            Genres = new ObservableCollection<IObservableBaseGenre>();
-            if (item.Genres != null)
-            {
-                foreach (var genre in item.Genres)
-                {
-                    Genres.Add(new ObservableGenre(genre));
-                }
-            }
-
-            if (item.MetadataGenres != null)
-            {
-                foreach (var metagenre in item.MetadataGenres)
-                {
-                    Genres.Add(new ObservableMetadataGenre(metagenre));
-                }
-            }
+            Genres = new ObservableCollection<ObservableGenre>(
+                item.Genres?.Select(x => new ObservableGenre(x)) ?? Enumerable.Empty<ObservableGenre>());           
         }
         public Guid Id
         {
@@ -104,7 +90,7 @@ namespace GameLauncher.ObservableObjet
         {
             get 
             {
-                if (string.IsNullOrEmpty(Item.Cover)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
+                if (string.IsNullOrEmpty(Item.Logo)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
                 return Item.Logo;
         }
             set
@@ -115,7 +101,7 @@ namespace GameLauncher.ObservableObjet
         public string Banner
         {
             get {
-                if (string.IsNullOrEmpty(Item.Cover)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
+                if (string.IsNullOrEmpty(Item.Banner)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
                 return Item.Banner;
             }
             set
@@ -126,7 +112,7 @@ namespace GameLauncher.ObservableObjet
         public string Artwork
         {
             get {
-                if (string.IsNullOrEmpty(Item.Cover)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
+                if (string.IsNullOrEmpty(Item.Artwork)) return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
                 return Item.Artwork;
             }
             set
@@ -177,6 +163,6 @@ namespace GameLauncher.ObservableObjet
 
         public ObservableCollection<ObservableEditeur> Editeurs;
         public ObservableCollection<ObservableDevelloppeur> Develloppeurs;
-        public ObservableCollection<IObservableBaseGenre> Genres;
+        public ObservableCollection<ObservableGenre> Genres;
     }
 }

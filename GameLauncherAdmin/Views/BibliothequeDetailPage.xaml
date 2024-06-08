@@ -203,16 +203,16 @@
                             </Grid.RowDefinitions>
 
                             <winuicontrols:ConstrainedBox AspectRatio="2:3" Grid.Column="0" Grid.Row="0" Height="500" Margin="10" >
-                                <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Fill"/>
+                                <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
                             <winuicontrols:ConstrainedBox AspectRatio="1:1" Grid.Column="1" Grid.Row="0" Height="500" Margin="10">
-                                <Image Source="{x:Bind ViewModel.Item.Logo,Mode=OneWay}" Stretch="Fill"/>
+                                <Image Source="{x:Bind ViewModel.Item.Logo,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
                             <winuicontrols:ConstrainedBox AspectRatio="1920:1080" Grid.Column="0" Grid.Row="1" Height="500" Margin="10">
-                                <Image Source="{x:Bind ViewModel.Item.Artwork,Mode=OneWay}" Stretch="Fill"/>
+                                <Image Source="{x:Bind ViewModel.Item.Artwork,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
                             <winuicontrols:ConstrainedBox AspectRatio="1920:620" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Height="500" Margin="10">
-                                <Image Source="{x:Bind ViewModel.Item.Banner,Mode=OneWay}" Stretch="Fill"/>
+                                <Image Source="{x:Bind ViewModel.Item.Banner,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
                         </Grid>
                 </PivotItem>

@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using GameLauncher.Models;
 
 namespace GameLauncher.ObservableObjet;
-public class ObservableGenre : ObservableRecipient, IObservableBaseGenre
+public class ObservableGenre : ObservableRecipient
 {
     public Genre Item;
     public ObservableGenre(Genre item)

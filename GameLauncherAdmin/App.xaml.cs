@@ -47,6 +47,8 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        this.AddOtherProvider(new Microsoft.UI.Xaml.XamlTypeInfo.XamlControlsXamlMetaDataProvider());
+        //this.AddOtherProvider(new AClassLibrary1.AClassLibrary1_XamlTypeInfo.XamlMetaDataProvider());
 
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().

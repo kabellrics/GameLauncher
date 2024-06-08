@@ -101,7 +101,6 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
                 result.ReleaseDate = DateTime.MinValue;
                 result.Develloppeurs = new List<Develloppeur>();
                 result.Editeurs = new List<Editeur>();
-                result.MetadataGenres = new List<MetadataGenre>();
                 dbContext.Items.Add(result);
                 LookForSteamGridDBAsset(result);
             }

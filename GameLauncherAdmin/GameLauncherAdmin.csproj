@@ -50,6 +50,7 @@
   </ItemGroup>
   
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	  <XamlCodeGenerationControlFlags>DoNotGenerateOtherProviders</XamlCodeGenerationControlFlags>
+	  <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
 </Project>
