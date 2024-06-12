@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GameLauncher.AdminProvider.Interface;
 using GameLauncher.Connector;
+using GameLauncher.Models;
 using GameLauncher.ObservableObjet;
 
 namespace GameLauncher.AdminProvider
@@ -75,6 +76,10 @@ namespace GameLauncher.AdminProvider
             }
             return obsitems.GroupBy(x => x.Platforme.Name)
                 .Select(x => new ObservableGroupItem { GroupName = x.Key, Items = new ObservableCollection<ObservableItem>(x.ToList()) }).OrderBy(x=>x.GroupName);
+        }
+        public async Task UpdateItem(ObservableItem item)
+        {
+            await apiconnector.UpdateItemAsync(item.Item);
         }
     }
 }

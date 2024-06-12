@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace GameLauncher.ObservableObjet;
-public class ObservableGroupItem : ObservableRecipient
+public class ObservableGroupItem : ObservableObject
 {
     private string _groupname;
     public string GroupName

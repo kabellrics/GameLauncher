@@ -9,7 +9,7 @@ public interface IIGDBService
     IGDBGame GetDetailsGame(int id);
     IEnumerable<Company> GetCompaniesDetail(IEnumerable<string> involvedComps);
     //IEnumerable<Company> GetDevByGameId(IEnumerable<InvolvedCompany> involvedComps);
-    IEnumerable<SearchResult> GetGameByName(string name);
+    IEnumerable<IGDBGame> GetGameByName(string name);
     //IEnumerable<Genre> GetGenresByGameId(int id);
     //IEnumerable<InvolvedCompany> GetInvolvedCompanyByGameId(int id);
     //IEnumerable<Company> GetPublishersByGameId(IEnumerable<InvolvedCompany> involvedComps);

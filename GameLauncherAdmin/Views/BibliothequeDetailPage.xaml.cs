@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.WinUI.UI.Animations;
+﻿using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI.UI.Animations;
 
 using GameLauncherAdmin.Contracts.Services;
 using GameLauncherAdmin.ViewModels;
@@ -39,5 +40,16 @@ public sealed partial class BibliothequeDetailPage : Page
                 navigationService.SetListDataItemForNextConnectedAnimation(ViewModel.Item);
             }
         }
+    }
+
+    private void PointerWheelIgnore(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var items = e.AddedItems;
+        ViewModel.GameToReconcile = (GameLauncher.ObservableObjet.ObservableItem)items.FirstOrDefault();
     }
 }

@@ -69,19 +69,22 @@ public class IGDBService : IIGDBService
         }
         return null;
     }
-    public IEnumerable<SearchResult> GetGameByName(string name)
+    public IEnumerable<IGDBGame> GetGameByName(string name)
     {
         try
         {
-            string urlrequest = "https://api.igdb.com/v4/games/?search=" + name + "&fields=id,name,version_title";
+            //string urlrequest = "https://api.igdb.com/v4/games/?search=" + name + "&fields=id,name,version_title";
+            string urlrequest = "https://api.igdb.com/v4/games";
             var client = new RestClient();
             var request = new RestRequest(urlrequest, Method.Post);
             request.AddHeader("Client-ID", clientid);
             request.AddHeader("Authorization", $"Bearer {Bearer}");
+            request.AddHeader("Accept", "application/json");
+            request.AddBody("fields id,name,cover.*,artworks.*,involved_companies.*,first_release_date,genres.*,storyline,summary,version_title; search \"" + name + "\";");
             var requesturi = client.BuildUri(request);
 
-            var response = client.Execute<IEnumerable<SearchResult>>(request, Method.Post);
-            return (IEnumerable<SearchResult>)response.Data;
+            var response = client.Execute<IEnumerable<IGDBGame>>(request, Method.Post);
+            return (IEnumerable<IGDBGame>)response.Data;
         }
         catch (Exception ex)
         {
@@ -98,12 +101,13 @@ public class IGDBService : IIGDBService
         request.AddHeader("Client-ID", clientid);
         request.AddHeader("Authorization", $"Bearer {Bearer}");
         request.AddHeader("Accept", "application/json");
-        request.AddBody("fields id,name,cover.*,artworks.*,involved_companies.*,first_release_date,genres.*,storyline,summary,version_title; where id =" + id.ToString()+";");
+        request.AddBody("fields id,name,cover.*,artworks.*,involved_companies.*,first_release_date,genres.*,storyline,summary,version_title; where id= " + id.ToString()+";");
         var requesturi = client.BuildUri(request);
 
         var response = client.Execute<IEnumerable<IGDBGame>>(request, Method.Post);
         var game = response.Data.FirstOrDefault();// .Content;
         game.cover.url = game.cover.url.Replace("t_thumb", "t_1080p");
+        if(game.artworks !=null)
         game.artworks.ForEach(x=> x.url = x.url.Replace("t_thumb", "t_1080p"));
         return game;
     }

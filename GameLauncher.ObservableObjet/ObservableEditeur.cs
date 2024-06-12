@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using GameLauncher.Models;
 
 namespace GameLauncher.ObservableObjet;
-public class ObservableEditeur : ObservableRecipient
+public class ObservableEditeur : ObservableObject
 {
     public Editeur Item;
     public ObservableEditeur(Editeur item)

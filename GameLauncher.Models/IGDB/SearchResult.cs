@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameLauncher.Models.IGDB
 {
-    public class SearchResult
+    public class SearchResult 
     {
         public int id
         {
@@ -14,5 +14,6 @@ namespace GameLauncher.Models.IGDB
         {
             get; set;
         }
+        public override string ToString() => name;
     }
 }

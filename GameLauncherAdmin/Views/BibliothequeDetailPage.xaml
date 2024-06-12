@@ -11,8 +11,13 @@
     mc:Ignorable="d">
     <Page.Resources>
         <helper:TimeConverter x:Key="TimeConverter"/>
+
     </Page.Resources>
     <Grid x:Name="ContentArea">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
@@ -32,33 +37,33 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <ScrollViewer
+        <ScrollViewer Grid.Row="0"
             IsTabStop="True">
             <StackPanel
                 x:Name="contentPanel">
-            <RelativePanel>
-                <Grid
+                <RelativePanel>
+                    <Grid
                         x:Name="itemHero"
-                        Width="200"
-                        Height="300"
+                        Width="100"
+                        Height="150"
                         Margin="{StaticResource SmallRightMargin}"
                         Padding="{StaticResource XSmallLeftTopRightBottomMargin}"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
                         RelativePanel.AlignTopWithPanel="True"
                         RelativePanel.AlignLeftWithPanel="True">
-                    <winuicontrols:ConstrainedBox AspectRatio="2:3">
-                        <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Fill"/>
-                    </winuicontrols:ConstrainedBox>
-                    <!--<FontIcon
+                        <winuicontrols:ConstrainedBox AspectRatio="2:3">
+                            <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Fill"/>
+                        </winuicontrols:ConstrainedBox>
+                        <!--<FontIcon
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             FontSize="70"
                             Glyph="{x:Bind ViewModel.Item.Symbol}"
                             AutomationProperties.Name="{x:Bind ViewModel.Item.SymbolName}" />-->
-                </Grid>
+                    </Grid>
 
-                <TextBlock
+                    <TextBlock
                         x:Name="title"
                         Margin="{StaticResource XXSmallTopMargin}"
                         RelativePanel.AlignTopWithPanel="True"
@@ -66,7 +71,7 @@
                         Style="{ThemeResource TitleTextBlockStyle}"
                         Text="{x:Bind ViewModel.Item.Name, Mode=OneWay}" />
 
-                <StackPanel x:Name="propertiesGroup1" RelativePanel.Below="itemHero">
+                    <StackPanel x:Name="propertiesGroup1" RelativePanel.Below="itemHero">
                         <StackPanel x:Name="statusGroup" Margin="{StaticResource SmallTopMargin}">
                             <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Path :" />
                             <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Item.Path}" />
@@ -83,7 +88,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                <!--<StackPanel x:Name="propertiesGroup2" RelativePanel.Below="propertiesGroup1">
+                    <!--<StackPanel x:Name="propertiesGroup2" RelativePanel.Below="propertiesGroup1">
                         <StackPanel x:Name="shipToGroup" Margin="{StaticResource SmallTopMargin}">
                             <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Ship to" />
                             <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Item.ShipTo}" />
@@ -95,20 +100,22 @@
                         </StackPanel>
                     </StackPanel>-->
 
-            </RelativePanel>
-            <Pivot>
-                <PivotItem Header="Metadata">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
+                </RelativePanel>
+                <Pivot>
+                    <PivotItem Header="Metadata">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <Grid Grid.Row="0" Grid.Column="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -143,7 +150,7 @@
                                                     Style="{StaticResource DefaultCalendarDatePicker}"
                                                     Date="{x:Bind ViewModel.Item.LastStartDate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource TimeConverter}}"/>
                             </Grid>
-                            <GridView SelectionMode="None" Grid.Row="1" Grid.Column="0" Header="Editeur:"
+                            <GridView SelectionMode="None" Grid.Row="1" Grid.Column="0"  Grid.ColumnSpan="2" Header="Editeur:"
                                   ItemsSource="{x:Bind ViewModel.Item.Editeurs,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -157,7 +164,7 @@
                                     </DataTemplate>
                                 </GridView.ItemTemplate>
                             </GridView>
-                            <GridView SelectionMode="None" Grid.Row="1" Grid.Column="1" Header="Studio:"
+                            <GridView SelectionMode="None" Grid.Row="2" Grid.Column="0"  Grid.ColumnSpan="2" Header="Studio:"
                                   ItemsSource="{x:Bind ViewModel.Item.Develloppeurs,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -171,7 +178,7 @@
                                     </DataTemplate>
                                 </GridView.ItemTemplate>
                             </GridView>
-                            <GridView SelectionMode="None" Grid.Row="2" Grid.Column="0"  Grid.ColumnSpan="2" Header="Genre:"
+                            <GridView SelectionMode="None" Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="2" Header="Genre:"
                                   ItemsSource="{x:Bind ViewModel.Item.Genres,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -179,18 +186,184 @@
                            Orientation="Horizontal"/>
                                     </ItemsPanelTemplate>
                                 </GridView.ItemsPanel>
-                            <GridView.ItemTemplate>
+                                <GridView.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Style="{StaticResource DisplayTextBlockStyle}" FontSize="20" Text="{Binding Name}"/>
                                     </DataTemplate>
                                 </GridView.ItemTemplate>
                             </GridView>
-                        <TextBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" AutomationProperties.Name="multi-line TextBox"
+                            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" AutomationProperties.Name="multi-line TextBox"
                                 TextWrapping="Wrap" AcceptsReturn="True" IsSpellCheckEnabled="True"
                                  Text="{x:Bind ViewModel.Item.Description,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Header="Description" />
-                    </Grid>
-                </PivotItem>
-                <PivotItem Header="Media">
+                            <StackPanel Orientation="Vertical" Grid.Row="5" Grid.ColumnSpan="2" >
+                                <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowMetadataSourceExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                          Visibility="{x:Bind ViewModel.VisibilityMetadataSourceExpander,Mode=OneWay}"
+                                          Header="Choisissez la Source de données" HorizontalAlignment="Stretch">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <RadioButtons Grid.Row="0" HorizontalAlignment="Center" Header="Choisissez votre source de données"
+                                                          SelectedItem="{x:Bind ViewModel.MetadataTypechoice,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                          ItemsSource="{x:Bind ViewModel.MetadataType,Mode=OneWay}">
+                                        </RadioButtons>
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Valider" Command="{x:Bind ViewModel.ChooseSourceCommand}"></Button>
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Annuler" Command="{x:Bind ViewModel.CancelMetadataCommand}"></Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Expander>
+                                <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowGameProposalExpander,Mode=OneWay}"
+                                          Visibility="{x:Bind ViewModel.VisibilityGameProposalExpander,Mode=OneWay}"
+                                          Header="Correspondance trouvé" HorizontalAlignment="Stretch">
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button HorizontalAlignment="Right" Grid.Column="0"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Chercher" Command="{x:Bind ViewModel.ChooseSourceCommand}"></Button>
+                                            <TextBox Grid.Column="1" Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Stretch"
+                                                         Text="{x:Bind ViewModel.Item.SearchName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                        </Grid>
+                                        <ListView Grid.Row="1" HorizontalAlignment="Stretch"
+                                                      HorizontalContentAlignment="Left"
+                                                      ItemsSource="{x:Bind ViewModel.SearchMetadata,Mode=OneWay}"
+                                                      SelectionMode="Single"
+                                                      x:Name="ReconcileGameList"
+                                                SelectionChanged="ListView_SelectionChanged">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Text="{Binding}"></TextBlock>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Valider" Command="{x:Bind ViewModel.ChooseGameCommand}"></Button>
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Annuler" Command="{x:Bind ViewModel.CancelMetadataCommand}"></Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Expander>
+                                <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowDataProposalExpander,Mode=OneWay}"
+                                          Visibility="{x:Bind ViewModel.VisibilityDataProposalExpander,Mode=OneWay}"
+                                          Header="Validation des données trouvé" HorizontalAlignment="Stretch">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="300"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="0" Grid.Row="0"
+                                                       Text="Titre :"></TextBlock>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="1" Grid.Row="0"
+                                                       Text="{x:Bind ViewModel.ReconcileNewName, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="0" Grid.Row="1" TextWrapping="WrapWholeWords"
+                                                       Text="Date de Lancement :"></TextBlock>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="1" Grid.Row="1"
+                                                       Text="{x:Bind ViewModel.ReconcileNewDateTime,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="0" Grid.Row="2"
+                                                       Text="Editeur :"></TextBlock>
+                                            <ListView SelectionMode="None" Grid.Row="2" Grid.Column="1" HorizontalContentAlignment="Left"
+                                                        ItemsSource="{x:Bind ViewModel.ReconcileEditeur,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                <ListView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel x:Name="MaxItemsWrapGrid" Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ListView.ItemsPanel>
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Style="{StaticResource DisplayTextBlockStyle}" FontSize="20" Text="{Binding Name}"/>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="0" Grid.Row="3"
+                                                       Text="Studio :"></TextBlock>
+                                            <ListView SelectionMode="None" Grid.Row="3" Grid.Column="1" HorizontalContentAlignment="Left"
+                                                        ItemsSource="{x:Bind ViewModel.ReconcileDevs,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                <ListView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel x:Name="MaxItemsWrapGrid" Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ListView.ItemsPanel>
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Style="{StaticResource DisplayTextBlockStyle}" FontSize="20" Text="{Binding Name}"/>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="0" Grid.Row="4"
+                                                       Text="Genre :"></TextBlock>
+                                            <ListView SelectionMode="None" Grid.Row="4" Grid.Column="1" HorizontalContentAlignment="Left"
+                                                        ItemsSource="{x:Bind ViewModel.ReconcileGenre,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                <ListView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ListView.ItemsPanel>
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Style="{StaticResource DisplayTextBlockStyle}" FontSize="20" Text="{Binding Name}"/>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="0" Grid.Row="6"
+                                                       Text="Description :"></TextBlock>
+                                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="2"
+                                                       Grid.Column="1" Grid.Row="6" TextWrapping="WrapWholeWords"
+                                                       Text="{x:Bind ViewModel.ReconcileDescription,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                        </Grid>
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Tous récupérer" Command="{x:Bind ViewModel.ChooseReconcileCommand}"></Button>
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Annuler" Command="{x:Bind ViewModel.CancelMetadataCommand}"></Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Expander>
+                            </StackPanel>
+                        </Grid>
+                    </PivotItem>
+                    <PivotItem Header="Media">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -215,9 +388,9 @@
                                 <Image Source="{x:Bind ViewModel.Item.Banner,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
                         </Grid>
-                </PivotItem>
-            </Pivot>
-            <!--<TextBlock
+                    </PivotItem>
+                </Pivot>
+                <!--<TextBlock
                     Margin="{StaticResource SmallTopMargin}"
                     Style="{ThemeResource SubtitleTextBlockStyle}"
                     Text="Note 1" />
@@ -235,5 +408,13 @@
                     Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis quis hendrerit nulla, vel molestie libero. In nec ultricies magna, ultricies molestie ipsum. Mauris non dignissim velit. Etiam malesuada blandit mauris eu maximus. Quisque ornare, felis nec scelerisque mollis, risus dolor posuere magna, in gravida quam mi id nisi. Nullam mattis consequat ex. Cras nulla neque, dictum ac urna et, vestibulum feugiat ex. Pellentesque malesuada accumsan ligula, vel fringilla lacus facilisis sit amet. Proin convallis tempor arcu, ac placerat libero pretium ut. Praesent hendrerit nisl at lobortis viverra. Fusce vitae velit odio. Nam ut tortor sed purus finibus sollicitudin quis at ante. Ut sodales dolor vel eros mollis suscipit. Donec eu nulla id urna ultricies consequat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;" />-->
             </StackPanel>
         </ScrollViewer>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button HorizontalAlignment="Right" Command="{x:Bind ViewModel.FullCancelCommand}"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Annuler les modifications"></Button>
+            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Sauvegarder les modifications"></Button>
+        </StackPanel>
     </Grid>
 </Page>

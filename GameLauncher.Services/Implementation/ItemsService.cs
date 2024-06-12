@@ -21,4 +21,25 @@ public class ItemsService : IItemsService
         return dbContext.Items
             .Include(item=>item.Platformes);
     }
+    public void UpdateItem(Item updateditem)
+    {
+        var item = dbContext.Items.FirstOrDefault(x=> x.ID == updateditem.ID);
+        if (item != null)
+        {
+            item.Name = updateditem.Name;
+            item.SearchName = updateditem.SearchName;
+            item.Description = updateditem.Description;
+            item.ReleaseDate = updateditem.ReleaseDate;
+            item.LastStartDate = updateditem.LastStartDate;
+            item.NbStart = updateditem.NbStart;
+            item.Artwork = updateditem.Artwork;
+            item.Banner = updateditem.Banner;
+            item.Cover = updateditem.Cover;
+            item.Logo = updateditem.Logo;
+            item.Video = updateditem.Video;
+            item.Genres = updateditem.Genres;
+            item.Editeurs = updateditem.Editeurs;
+            item.Develloppeurs = updateditem.Develloppeurs;
+        }
+    }
 }

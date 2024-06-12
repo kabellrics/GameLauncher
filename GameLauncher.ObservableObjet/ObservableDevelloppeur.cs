@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using GameLauncher.Models;
 
 namespace GameLauncher.ObservableObjet;
-public class ObservableDevelloppeur : ObservableRecipient
+public class ObservableDevelloppeur : ObservableObject
 {
     public Develloppeur Item;
     public ObservableDevelloppeur(Develloppeur item)

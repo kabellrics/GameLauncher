@@ -9,9 +9,11 @@ using GameLauncher.Models;
 
 namespace GameLauncher.ObservableObjet
 {
-    public class ObservableItem : ObservableRecipient
+    public class ObservableItem : ObservableObject
     {
         public Item Item;
+        public override string ToString() =>Name;
+
         public ObservableItem(Item item)
         {
             Item = item;
@@ -164,5 +166,12 @@ namespace GameLauncher.ObservableObjet
         public ObservableCollection<ObservableEditeur> Editeurs;
         public ObservableCollection<ObservableDevelloppeur> Develloppeurs;
         public ObservableCollection<ObservableGenre> Genres;
+
+        public void RegisterList()
+        {
+            Item.Editeurs = Editeurs.Select(x=>x.Item).ToList();
+            Item.Develloppeurs = Develloppeurs.Select(x => x.Item).ToList();
+            Item.Genres = Genres.Select(x => x.Item).ToList();
+        }
     }
 }

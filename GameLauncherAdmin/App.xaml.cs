@@ -47,7 +47,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        this.AddOtherProvider(new Microsoft.UI.Xaml.XamlTypeInfo.XamlControlsXamlMetaDataProvider());
+        //this.AddOtherProvider(new Microsoft.UI.Xaml.XamlTypeInfo.XamlControlsXamlMetaDataProvider());
         //this.AddOtherProvider(new AClassLibrary1.AClassLibrary1_XamlTypeInfo.XamlMetaDataProvider());
 
         Host = Microsoft.Extensions.Hosting.Host.
@@ -73,6 +73,7 @@ public partial class App : Application
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<IItemProvider, ItemProvider>();
+            services.AddSingleton<IMetadataProvider, MetadataProvider>();
 
             // Views and ViewModels
             services.AddTransient<SettingsViewModel>();

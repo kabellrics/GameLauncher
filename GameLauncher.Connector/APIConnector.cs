@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GameLauncher.Models;
+using GameLauncher.Models.EpicGame;
 using Newtonsoft.Json;
 using RestSharp;
+using Item = GameLauncher.Models.Item;
 
 namespace GameLauncher.Connector
 {
@@ -145,6 +147,16 @@ namespace GameLauncher.Connector
                 Console.WriteLine("Error: " + response.ErrorMessage);
                 return new List<Genre>();
             }
+        }
+
+        public async Task UpdateItemAsync(Item item)
+        {
+            var request = new RestRequest($"/api/Items/{item.ID}", Method.Put);
+            request.AddParameter("id", item.ID, ParameterType.UrlSegment);
+            request.AddJsonBody(item);
+
+            var response = await _client.ExecuteAsync(request);
+            if (!response.IsSuccessful) { throw new Exception("Update Failed"); }
         }
     }
 }

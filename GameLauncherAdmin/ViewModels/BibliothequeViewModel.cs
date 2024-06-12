@@ -32,10 +32,10 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
         Source.Clear();
         GroupedItems.Clear();
         var obsitems = await _itemProvider.GetAllItemsAsync();
-        GroupedItems = new ObservableGroupedCollection<string, ObservableItem>(
-            obsitems.GroupBy(x => x.Platforme.Name).OrderBy(g => g.Key)
-            );
-        OnPropertyChanged(nameof(GroupedItems));
+        //GroupedItems = new ObservableGroupedCollection<string, ObservableItem>(
+        //    obsitems.GroupBy(x => x.Platforme.Name).OrderBy(g => g.Key)
+        //    );
+        //OnPropertyChanged(nameof(GroupedItems));
         await InitializeData(_itemProvider.GetAllItemsAsyncEnumerable());
         //// TODO: Replace with real data.
         //var data = await _sampleDataService.GetContentGridDataAsync();
@@ -53,7 +53,9 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
             {
                 dispatcherQueue.TryEnqueue(() =>
                 {
-                    Source.Add(item);
+                    //Source.Add(item);
+                    GroupedItems.AddItem(item.Platforme.Name, item);
+                    OnPropertyChanged(nameof(GroupedItems));
                 });
             }
         });

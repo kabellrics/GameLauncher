@@ -4,4 +4,5 @@ namespace GameLauncher.Services.Interface;
 public interface IItemsService
 {
     IEnumerable<Item> GetAll();
+    void UpdateItem(Item item);
 }

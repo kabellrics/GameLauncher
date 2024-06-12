@@ -19,19 +19,20 @@ public class MetadataConnector
     {
         _client = new RestClient(baseUrl);
     }
-    public async Task<IEnumerable<SearchResult>> GetIGDBGameByName(string name)
+    public async Task<IEnumerable<IGDBGame>> GetIGDBGameByName(string name)
     {
-        var request = new RestRequest("api/IGDB/GetGameByName", Method.Get);
-        request.AddParameter("name", name);
+        var request = new RestRequest($"api/IGDB/GetGameByName/{name}", Method.Get);
+        //var request = new RestRequest("api/IGDB/GetGameByName", Method.Get);
+        //request.AddParameter("name", name);
         var response = await _client.ExecuteAsync(request);
 
         if (response.IsSuccessful)
         {
-            return JsonConvert.DeserializeObject<IEnumerable<SearchResult>>(response.Content);
+            return JsonConvert.DeserializeObject<IEnumerable<IGDBGame>>(response.Content);
         }
         else
         {
-            return new List<SearchResult>();
+            return new List<IGDBGame>();
         }
     }
     public async Task<IEnumerable<Video>> GetIGDBVideosByGameId(int id)
@@ -66,8 +67,8 @@ public class MetadataConnector
     }
     public async Task<IEnumerable<Company>> GetIGDBCompany(List<InvolvedCompany> ids)
     {
-        var request = new RestRequest("api/IGDB/GetDetailsGame", Method.Get);
-        request.AddParameter("ids", string.Join(',',ids.Select(x=>x.company.ToString())));
+        var request = new RestRequest($"api/IGDB/GetCompaniesName/{string.Join(',', ids.Select(x => x.company.ToString()))}", Method.Get);
+        //request.AddParameter("ids", string.Join(',',ids.Select(x=>x.company.ToString())));
         var response = await _client.ExecuteAsync(request);
 
         if (response.IsSuccessful)
@@ -76,7 +77,7 @@ public class MetadataConnector
         }
         else
         {
-            return new List<Company>;
+            return new List<Company>();
         }
     }
 
