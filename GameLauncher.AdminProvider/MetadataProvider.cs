@@ -37,7 +37,30 @@ public class MetadataProvider : IMetadataProvider
     {
         return await apiconnector.SearchSteamGridDBBoxartFor(gameId);
     }
-
+    public async Task<ObservableMediaItem> GetSteamGridDBMediaItem(DataSearch game)
+    {
+        ObservableMediaItem mediaItem = new ObservableMediaItem();
+        mediaItem.Name = game.name;
+        mediaItem.Date = ConvertFromIGDB(game.release_date).ToString();
+        var logos = await SearchSteamGridDBLogoFor(game.id);
+        foreach (var item in logos)
+            mediaItem.Logos.Add(item.url);
+        var boxarts = await SearchSteamGridDBBoxartFor(game.id);
+        foreach (var item in boxarts)
+            mediaItem.Covers.Add(item.url);
+        var banners = await SearchSteamGridDBBannerFor(game.id);
+        foreach (var item in banners)
+            mediaItem.Banners.Add(item.url);
+        return mediaItem;
+    }
+    public async Task<IEnumerable<ObservableMediaItem>> GetIGDBMediaGameByName(string name)
+    {
+        var result = new List<ObservableMediaItem>();
+        var callresult = await apiconnector.GetIGDBGameByName(name);
+        foreach (var item in callresult)
+            result.Add(await MediaItemFromIGDBGame(item));
+        return result;
+    }
     public async Task<IEnumerable<ObservableItem>> GetIGDBGameByName(string name)
     {
         var result = new List<ObservableItem>();
@@ -83,6 +106,29 @@ public class MetadataProvider : IMetadataProvider
             result.Add(await ItemFromScreenscraperGame(item));
         return result;
     }
+    public async Task<IEnumerable<ObservableMediaItem>> SearchScreenscraperGameMediaByName(string name)
+    {
+        var result = new List<ObservableMediaItem>();
+        var callresult = await apiconnector.SearchScreenscraperGameByName(name);
+        foreach (var item in callresult)
+            result.Add(await MediaItemFromScreenscraperGame(item));
+        return result;
+    }
+    private async Task<ObservableMediaItem> MediaItemFromIGDBGame(IGDBGame game)
+    {
+        ObservableMediaItem item = new ObservableMediaItem();
+        var cover = game.cover?.url ?? string.Empty;
+        if (!string.IsNullOrEmpty(cover))
+            item.Covers.Add(cover);
+        var artworks = game.artworks;
+        foreach(var artwork in artworks)
+        {
+            var art = artwork?.url ?? string.Empty;
+            if (!string.IsNullOrEmpty(art))
+                item.Covers.Add(art);
+        }
+        return item;
+    }
     private async Task<ObservableItem> ItemFromIGDBGame(IGDBGame game)
     {
         Item item = new Item();
@@ -92,7 +138,7 @@ public class MetadataProvider : IMetadataProvider
         item.ReleaseDate = ConvertFromIGDB(game.first_release_date);
         try
         {
-            item.Genres = game.genres.Select(x => new Models.Genre { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() { item } }).ToList();
+            item.Genres = game.genres.Select(x => new Models.Genre { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>()}).ToList();
         }
         catch (Exception ex){/*throw;*/}
         try
@@ -109,13 +155,13 @@ public class MetadataProvider : IMetadataProvider
         try
         {
             var devs = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.developer).ToList());
-            item.Develloppeurs = devs.Select(x => new Develloppeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() { item } }).ToList();
+            item.Develloppeurs = devs.Select(x => new Develloppeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
         }
         catch (Exception ex) { /*throw;*/ }
         try
         {
             var edits = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.publisher).ToList());
-            item.Editeurs = edits.Select(x => new Models.Editeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() { item } }).ToList();
+            item.Editeurs = edits.Select(x => new Models.Editeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
         }
         catch (Exception ex) { /*throw;*/ }
         return new ObservableItem(item);
@@ -131,6 +177,40 @@ public class MetadataProvider : IMetadataProvider
         }
         catch(Exception ex) { }
         return result;
+    }
+    private async Task<ObservableMediaItem> MediaItemFromScreenscraperGame(Jeux game)
+    {
+        ObservableMediaItem item = new ObservableMediaItem();
+        var video = game.medias.FirstOrDefault(x => x.type == "video").url ?? string.Empty;
+        if(!string.IsNullOrEmpty(video))
+        item.Videos.Add(video);
+        var cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr").url ??
+                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "eu").url ??
+                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "ss").url ??
+                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "wor").url ??
+                    string.Empty;
+        if(!string.IsNullOrEmpty(cover))
+            item.Covers.Add(cover);
+        var logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr").url ??
+                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu").url ??
+                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss").url ??
+                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor").url ??
+                    string.Empty; 
+        if (!string.IsNullOrEmpty(logo))
+            item.Logos.Add(logo);
+        var artwork = game.medias.FirstOrDefault(x => x.type == "fanart").url ?? string.Empty; 
+        var screen = game.medias.FirstOrDefault(x => x.type == "ss").url ?? string.Empty; 
+        var screentitle = game.medias.FirstOrDefault(x => x.type == "sstitle").url ?? string.Empty; 
+        var screen169 = game.medias.FirstOrDefault(x => x.type == "ssfronton16-9").url ?? string.Empty;
+        if(!string.IsNullOrEmpty(artwork))
+            item.Artworks.Add(artwork);
+        if(!string.IsNullOrEmpty(screen))
+            item.Artworks.Add(screentitle);
+        if(!string.IsNullOrEmpty(screentitle))
+            item.Artworks.Add(screentitle);
+        if(!string.IsNullOrEmpty(screen169))
+            item.Artworks.Add(screen169);
+        return item;
     }
     private async Task<ObservableItem> ItemFromScreenscraperGame(Jeux game)
     {
@@ -171,4 +251,5 @@ public class MetadataProvider : IMetadataProvider
                     string.Empty;
         return new ObservableItem(item);
     }
+
 }

@@ -373,8 +373,8 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-
                             <winuicontrols:ConstrainedBox AspectRatio="2:3" Grid.Column="0" Grid.Row="0" Height="500" Margin="10" >
                                 <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
@@ -387,6 +387,16 @@
                             <winuicontrols:ConstrainedBox AspectRatio="1920:620" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Height="500" Margin="10">
                                 <Image Source="{x:Bind ViewModel.Item.Banner,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
+                            <StackPanel Orientation="Vertical" Grid.Row="3" Grid.ColumnSpan="2" ></StackPanel>
+                            <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowMediaSourceExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                               Visibility="{x:Bind ViewModel.VisibilityMediaSourceExpander,Mode=OneWay}"
+                               Header="Choisissez la Source de données" HorizontalAlignment="Stretch"></Expander>
+                            <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowGameMediaProposalExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                               Visibility="{x:Bind ViewModel.VisibilityGameMediaProposalExpander,Mode=OneWay}"
+                               Header="Choisissez la Source de données" HorizontalAlignment="Stretch"></Expander>
+                            <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowMediaProposalExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                               Visibility="{x:Bind ViewModel.VisibilityMediaProposalExpander,Mode=OneWay}"
+                               Header="Choisissez la Source de données" HorizontalAlignment="Stretch"></Expander>   
                         </Grid>
                     </PivotItem>
                 </Pivot>
@@ -412,7 +422,7 @@
             <Button HorizontalAlignment="Right" Command="{x:Bind ViewModel.FullCancelCommand}"
                                                     Style="{StaticResource AccentButtonStyle}"
                                                     Content="Annuler les modifications"></Button>
-            <Button HorizontalAlignment="Right"
+            <Button HorizontalAlignment="Right" Command="{x:Bind ViewModel.FullSaveCommand}"
                                                     Style="{StaticResource AccentButtonStyle}"
                                                     Content="Sauvegarder les modifications"></Button>
         </StackPanel>

@@ -1,5 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Xml.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.UI;
@@ -19,6 +21,7 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     private readonly ISampleDataService _sampleDataService;
     private readonly IMetadataProvider _MetadataService;
     private readonly INavigationService _navigationService;
+    private readonly IItemProvider _itemService;
 
     [ObservableProperty]
     private bool _showMetadataSourceExpander;
@@ -32,15 +35,23 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     private Visibility _visibilityGameProposalExpander;
     [ObservableProperty]
     private Visibility _visibilityDataProposalExpander;
-
-    [ObservableProperty]
-    private int _flipMetadataIndex;
-
     [ObservableProperty]
     private List<string> _metadataType = new List<string> { "IGDB", "Screenscraper" };
     [ObservableProperty]
     private string _metadataTypechoice;
 
+    [ObservableProperty]
+    private bool _showMediaSourceExpander;
+    [ObservableProperty]
+    private bool _showGameMediaProposalExpander;
+    [ObservableProperty]
+    private bool _showMediaProposalExpander;
+    [ObservableProperty]
+    private Visibility _visibilityMediaSourceExpander;
+    [ObservableProperty]
+    private Visibility _visibilityGameMediaProposalExpander;
+    [ObservableProperty]
+    private Visibility _visibilityMediaProposalExpander;
     [ObservableProperty]
     private List<string> _mediaType = new List<string> { "IGDB", "Screenscraper", "SteamGridDB" };
 
@@ -67,18 +78,57 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     private ObservableItem? item;
 
     public ObservableItem GameToReconcile;
+    public ObservableMediaItem MediaGameToReconcile;
 
     public ObservableCollection<ObservableItem> SearchMetadata
     {
         get; private set;
     }
+    public ObservableCollection<ObservableMediaItem> SearchMedia
+    {
+        get; private set;
+    }
 
     private ICommand _cancelCommand;
+    private ICommand _cancelMediaCommand;
     private ICommand _fullcancelCommand;
+    private ICommand _fullcancelMediaCommand;
     private ICommand _chooseSourceCommand;
+    private ICommand _chooseSourceMediaCommand;
     private ICommand _chooseGameCommand;
+    private ICommand _chooseGameMediaCommand;
     private ICommand _chooseReconcileCommand;
+    private ICommand _chooseReconcileMediaCommand;
+    private ICommand _fullSaveCommand;
 
+    public ICommand ChooseSourceMediaCommand
+    {
+        get
+        {
+            return _chooseSourceMediaCommand ?? (_chooseSourceMediaCommand = new RelayCommand(GetMediaChoice));
+        }
+    }
+    public ICommand ChooseGameMediaCommand
+    {
+        get
+        {
+            return _chooseGameMediaCommand ?? (_chooseGameMediaCommand = new RelayCommand(GetMediaGameChoice));
+        }
+    }
+    public ICommand ChooseReconcileMediaCommand
+    {
+        get
+        {
+            return _chooseReconcileMediaCommand ?? (_chooseReconcileMediaCommand = new RelayCommand(GetReconcileMediaChoice));
+        }
+    }
+    public ICommand CancelMediaCommand
+    {
+        get
+        {
+            return _cancelMediaCommand ?? (_cancelMediaCommand = new RelayCommand(CancelMedia));
+        }
+    }
     public ICommand ChooseSourceCommand
     {
         get
@@ -114,8 +164,15 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
             return _fullcancelCommand ?? (_fullcancelCommand = new RelayCommand(GoBackToList));
         }
     }
+    public ICommand FullSaveCommand
+    {
+        get
+        {
+            return _fullSaveCommand ?? (_fullSaveCommand = new RelayCommand(SaveAndGoBack));
+        }
+    }
 
-    public BibliothequeDetailViewModel(INavigationService navigationService, ISampleDataService sampleDataService, IMetadataProvider metadataProvider)
+    public BibliothequeDetailViewModel(INavigationService navigationService, ISampleDataService sampleDataService, IMetadataProvider metadataProvider, IItemProvider itemService)
     {
         _navigationService = navigationService;
         _sampleDataService = sampleDataService;
@@ -127,11 +184,11 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
         VisibilityMetadataSourceExpander = Visibility.Visible;
         VisibilityGameProposalExpander = Visibility.Collapsed;
         VisibilityDataProposalExpander = Visibility.Collapsed;
-        FlipMetadataIndex = 0;
         SearchMetadata = new ObservableCollection<ObservableItem>();
         ReconcileEditeur = new ObservableCollection<ObservableEditeur>();
         ReconcileDevs = new ObservableCollection<ObservableDevelloppeur>();
         ReconcileGenre = new ObservableCollection<ObservableGenre>();
+        _itemService = itemService;
     }
 
     public async void OnNavigatedTo(object parameter)
@@ -142,6 +199,52 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
             //Item = data.First(i => i.OrderID == orderID);
             Item = detailitem;
         }
+    }
+    private async void GetMediaChoice()
+    {
+        ShowMediaSourceExpander = false;
+        ShowGameMediaProposalExpander = true;
+        ShowMediaProposalExpander = false;
+        VisibilityMediaSourceExpander = Visibility.Collapsed;
+        VisibilityGameMediaProposalExpander = Visibility.Visible;
+        VisibilityMediaProposalExpander = Visibility.Collapsed;
+        SearchMedia.Clear();
+        if (MetadataTypechoice == "IGDB")
+        {
+            
+            foreach(var item in await _MetadataService.GetIGDBMediaGameByName(Item.SearchName))
+            {
+                SearchMedia.Add(item);
+            }
+        }
+
+        if (MetadataTypechoice == "SteamGridDB")
+        {
+            var result = await _MetadataService.SearchSteamGridDBGameByName(Item.SearchName);
+            foreach (var item in result) 
+            {
+                SearchMedia.Add(await _MetadataService.GetSteamGridDBMediaItem(item));
+            }
+        }
+        if (MetadataTypechoice == "Screenscraper")
+        {
+            foreach(var item in await _MetadataService.SearchScreenscraperGameMediaByName(Item.SearchName))
+            {
+                SearchMedia.Add(item);
+            }
+        }
+    }
+    private void GetMediaGameChoice() => throw new NotImplementedException();
+    private void GetReconcileMediaChoice() => throw new NotImplementedException();
+    private void CancelMedia()
+    {
+        ShowMediaSourceExpander = false;
+        ShowGameMediaProposalExpander = false;
+        ShowMediaProposalExpander = false;
+        VisibilityMediaSourceExpander = Visibility.Visible;
+        VisibilityGameMediaProposalExpander = Visibility.Collapsed;
+        VisibilityMediaProposalExpander = Visibility.Collapsed;
+        SearchMetadata.Clear();
     }
     private void GetAllMetadata()
     {
@@ -179,7 +282,6 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
         VisibilityMetadataSourceExpander = Visibility.Visible;
         VisibilityGameProposalExpander = Visibility.Collapsed;
         VisibilityDataProposalExpander = Visibility.Collapsed;
-        FlipMetadataIndex = 0;
         SearchMetadata.Clear();
         ReconcileNewName = string.Empty;
         ReconcileNewDateTime = string.Empty;
@@ -187,6 +289,12 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
         ReconcileEditeur.Clear();
         ReconcileDevs.Clear();
         ReconcileGenre.Clear();
+    }
+    private async void SaveAndGoBack()
+    {
+        Item.RegisterList();
+        await _itemService.UpdateItem(Item);
+        GoBackToList();
     }
     private void GoBackToList()
     {

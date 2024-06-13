@@ -25,7 +25,7 @@ public class Item
     {
         get; set;
     }
-    public LUProfile Profile
+    public LUProfile? Profile
     {
         get; set;
     }

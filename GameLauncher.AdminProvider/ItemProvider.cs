@@ -79,6 +79,8 @@ namespace GameLauncher.AdminProvider
         }
         public async Task UpdateItem(ObservableItem item)
         {
+            if(item.Item.Collections == null)
+                item.Item.Collections = new List<Collection>();
             await apiconnector.UpdateItemAsync(item.Item);
         }
     }

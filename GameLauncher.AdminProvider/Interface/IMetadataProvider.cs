@@ -1,5 +1,6 @@
 ﻿using GameLauncher.Models;
 using GameLauncher.Models.IGDB;
+using GameLauncher.Models.ScreenScraper;
 using GameLauncher.Models.SteamGridDB;
 using GameLauncher.ObservableObjet;
 
@@ -17,4 +18,6 @@ public interface IMetadataProvider
     Task<IEnumerable<ImgResult>> SearchSteamGridDBBoxartFor(int gameId);
     Task<IEnumerable<DataSearch>> SearchSteamGridDBGameByName(string name);
     Task<IEnumerable<ImgResult>> SearchSteamGridDBLogoFor(int gameId);
-}
+    Task<ObservableMediaItem> GetSteamGridDBMediaItem(DataSearch game);
+    Task<IEnumerable<ObservableMediaItem>> GetIGDBMediaGameByName(string name);
+    Task<IEnumerable<ObservableMediaItem>> SearchScreenscraperGameMediaByName(string name);

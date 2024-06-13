@@ -29,7 +29,7 @@ public class LUPlatformes
     {
         get; set;
     }
-    public List<LUEmulateur> Emulators
+    public List<LUEmulateur>? Emulators
     {
         get; set;
     }

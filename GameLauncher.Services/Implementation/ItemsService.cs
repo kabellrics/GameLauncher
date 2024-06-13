@@ -38,8 +38,13 @@ public class ItemsService : IItemsService
             item.Logo = updateditem.Logo;
             item.Video = updateditem.Video;
             item.Genres = updateditem.Genres;
+            foreach (var genre in updateditem.Genres) { dbContext.Genres.Add(genre); }
             item.Editeurs = updateditem.Editeurs;
+            foreach (var editeur in updateditem.Editeurs) { dbContext.Editeurs.Add(editeur); }
             item.Develloppeurs = updateditem.Develloppeurs;
+            foreach (var devs in updateditem.Develloppeurs) { dbContext.Develloppeurs.Add(devs); }
+            dbContext.Items.Update(item);
+            dbContext.SaveChanges();
         }
     }
 }
