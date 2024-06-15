@@ -18,7 +18,7 @@ public class Develloppeur
     {
         get; set;
     }
-    public List<Item> Items
+    public List<ItemDev> Items
     {
         get; set;
     }

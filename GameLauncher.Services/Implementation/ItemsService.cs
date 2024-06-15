@@ -12,9 +12,11 @@ namespace GameLauncher.Services.Implementation;
 public class ItemsService : IItemsService
 {
     private readonly GameLauncherContext dbContext;
-    public ItemsService(GameLauncherContext dbContext)
+    private readonly IAssetDownloader assetService;
+    public ItemsService(GameLauncherContext dbContext, IAssetDownloader assetService)
     {
         this.dbContext = dbContext;
+        this.assetService = assetService;
     }
     public IEnumerable<Item> GetAll()
     {
@@ -38,11 +40,24 @@ public class ItemsService : IItemsService
             item.Logo = updateditem.Logo;
             item.Video = updateditem.Video;
             item.Genres = updateditem.Genres;
-            foreach (var genre in updateditem.Genres) { dbContext.Genres.Add(genre); }
-            item.Editeurs = updateditem.Editeurs;
-            foreach (var editeur in updateditem.Editeurs) { dbContext.Editeurs.Add(editeur); }
-            item.Develloppeurs = updateditem.Develloppeurs;
-            foreach (var devs in updateditem.Develloppeurs) { dbContext.Develloppeurs.Add(devs); }
+            //foreach (var genre in updateditem.Genres) 
+            //{
+            //    if(!dbContext.Genres.Any(x=>x.ID == genre.ID))
+            //    dbContext.Genres.Add(genre); 
+            //}
+            //item.Editeurs = updateditem.Editeurs;
+            //foreach (var editeur in updateditem.Editeurs)
+            //{
+            //    if (!dbContext.Editeurs.Any(x => x.ID == editeur.ID))
+            //        dbContext.Editeurs.Add(editeur); 
+            //}
+            //item.Develloppeurs = updateditem.Develloppeurs;
+            //foreach (var devs in updateditem.Develloppeurs)
+            //{
+            //    if (!dbContext.Develloppeurs.Any(x => x.ID == devs.ID))
+            //        dbContext.Develloppeurs.Add(devs);
+            //}
+            assetService.RapatrierAsset(item);
             dbContext.Items.Update(item);
             dbContext.SaveChanges();
         }

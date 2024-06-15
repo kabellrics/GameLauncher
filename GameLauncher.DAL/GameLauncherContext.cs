@@ -36,27 +36,32 @@ namespace GameLauncher.DAL
         {
             get;set;
         }
-        //public string DbPath
-        //{
-        //    get;
-        //}
+        public DbSet<ItemEditeur> EditeurdItems
+        {
+            get;set;
+        }
+        public DbSet<ItemDev> DevdItems
+        {
+            get;set;
+        }
+        public DbSet<ItemGenre> GenredItems
+        {
+            get;set;
+        }
+        public DbSet<CollectionItem> CollectiondItems
+        {
+            get;set;
+        }
 
         public GameLauncherContext(DbContextOptions<GameLauncherContext> options)
         : base(options)
         {
-            //var folder = Environment.SpecialFolder.LocalApplicationData;
-            //var path = Environment.GetFolderPath(folder);
-            //DbPath = System.IO.Path.Join(path, "gamelauncher.db");
         }
-
-        // The following configures EF to create a Sqlite database file in the
-        // special "local" folder for your platform.
-        //protected override void OnConfiguring(DbContextOptionsBuilder options)
-        //    => options.UseSqlite($"Data Source={DbPath}");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             // Code to seed data
             modelBuilder.Entity<LUPlatformes>().HasData(
                 new LUPlatformes { ID = Guid.NewGuid(), Name = "Steam", CodeName = "Steam", Databases=string.Empty },

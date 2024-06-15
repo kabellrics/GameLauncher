@@ -79,6 +79,21 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
 
     public ObservableItem GameToReconcile;
     public ObservableMediaItem MediaGameToReconcile;
+    public ObservableCollection<string> Logos;
+    public ObservableCollection<string> Covers;
+    public ObservableCollection<string> Artworks;
+    public ObservableCollection<string> Banners;
+    public ObservableCollection<string> Videos;
+
+
+    [ObservableProperty]
+    private Visibility _visibilityLogoProposals;
+    [ObservableProperty]
+    private Visibility _visibilityCoverProposals;
+    [ObservableProperty]
+    private Visibility _visibilityArtworkProposals;
+    [ObservableProperty]
+    private Visibility _visibilityBannerProposals;
 
     public ObservableCollection<ObservableItem> SearchMetadata
     {
@@ -92,7 +107,6 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     private ICommand _cancelCommand;
     private ICommand _cancelMediaCommand;
     private ICommand _fullcancelCommand;
-    private ICommand _fullcancelMediaCommand;
     private ICommand _chooseSourceCommand;
     private ICommand _chooseSourceMediaCommand;
     private ICommand _chooseGameCommand;
@@ -184,11 +198,27 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
         VisibilityMetadataSourceExpander = Visibility.Visible;
         VisibilityGameProposalExpander = Visibility.Collapsed;
         VisibilityDataProposalExpander = Visibility.Collapsed;
+        ShowMediaSourceExpander = false;
+        ShowGameMediaProposalExpander = false;
+        ShowMediaProposalExpander = false;
+        VisibilityMediaSourceExpander = Visibility.Visible;
+        VisibilityGameMediaProposalExpander = Visibility.Collapsed;
+        VisibilityMediaProposalExpander = Visibility.Collapsed;
         SearchMetadata = new ObservableCollection<ObservableItem>();
+        SearchMedia = new ObservableCollection<ObservableMediaItem>();
         ReconcileEditeur = new ObservableCollection<ObservableEditeur>();
         ReconcileDevs = new ObservableCollection<ObservableDevelloppeur>();
         ReconcileGenre = new ObservableCollection<ObservableGenre>();
-        _itemService = itemService;
+        Logos = new ObservableCollection<string>(); ;
+        Covers = new ObservableCollection<string>(); ;
+        Artworks = new ObservableCollection<string>(); ;
+        Banners = new ObservableCollection<string>(); ;
+        Videos = new ObservableCollection<string>(); ;
+    _itemService = itemService;
+        VisibilityArtworkProposals = Visibility.Collapsed;
+        VisibilityBannerProposals = Visibility.Collapsed;
+        VisibilityCoverProposals = Visibility.Collapsed;
+        VisibilityLogoProposals = Visibility.Collapsed;
     }
 
     public async void OnNavigatedTo(object parameter)
@@ -209,7 +239,7 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
         VisibilityGameMediaProposalExpander = Visibility.Visible;
         VisibilityMediaProposalExpander = Visibility.Collapsed;
         SearchMedia.Clear();
-        if (MetadataTypechoice == "IGDB")
+        if (MediaTypechoice == "IGDB")
         {
             
             foreach(var item in await _MetadataService.GetIGDBMediaGameByName(Item.SearchName))
@@ -218,7 +248,7 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
             }
         }
 
-        if (MetadataTypechoice == "SteamGridDB")
+        if (MediaTypechoice == "SteamGridDB")
         {
             var result = await _MetadataService.SearchSteamGridDBGameByName(Item.SearchName);
             foreach (var item in result) 
@@ -226,7 +256,7 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
                 SearchMedia.Add(await _MetadataService.GetSteamGridDBMediaItem(item));
             }
         }
-        if (MetadataTypechoice == "Screenscraper")
+        if (MediaTypechoice == "Screenscraper")
         {
             foreach(var item in await _MetadataService.SearchScreenscraperGameMediaByName(Item.SearchName))
             {
@@ -234,10 +264,48 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
             }
         }
     }
-    private void GetMediaGameChoice() => throw new NotImplementedException();
-    private void GetReconcileMediaChoice() => throw new NotImplementedException();
+    private void GetMediaGameChoice()
+    {
+        ShowMediaSourceExpander = false;
+        ShowGameMediaProposalExpander = false;
+        ShowMediaProposalExpander = true;
+        VisibilityMediaSourceExpander = Visibility.Collapsed;
+        VisibilityGameMediaProposalExpander = Visibility.Collapsed;
+        VisibilityMediaProposalExpander = Visibility.Visible;
+        Logos.Clear();
+        Covers.Clear();
+        Artworks.Clear();
+        Banners.Clear();
+        try
+        {
+            foreach (var item in MediaGameToReconcile.Logos) Logos.Add(item);
+            foreach (var item in MediaGameToReconcile.Covers) Covers.Add(item);
+            foreach (var item in MediaGameToReconcile.Artworks) Artworks.Add(item);
+            foreach (var item in MediaGameToReconcile.Banners) Banners.Add(item);
+            if (Artworks.Count > 0)
+                VisibilityArtworkProposals = Visibility.Visible;
+            if (Banners.Count > 0)
+                VisibilityBannerProposals = Visibility.Visible;
+            if (Covers.Count > 0)
+                VisibilityCoverProposals = Visibility.Visible;
+            if (Logos.Count > 0)
+                VisibilityLogoProposals = Visibility.Visible;
+        }
+        catch (Exception ex)
+        {
+        }
+
+    }
+    private void GetReconcileMediaChoice()
+    {
+        CancelMedia();
+    }
     private void CancelMedia()
     {
+        VisibilityArtworkProposals = Visibility.Collapsed;
+        VisibilityBannerProposals = Visibility.Collapsed;
+        VisibilityCoverProposals = Visibility.Collapsed;
+        VisibilityLogoProposals = Visibility.Collapsed;
         ShowMediaSourceExpander = false;
         ShowGameMediaProposalExpander = false;
         ShowMediaProposalExpander = false;
@@ -292,7 +360,6 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     }
     private async void SaveAndGoBack()
     {
-        Item.RegisterList();
         await _itemService.UpdateItem(Item);
         GoBackToList();
     }

@@ -53,15 +53,15 @@ public class Item
     {
         get; set;
     }
-    public List<Develloppeur> Develloppeurs
+    public List<ItemDev> Develloppeurs
     {
         get; set;
     }
-    public List<Editeur> Editeurs
+    public List<ItemEditeur> Editeurs
     {
         get; set;
     }
-    public List<Genre> Genres
+    public List<ItemGenre> Genres
     {
         get; set;
     }
@@ -97,7 +97,7 @@ public class Item
     {
         get; set;
     }
-    public List<Collection> Collections
+    public List<CollectionItem> Collections
     {
         get; set;
     }

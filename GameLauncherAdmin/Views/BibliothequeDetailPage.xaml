@@ -55,12 +55,6 @@
                         <winuicontrols:ConstrainedBox AspectRatio="2:3">
                             <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Fill"/>
                         </winuicontrols:ConstrainedBox>
-                        <!--<FontIcon
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontSize="70"
-                            Glyph="{x:Bind ViewModel.Item.Symbol}"
-                            AutomationProperties.Name="{x:Bind ViewModel.Item.SymbolName}" />-->
                     </Grid>
 
                     <TextBlock
@@ -87,19 +81,6 @@
                             <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Item.StoreId}" />
                         </StackPanel>
                     </StackPanel>
-
-                    <!--<StackPanel x:Name="propertiesGroup2" RelativePanel.Below="propertiesGroup1">
-                        <StackPanel x:Name="shipToGroup" Margin="{StaticResource SmallTopMargin}">
-                            <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Ship to" />
-                            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Item.ShipTo}" />
-                        </StackPanel>
-
-                        <StackPanel x:Name="orderTotalGroup" Margin="{StaticResource SmallTopMargin}">
-                            <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Order total" />
-                            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Item.OrderTotal}" />
-                        </StackPanel>
-                    </StackPanel>-->
-
                 </RelativePanel>
                 <Pivot>
                     <PivotItem Header="Metadata">
@@ -374,6 +355,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <winuicontrols:ConstrainedBox AspectRatio="2:3" Grid.Column="0" Grid.Row="0" Height="500" Margin="10" >
                                 <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Uniform"/>
@@ -387,16 +369,173 @@
                             <winuicontrols:ConstrainedBox AspectRatio="1920:620" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Height="500" Margin="10">
                                 <Image Source="{x:Bind ViewModel.Item.Banner,Mode=OneWay}" Stretch="Uniform"/>
                             </winuicontrols:ConstrainedBox>
-                            <StackPanel Orientation="Vertical" Grid.Row="3" Grid.ColumnSpan="2" ></StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" >
                             <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowMediaSourceExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                Visibility="{x:Bind ViewModel.VisibilityMediaSourceExpander,Mode=OneWay}"
-                               Header="Choisissez la Source de données" HorizontalAlignment="Stretch"></Expander>
+                               Header="Choisissez la Source de données" HorizontalAlignment="Stretch">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <RadioButtons Grid.Row="0" HorizontalAlignment="Center" Header="Choisissez votre source de données"
+                                                          SelectedItem="{x:Bind ViewModel.MediaTypechoice,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                          ItemsSource="{x:Bind ViewModel.MediaType,Mode=OneWay}">
+                                    </RadioButtons>
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Valider" Command="{x:Bind ViewModel.ChooseSourceMediaCommand}"></Button>
+                                        <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Annuler" Command="{x:Bind ViewModel.CancelMediaCommand}"></Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Expander>
                             <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowGameMediaProposalExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                Visibility="{x:Bind ViewModel.VisibilityGameMediaProposalExpander,Mode=OneWay}"
-                               Header="Choisissez la Source de données" HorizontalAlignment="Stretch"></Expander>
+                               Header="Choisissez le jeu correspondant" HorizontalAlignment="Stretch">
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button HorizontalAlignment="Right" Grid.Column="0"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Chercher" Command="{x:Bind ViewModel.ChooseSourceMediaCommand}"></Button>
+                                        <TextBox Grid.Column="1" Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Stretch"
+                                                         Text="{x:Bind ViewModel.Item.SearchName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </Grid>
+                                    <ListView Grid.Row="1" HorizontalAlignment="Stretch"
+                                                      HorizontalContentAlignment="Left"
+                                                      ItemsSource="{x:Bind ViewModel.SearchMedia,Mode=OneWay}"
+                                                      SelectionMode="Single"
+                                                      x:Name="ReconcileGameMediaList" SelectionChanged="ReconcileGameMediaList_SelectionChanged">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Text="{Binding}"></TextBlock>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Valider" Command="{x:Bind ViewModel.ChooseGameMediaCommand}"></Button>
+                                        <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Annuler" Command="{x:Bind ViewModel.CancelMediaCommand}"></Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Expander>
                             <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowMediaProposalExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                               Visibility="{x:Bind ViewModel.VisibilityMediaProposalExpander,Mode=OneWay}"
-                               Header="Choisissez la Source de données" HorizontalAlignment="Stretch"></Expander>   
+                               Visibility="{x:Bind ViewModel.VisibilityMediaProposalExpander,Mode=OneWay}" HorizontalContentAlignment="Stretch"
+                               Header="Choisissez vos Medias" HorizontalAlignment="Stretch">
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Grid.Row="0" Text="Proposition de Logos"
+                                                   Visibility="{x:Bind ViewModel.VisibilityLogoProposals,Mode=OneWay}"></TextBlock>
+                                        <ListView SelectionMode="Single" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                              ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                   Visibility="{x:Bind ViewModel.VisibilityLogoProposals,Mode=OneWay}"
+                                                  IsDoubleTapEnabled="True" DoubleTapped="ListViewLogo_DoubleTapped"
+                                                ItemsSource="{x:Bind ViewModel.Logos,Mode=OneWay}" Margin="0">
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <winuicontrols:ConstrainedBox AspectRatio="1:1" HorizontalAlignment="Left" Height="200" Margin="10">
+                                                        <controls:ImageEx Source="{Binding}" Stretch="Uniform" IsCacheEnabled="True" EnableLazyLoading="True"/>
+                                                </winuicontrols:ConstrainedBox>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Grid.Row="2" Text="Proposition de Covers"
+                                                   Visibility="{x:Bind ViewModel.VisibilityCoverProposals,Mode=OneWay}"></TextBlock>
+                                        <ListView SelectionMode="Single" Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                              ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                   Visibility="{x:Bind ViewModel.VisibilityCoverProposals,Mode=OneWay}"
+                                                  IsDoubleTapEnabled="True" DoubleTapped="ListViewCover_DoubleTapped"
+                                                ItemsSource="{x:Bind ViewModel.Covers,Mode=OneWay}" Margin="0">
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                    <winuicontrols:ConstrainedBox AspectRatio="2:3" HorizontalAlignment="Left" Height="200" Margin="10">
+                                                        <controls:ImageEx Source="{Binding}" Stretch="Uniform" IsCacheEnabled="True" EnableLazyLoading="True"/>
+                                                    </winuicontrols:ConstrainedBox>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Grid.Row="4" Text="Proposition d'Artwork"
+                                                   Visibility="{x:Bind ViewModel.VisibilityArtworkProposals,Mode=OneWay}"></TextBlock>
+                                        <ListView SelectionMode="Single" Grid.Row="5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                              ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                   Visibility="{x:Bind ViewModel.VisibilityArtworkProposals,Mode=OneWay}"
+                                                  IsDoubleTapEnabled="True" DoubleTapped="ListViewArtwork_DoubleTapped"
+                                                ItemsSource="{x:Bind ViewModel.Artworks,Mode=OneWay}" Margin="0">
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                    <winuicontrols:ConstrainedBox AspectRatio="1920:1080" HorizontalAlignment="Left" Height="200" Margin="10">
+                                                        <controls:ImageEx Source="{Binding}" Stretch="Uniform" IsCacheEnabled="True" EnableLazyLoading="True"/>
+                                                    </winuicontrols:ConstrainedBox>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Grid.Row="6" Text="Proposition de Banners"
+                                                   Visibility="{x:Bind ViewModel.VisibilityBannerProposals,Mode=OneWay}"></TextBlock>
+                                        <ListView SelectionMode="Single" Grid.Row="7" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                              ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                   Visibility="{x:Bind ViewModel.VisibilityBannerProposals,Mode=OneWay}"
+                                                  IsDoubleTapEnabled="True" DoubleTapped="ListViewBanner_DoubleTapped"
+                                                ItemsSource="{x:Bind ViewModel.Banners,Mode=OneWay}" Margin="0">
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                    <winuicontrols:ConstrainedBox AspectRatio="1920:620" HorizontalAlignment="Left" Height="200" Margin="10">
+                                                        <controls:ImageEx Source="{Binding}" Stretch="Uniform" IsCacheEnabled="True" EnableLazyLoading="True"/>
+                                                    </winuicontrols:ConstrainedBox>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                        </ListView>
+                                        <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Content="Fermer" Command="{x:Bind ViewModel.ChooseReconcileMediaCommand}"></Button>
+                                        </StackPanel>
+                                    </Grid>
+                            </Expander>
+                            </StackPanel>
                         </Grid>
                     </PivotItem>
                 </Pivot>

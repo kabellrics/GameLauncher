@@ -1,20 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GameLauncher.Models;
-public class LURegion
+public class ItemEditeur
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid ID
     {
         get; set;
     }
-    public string Name
+    public Guid EditeurID
     {
         get; set;
+    }
+    public Guid ItemID
+    {
+        get; set;
+    }
+    public Item Item
+    {
+        get; set;
+    }
+    public Editeur Editeur
+    {
+        get;set;
     }
 }

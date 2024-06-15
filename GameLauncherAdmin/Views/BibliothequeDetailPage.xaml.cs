@@ -52,4 +52,35 @@ public sealed partial class BibliothequeDetailPage : Page
         var items = e.AddedItems;
         ViewModel.GameToReconcile = (GameLauncher.ObservableObjet.ObservableItem)items.FirstOrDefault();
     }
+
+    private void ReconcileGameMediaList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var items = e.AddedItems;
+        ViewModel.MediaGameToReconcile = (GameLauncher.ObservableObjet.ObservableMediaItem)items.FirstOrDefault();
+    }
+
+    private void ListViewLogo_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    {
+      var list = (ListView)sender;
+        var url = list.SelectedItem.ToString();
+        ViewModel.Item.Logo = url;
+    }
+    private void ListViewCover_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    {
+        var list = (ListView)sender;
+        var url = list.SelectedItem.ToString();
+        ViewModel.Item.Cover = url;
+    }
+    private void ListViewArtwork_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    {
+        var list = (ListView)sender;
+        var url = list.SelectedItem.ToString();
+        ViewModel.Item.Artwork = url;
+    }
+    private void ListViewBanner_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    {
+        var list = (ListView)sender;
+        var url = list.SelectedItem.ToString();
+        ViewModel.Item.Banner = url;
+    }
 }

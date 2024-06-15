@@ -17,12 +17,9 @@ namespace GameLauncher.ObservableObjet
         public ObservableItem(Item item)
         {
             Item = item;
-            Editeurs = new ObservableCollection<ObservableEditeur>(
-                item.Editeurs?.Select(x => new ObservableEditeur(x)) ?? Enumerable.Empty<ObservableEditeur>());
-            Develloppeurs = new ObservableCollection<ObservableDevelloppeur>(
-                item.Develloppeurs?.Select(x => new ObservableDevelloppeur(x)) ?? Enumerable.Empty<ObservableDevelloppeur>());
-            Genres = new ObservableCollection<ObservableGenre>(
-                item.Genres?.Select(x => new ObservableGenre(x)) ?? Enumerable.Empty<ObservableGenre>());           
+            Editeurs = new ObservableCollection<ObservableEditeur>();
+            Develloppeurs = new ObservableCollection<ObservableDevelloppeur>();
+            Genres = new ObservableCollection<ObservableGenre>();           
         }
         public Guid Id
         {
@@ -167,11 +164,5 @@ namespace GameLauncher.ObservableObjet
         public ObservableCollection<ObservableDevelloppeur> Develloppeurs;
         public ObservableCollection<ObservableGenre> Genres;
 
-        public void RegisterList()
-        {
-            Item.Editeurs = Editeurs.Select(x=>x.Item).ToList();
-            Item.Develloppeurs = Develloppeurs.Select(x => x.Item).ToList();
-            Item.Genres = Genres.Select(x => x.Item).ToList();
-        }
     }
 }

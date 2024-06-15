@@ -23,11 +23,17 @@ namespace GameLauncher.Services.Implementation
         private readonly GameLauncherContext dbContext;
         private readonly IAssetDownloader assetDownloader;
         private readonly ISteamGridDbService steangriddbService;
-        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService)
+        private readonly IDevService devService;
+        private readonly IEditeurService editService;
+        private readonly IGenreService genreService;
+        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService,IGenreService genreService)
         {
             this.dbContext = dbContext;
             this.assetDownloader = assetDownloader;
             this.steangriddbService = steangriddbService;
+            this.devService = devService;
+            this.editService = editService;
+            this.genreService = genreService;
         }
         public async Task GetGameAsync()
         {
@@ -93,9 +99,9 @@ namespace GameLauncher.Services.Implementation
                             game.Video = string.Empty;
                             game.Description = string.Empty;
                             game.ReleaseDate = DateTime.MinValue;
-                            game.Genres = new List<Genre>();
-                            game.Develloppeurs = new List<Develloppeur>();
-                            game.Editeurs = new List<Editeur>();
+                            game.Genres = new List<ItemGenre>();
+                            game.Develloppeurs = new List<ItemDev>();
+                            game.Editeurs = new List<ItemEditeur>();
                             dbContext.Items.Add(game);
                             var assetfolder = assetDownloader.CreateItemAssetFolder(game.ID);
                             game = await GetSteamInfos(game, assetfolder);
@@ -218,67 +224,109 @@ namespace GameLauncher.Services.Implementation
             return game;
         }
 
-        private IEnumerable<Genre> ExtractGenre(Data data, Item game)
+        private IEnumerable<ItemGenre> ExtractGenre(Data data, Item game)
         {
             var metadatagenres = data.genres;
             foreach (var metagenre in metadatagenres)
             {
-                if (!dbContext.Genres.Any(x => x.Name == metagenre.description))
-                {
-                    var dbmetagenre = new Genre { ID = Guid.NewGuid(), Name = metagenre.description, Items = new List<Item>() { game } };
-                    dbContext.Genres.Add(dbmetagenre);
-                    yield return dbmetagenre;
-                }
-                else
-                {
-                    var dbmetagenre = dbContext.Genres.First(x => x.Name == metagenre.description);
-                    if (dbmetagenre.Items == null) dbmetagenre.Items = new List<Item>();
-                    dbmetagenre.Items.Add(game);
-                    dbContext.Genres.Update(dbmetagenre);
-                    yield return dbmetagenre;
-                }
+                yield return genreService.AddGenreToItem(metagenre.description, game);
+                //if (!dbContext.Genres.Any(x => x.Name == metagenre.description))
+                //{
+                //    var dbdev = new Genre { ID = Guid.NewGuid(), Name = metagenre.description, Items = new List<ItemGenre>() };
+                //    dbContext.Genres.Add(dbdev);
+                //    var ItemEdit = new ItemGenre();
+                //    ItemEdit.ID = Guid.NewGuid();
+                //    ItemEdit.Genre = dbdev;
+                //    ItemEdit.Item = game;
+                //    ItemEdit.GenreID = dbdev.ID;
+                //    ItemEdit.ItemID = game.ID;
+                //    dbdev.Items.Add(ItemEdit);
+                //    dbContext.GenredItems.Add(ItemEdit);
+                //    yield return ItemEdit;
+                //}
+                //else
+                //{
+                //    var dbdev = dbContext.Genres.First(x => x.Name == metagenre.description);
+                //    var ItemEdit = new ItemGenre();
+                //    ItemEdit.ID = Guid.NewGuid();
+                //    ItemEdit.Genre = dbdev;
+                //    ItemEdit.Item = game;
+                //    ItemEdit.GenreID = dbdev.ID;
+                //    ItemEdit.ItemID = game.ID;
+                //    dbdev.Items.Add(ItemEdit);
+                //    dbContext.GenredItems.Add(ItemEdit);
+                //    yield return ItemEdit;
+                //}
             }
         }
-        private IEnumerable<Editeur> ExtractEditor(Data data, Item game)
+        private IEnumerable<ItemEditeur> ExtractEditor(Data data, Item game)
         {
             var devs = data.publishers;
             foreach (var dev in devs)
             {
-                if (!dbContext.Editeurs.Any(x => x.Name == dev))
-                {
-                    var dbdev = new Editeur { ID = Guid.NewGuid(), Name = dev, Items = new List<Item>() { game } };
-                    dbContext.Editeurs.Add(dbdev);
-                    yield return dbdev;
-                }
-                else
-                {
-                    var dbdev = dbContext.Editeurs.First(x => x.Name == dev);
-                    if (dbdev.Items == null) dbdev.Items = new List<Item>();
-                    dbdev.Items.Add(game);
-                    dbContext.Editeurs.Update(dbdev);
-                    yield return dbdev;
-                }
+                yield return editService.AddEditeurToItem(dev, game);
+                //if (!dbContext.Editeurs.Any(x => x.Name == dev))
+                //{
+                //    var dbdev = new Editeur { ID = Guid.NewGuid(), Name = dev, Items = new List<ItemEditeur>() };
+                //    dbContext.Editeurs.Add(dbdev);
+                //    var ItemEdit = new ItemEditeur();
+                //    ItemEdit.ID = Guid.NewGuid();
+                //    ItemEdit.Editeur = dbdev;
+                //    ItemEdit.Item = game;
+                //    ItemEdit.EditeurID = dbdev.ID;
+                //    ItemEdit.ItemID = game.ID;
+                //    dbdev.Items.Add(ItemEdit);
+                //    dbContext.EditeurdItems.Add(ItemEdit);
+                //    yield return ItemEdit;
+                //}
+                //else
+                //{
+                //    var dbdev = dbContext.Editeurs.First(x => x.Name == dev);
+                //    var ItemEdit = new ItemEditeur();
+                //    ItemEdit.ID = Guid.NewGuid();
+                //    ItemEdit.Editeur = dbdev;
+                //    ItemEdit.Item = game;
+                //    ItemEdit.EditeurID = dbdev.ID;
+                //    ItemEdit.ItemID = game.ID;
+                //    dbdev.Items.Add(ItemEdit);
+                //    dbContext.EditeurdItems.Add(ItemEdit);
+                //    yield return ItemEdit;
+                //}
             }
         }
-        private IEnumerable<Develloppeur> ExtractDev(Data data, Item game) 
+        private IEnumerable<ItemDev> ExtractDev(Data data, Item game) 
         {
             var devs = data.developers;
             foreach (var dev in devs)
             {
-                if (!dbContext.Develloppeurs.Any(x => x.Name == dev))
-                {
-                    var dbdev = new Develloppeur { ID = Guid.NewGuid(), Name = dev, Items = new List<Item>() { game } };
-                    dbContext.Develloppeurs.Add(dbdev);
-                    yield return dbdev;
-                }
-                else
-                {
-                    var dbdev = dbContext.Develloppeurs.First(x => x.Name == dev);
-                    if (dbdev.Items == null) dbdev.Items = new List<Item>();
-                    dbdev.Items.Add(game);
-                    dbContext.Develloppeurs.Update(dbdev);
-                    yield return dbdev;
-                }
+                yield return devService.AddDevToItem(dev,game);
+                //if (!dbContext.Editeurs.Any(x => x.Name == dev))
+                //{
+                //    var dbdev = new Develloppeur { ID = Guid.NewGuid(), Name = dev, Items = new List<ItemDev>() };
+                //    dbContext.Develloppeurs.Add(dbdev);
+                //    var ItemEdit = new ItemDev();
+                //    ItemEdit.ID = Guid.NewGuid();
+                //    ItemEdit.Develloppeur = dbdev;
+                //    ItemEdit.Item = game;
+                //    ItemEdit.DevID = dbdev.ID;
+                //    ItemEdit.ItemID = game.ID;
+                //    dbdev.Items.Add(ItemEdit);
+                //    dbContext.DevdItems.Add(ItemEdit);
+                //    yield return ItemEdit;
+                //}
+                //else
+                //{
+                //    var dbdev = dbContext.Develloppeurs.First(x => x.Name == dev);
+                //    var ItemEdit = new ItemDev();
+                //    ItemEdit.ID = Guid.NewGuid();
+                //    ItemEdit.Develloppeur = dbdev;
+                //    ItemEdit.Item = game;
+                //    ItemEdit.DevID = dbdev.ID;
+                //    ItemEdit.ItemID = game.ID;
+                //    dbdev.Items.Add(ItemEdit);
+                //    dbContext.DevdItems.Add(ItemEdit);
+                //    yield return ItemEdit;
+                //}
             }
         }
 

@@ -99,8 +99,9 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
                 result.Video = string.Empty;
                 result.Description = string.Empty;
                 result.ReleaseDate = DateTime.MinValue;
-                result.Develloppeurs = new List<Develloppeur>();
-                result.Editeurs = new List<Editeur>();
+                result.Develloppeurs = new List<ItemDev>();
+                result.Editeurs = new List<ItemEditeur>();
+                result.Genres = new List<ItemGenre>();
                 dbContext.Items.Add(result);
                 LookForSteamGridDBAsset(result);
             }

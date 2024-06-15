@@ -5,4 +5,5 @@ public interface IEditeurService
 {
     IEnumerable<Editeur> GetAll();
     IEnumerable<Editeur> GetAllForItem(Guid id);
+    ItemEditeur AddEditeurToItem(string editeurname, Item item);
 }

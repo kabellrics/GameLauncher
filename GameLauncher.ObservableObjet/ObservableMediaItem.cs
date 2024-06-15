@@ -11,8 +11,16 @@ public partial class ObservableMediaItem : ObservableObject
 {
     public override string ToString()
     {
-        var newdate = DateTime.Parse(Date);
-        return $"{Name} ({newdate.Year.ToString()})";
+        try
+        {
+
+            var newdate = DateTime.Parse(Date);
+            return $"{Name} ({newdate.Year.ToString()})";
+        }
+        catch (Exception ex)
+        {
+            return $"{Name}";
+        }
     }
     [ObservableProperty]
     private string _name;

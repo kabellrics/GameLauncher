@@ -1,24 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GameLauncher.Models;
-public class Editeur
+public class ItemDev
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid ID
     {
         get; set;
     }
-    public string Name
+    public Guid DevelloppeurID
     {
         get; set;
     }
-    public List<ItemEditeur> Items
+    public Guid ItemID
     {
         get; set;
+    }
+    public Item Item
+    {
+        get; set;
+    }
+    public Develloppeur Develloppeur
+    {
+        get;set;
     }
 }

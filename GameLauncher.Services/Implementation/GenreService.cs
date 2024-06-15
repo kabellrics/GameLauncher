@@ -24,4 +24,28 @@ public class GenreService : IGenreService
     {
         return dbContext.Genres.Where(x=>x.Items.Any(item=>item.ID == id));
     }
+    public ItemGenre AddGenreToItem(string genrename, Item item)
+    {
+        var dbgenre = dbContext.Genres.FirstOrDefault(x => x.Name == genrename);
+        if (dbgenre == null)
+        {
+            dbgenre = new Genre();
+            dbgenre.Name = genrename;
+            dbgenre.Items = new List<ItemGenre>();
+            dbContext.Genres.Add(dbgenre);
+        }
+        var itemgenre = new ItemGenre()
+        {
+            ID = Guid.NewGuid(),
+            GenreID = dbgenre.ID,
+            ItemID = item.ID
+        };
+        dbContext.GenredItems.Add(itemgenre);
+        if (!dbgenre.Items.Contains(itemgenre))
+        {
+            dbgenre.Items.Add(itemgenre);
+        }
+        dbContext.SaveChanges();
+        return itemgenre;
+    }
 }

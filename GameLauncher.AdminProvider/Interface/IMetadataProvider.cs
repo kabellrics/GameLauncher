@@ -21,3 +21,4 @@ public interface IMetadataProvider
     Task<ObservableMediaItem> GetSteamGridDBMediaItem(DataSearch game);
     Task<IEnumerable<ObservableMediaItem>> GetIGDBMediaGameByName(string name);
     Task<IEnumerable<ObservableMediaItem>> SearchScreenscraperGameMediaByName(string name);
+}

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GameLauncher.Models;
 using GameLauncher.Services.Interface;
 using RestSharp;
 
@@ -32,6 +34,70 @@ public class AssetDownloader : IAssetDownloader
             Console.WriteLine("Échec du téléchargement. Statut: " + response.StatusCode);
         }
     }
+    public void CopyFile(string url, string targetPath)
+    {
+        try
+        {
+            File.Copy(url, targetPath, true);
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message); }
+    }
+    public async Task RapatrierAsset(Item item)
+    {
+        var folderPath = CreateItemAssetFolder(item.ID);
+        if (!item.Banner.Contains(Path.Combine("GameLauncher", "Assets", "Item")))
+        {
+            var targetfile = Path.Combine(folderPath, "banner.jpg");
+            if (File.Exists(item.Banner))
+            {
+                CopyFile(item.Banner, targetfile);
+            }
+            else
+            {
+                await DownloadFile(item.Banner, targetfile);
+            }
+            item.Banner = targetfile;
+        }
+        if (!item.Logo.Contains(Path.Combine("GameLauncher", "Assets", "Item")))
+        {
+            var targetfile = Path.Combine(folderPath, "logo.png");
+            if (File.Exists(item.Logo))
+            {
+                CopyFile(item.Logo, targetfile);
+            }
+            else
+            {
+                await DownloadFile(item.Logo, targetfile);
+            }
+            item.Logo = targetfile;
+        }
+        if (!item.Cover.Contains(Path.Combine("GameLauncher", "Assets", "Item")))
+        {
+            var targetfile = Path.Combine(folderPath, "cover.jpg");
+            if (File.Exists(item.Cover))
+            {
+                CopyFile(item.Cover, targetfile);
+            }
+            else
+            {
+                await DownloadFile(item.Cover, targetfile);
+            }
+            item.Cover = targetfile;
+        }
+        if (!item.Artwork.Contains(Path.Combine("GameLauncher", "Assets", "Item")))
+        {
+            var targetfile = Path.Combine(folderPath, "artwork.jpg");
+            if (File.Exists(item.Artwork))
+            {
+                CopyFile(item.Artwork, targetfile);
+            }
+            else
+            {
+                await DownloadFile(item.Artwork, targetfile);
+            }
+            item.Artwork = targetfile;
+        }
+    }
     public string CreateItemAssetFolder(Guid guid)
     {
         string currentUser = Environment.UserName;
@@ -39,7 +105,7 @@ public class AssetDownloader : IAssetDownloader
         string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         // Construit le chemin complet vers le nouveau dossier
-        string targetPath = Path.Combine(documentsPath, "GameLauncher", "Assets","Item", guid.ToString());
+        string targetPath = Path.Combine(documentsPath, "GameLauncher", "Assets", "Item", guid.ToString());
 
         // Crée le dossier (et tous les dossiers parents si nécessaire)
         Directory.CreateDirectory(targetPath);

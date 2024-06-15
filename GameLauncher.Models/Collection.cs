@@ -33,7 +33,7 @@ public class Collection
     {
         get; set;
     }
-    public List<Item> Items
+    public List<CollectionItem> Items
     {
         get; set;
     }

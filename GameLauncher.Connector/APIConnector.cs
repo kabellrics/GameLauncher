@@ -156,7 +156,10 @@ namespace GameLauncher.Connector
             request.AddJsonBody(item);
 
             var response = await _client.ExecuteAsync(request);
-            if (!response.IsSuccessful) { throw new Exception("Update Failed"); }
+            if (!response.IsSuccessful)
+            {
+                throw new Exception("Update Failed");
+            }
         }
     }
 }

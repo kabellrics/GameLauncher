@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <None Update="gamelauncher.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

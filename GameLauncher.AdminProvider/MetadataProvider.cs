@@ -117,15 +117,26 @@ public class MetadataProvider : IMetadataProvider
     private async Task<ObservableMediaItem> MediaItemFromIGDBGame(IGDBGame game)
     {
         ObservableMediaItem item = new ObservableMediaItem();
+        item.Name = game.name;
+        item.Date = ConvertFromIGDB(game.first_release_date).ToString();
         var cover = game.cover?.url ?? string.Empty;
         if (!string.IsNullOrEmpty(cover))
-            item.Covers.Add(cover);
+            {
+            var filename = Path.GetFileName(cover);
+            item.Covers.Add($"https://images.igdb.com/igdb/image/upload/t_cover_big/" + filename);
+        }
         var artworks = game.artworks;
-        foreach(var artwork in artworks)
+        if (artworks != null)
         {
-            var art = artwork?.url ?? string.Empty;
-            if (!string.IsNullOrEmpty(art))
-                item.Covers.Add(art);
+            foreach (var artwork in artworks)
+            {
+                var art = artwork?.url ?? string.Empty;
+                if (!string.IsNullOrEmpty(art))
+                {
+                    var filename = Path.GetFileName(art);
+                    item.Artworks.Add($"https://images.igdb.com/igdb/image/upload/t_1080p/" + filename);
+                }
+            } 
         }
         return item;
     }
@@ -138,7 +149,7 @@ public class MetadataProvider : IMetadataProvider
         item.ReleaseDate = ConvertFromIGDB(game.first_release_date);
         try
         {
-            item.Genres = game.genres.Select(x => new Models.Genre { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>()}).ToList();
+            //item.Genres = game.genres.Select(x => new Models.Genre { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>()}).ToList();
         }
         catch (Exception ex){/*throw;*/}
         try
@@ -155,13 +166,13 @@ public class MetadataProvider : IMetadataProvider
         try
         {
             var devs = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.developer).ToList());
-            item.Develloppeurs = devs.Select(x => new Develloppeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
+            //item.Develloppeurs = devs.Select(x => new Develloppeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
         }
         catch (Exception ex) { /*throw;*/ }
         try
         {
             var edits = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.publisher).ToList());
-            item.Editeurs = edits.Select(x => new Models.Editeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
+            //item.Editeurs = edits.Select(x => new Models.Editeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
         }
         catch (Exception ex) { /*throw;*/ }
         return new ObservableItem(item);
@@ -181,73 +192,90 @@ public class MetadataProvider : IMetadataProvider
     private async Task<ObservableMediaItem> MediaItemFromScreenscraperGame(Jeux game)
     {
         ObservableMediaItem item = new ObservableMediaItem();
-        var video = game.medias.FirstOrDefault(x => x.type == "video").url ?? string.Empty;
-        if(!string.IsNullOrEmpty(video))
-        item.Videos.Add(video);
-        var cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr").url ??
-                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "eu").url ??
-                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "ss").url ??
-                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "wor").url ??
-                    string.Empty;
-        if(!string.IsNullOrEmpty(cover))
-            item.Covers.Add(cover);
-        var logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr").url ??
-                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu").url ??
-                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss").url ??
-                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor").url ??
-                    string.Empty; 
-        if (!string.IsNullOrEmpty(logo))
-            item.Logos.Add(logo);
-        var artwork = game.medias.FirstOrDefault(x => x.type == "fanart").url ?? string.Empty; 
-        var screen = game.medias.FirstOrDefault(x => x.type == "ss").url ?? string.Empty; 
-        var screentitle = game.medias.FirstOrDefault(x => x.type == "sstitle").url ?? string.Empty; 
-        var screen169 = game.medias.FirstOrDefault(x => x.type == "ssfronton16-9").url ?? string.Empty;
-        if(!string.IsNullOrEmpty(artwork))
-            item.Artworks.Add(artwork);
-        if(!string.IsNullOrEmpty(screen))
-            item.Artworks.Add(screentitle);
-        if(!string.IsNullOrEmpty(screentitle))
-            item.Artworks.Add(screentitle);
-        if(!string.IsNullOrEmpty(screen169))
-            item.Artworks.Add(screen169);
+        if (game.noms != null)
+        {
+            item.Name = game.noms.FirstOrDefault(x => x.region == "fr")?.text ??
+                game.noms.FirstOrDefault(x => x.region == "eu")?.text ??
+                game.noms.FirstOrDefault(x => x.region == "ss")?.text ??
+                game.noms.FirstOrDefault(x => x.region == "wor")?.text; 
+        }
+        if (game.dates != null)
+        {
+            item.Date = game.dates.FirstOrDefault(x => x.region == "fr")?.text ??
+                     game.dates.FirstOrDefault(x => x.region == "eu")?.text ??
+                     game.dates.FirstOrDefault(x => x.region == "ss")?.text ??
+                     game.dates.FirstOrDefault(x => x.region == "wor")?.text ?? string.Empty; 
+        }
+        if (game.medias !=null)
+        {
+            var video = game.medias.FirstOrDefault(x => x.type == "video")?.url ?? string.Empty;
+            if (!string.IsNullOrEmpty(video))
+                item.Videos.Add(video);
+            var cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "eu")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "ss")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "wor")?.url ??
+                        string.Empty;
+            if (!string.IsNullOrEmpty(cover))
+                item.Covers.Add(cover);
+            var logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor")?.url ??
+                        string.Empty;
+            if (!string.IsNullOrEmpty(logo))
+                item.Logos.Add(logo);
+            var artwork = game.medias.FirstOrDefault(x => x.type == "fanart")?.url ?? string.Empty;
+            var screen = game.medias.FirstOrDefault(x => x.type == "ss")?.url ?? string.Empty;
+            var screentitle = game.medias.FirstOrDefault(x => x.type == "sstitle")?.url ?? string.Empty;
+            var screen169 = game.medias.FirstOrDefault(x => x.type == "ssfronton16-9")?.url ?? string.Empty;
+            if (!string.IsNullOrEmpty(artwork))
+                item.Artworks.Add(artwork);
+            if (!string.IsNullOrEmpty(screen))
+                item.Artworks.Add(screentitle);
+            if (!string.IsNullOrEmpty(screentitle))
+                item.Artworks.Add(screentitle);
+            if (!string.IsNullOrEmpty(screen169))
+                item.Artworks.Add(screen169); 
+        }
         return item;
     }
     private async Task<ObservableItem> ItemFromScreenscraperGame(Jeux game)
     {
         Item item = new Item();
-        item.Name = game.noms.FirstOrDefault(x => x.region == "fr").text ??
-                    game.noms.FirstOrDefault(x => x.region == "eu").text ??
-                    game.noms.FirstOrDefault(x => x.region == "ss").text ??
-                    game.noms.FirstOrDefault(x => x.region == "wor").text;
-        item.SearchName = game.noms.FirstOrDefault(x => x.region == "wor").text ??
-                    game.noms.FirstOrDefault(x => x.region == "us").text ??
-                    game.noms.FirstOrDefault(x => x.region == "ss").text ??
-                    game.noms.FirstOrDefault(x => x.region == "eu").text ??
-                    game.noms.FirstOrDefault(x => x.region == "fr").text;
-        item.Develloppeurs = new List<Develloppeur>() { new Develloppeur { ID = Guid.NewGuid(), Name = game.developpeur.text, Items = new List<Item>() { item } } };
-        item.Editeurs = new List<Models.Editeur>() { new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text, Items = new List<Item>() { item } } };
-        item.Description = game.synopsis.FirstOrDefault(x => x.langue == "fr").text ?? game.synopsis.FirstOrDefault().text ?? string.Empty;
-        var stringdate = game.dates.FirstOrDefault(x => x.region == "fr").text ??
-                         game.dates.FirstOrDefault(x => x.region == "eu").text ??
-                         game.dates.FirstOrDefault(x => x.region == "ss").text ??
-                         game.dates.FirstOrDefault(x => x.region == "wor").text ?? string.Empty;
+        item.Name = game.noms.FirstOrDefault(x => x.region == "fr")?.text ??
+                    game.noms.FirstOrDefault(x => x.region == "eu")?.text ??
+                    game.noms.FirstOrDefault(x => x.region == "ss")?.text ??
+                    game.noms.FirstOrDefault(x => x.region == "wor")?.text;
+        item.SearchName = game.noms.FirstOrDefault(x => x.region == "wor")?.text ??
+                    game.noms.FirstOrDefault(x => x.region == "us")?.text ??
+                    game.noms.FirstOrDefault(x => x.region == "ss")?.text ??
+                    game.noms.FirstOrDefault(x => x.region == "eu")?.text ??
+                    game.noms.FirstOrDefault(x => x.region == "fr")?.text;
+        //item.Develloppeurs = new List<Develloppeur>() { new Develloppeur { ID = Guid.NewGuid(), Name = game.developpeur.text, Items = new List<Item>() } };
+        //item.Editeurs = new List<Models.Editeur>() { new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text, Items = new List<Item>() } };
+        item.Description = game.synopsis.FirstOrDefault(x => x.langue == "fr")?.text ?? game.synopsis.FirstOrDefault()?.text ?? string.Empty;
+        var stringdate = game.dates.FirstOrDefault(x => x.region == "fr")?.text ??
+                         game.dates.FirstOrDefault(x => x.region == "eu")?.text ??
+                         game.dates.FirstOrDefault(x => x.region == "ss")?.text ??
+                         game.dates.FirstOrDefault(x => x.region == "wor")?.text ?? string.Empty;
         if (!string.IsNullOrEmpty(stringdate))
             item.ReleaseDate = DateTime.Parse(stringdate);
         var genres = game.genres.SelectMany(x => x.noms).Where(x => x.langue == "fr");
-        item.Genres = new List<Models.Genre>();
-        foreach (var genre in genres)
-            item.Genres.Add(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text, Items = new List<Item>() { item } });
-        item.Video = game.medias.FirstOrDefault(x => x.type == "video").url ?? string.Empty;
-        item.Artwork = game.medias.FirstOrDefault(x => x.type == "fanart").url ?? string.Empty;
-        item.Cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr").url ??
-                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "eu").url ??
-                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "ss").url ??
-                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "wor").url ??
+        //item.Genres = new List<Models.Genre>();
+        //foreach (var genre in genres)
+            //item.Genres.Add(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text, Items = new List<Item>()  });
+        item.Video = game.medias.FirstOrDefault(x => x.type == "video")?.url ?? string.Empty;
+        item.Artwork = game.medias.FirstOrDefault(x => x.type == "fanart")?.url ?? string.Empty;
+        item.Cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr")?.url ??
+                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "eu")?.url ??
+                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "ss")?.url ??
+                    game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "wor")?.url ??
                     string.Empty;
-        item.Logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr").url ??
-                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu").url ??
-                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss").url ??
-                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor").url ??
+        item.Logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr")?.url ??
+                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu")?.url ??
+                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss")?.url ??
+                    game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor")?.url ??
                     string.Empty;
         return new ObservableItem(item);
     }

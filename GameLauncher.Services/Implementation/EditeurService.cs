@@ -24,4 +24,28 @@ public class EditeurService : IEditeurService
     {
         return dbContext.Editeurs.Where(x => x.Items.Any(item => item.ID == id));
     }
+    public ItemEditeur AddEditeurToItem(string editeurname, Item item)
+    {
+        var dbgenre = dbContext.Editeurs.FirstOrDefault(x => x.Name == editeurname);
+        if (dbgenre == null)
+        {
+            dbgenre = new Editeur();
+            dbgenre.Name = editeurname;
+            dbgenre.Items = new List<ItemEditeur>();
+            dbContext.Editeurs.Add(dbgenre);
+        }
+        var itemgenre = new ItemEditeur()
+        {
+            ID = Guid.NewGuid(),
+            EditeurID = dbgenre.ID,
+            ItemID = item.ID
+        };
+        dbContext.EditeurdItems.Add(itemgenre);
+        if (!dbgenre.Items.Contains(itemgenre))
+        {
+            dbgenre.Items.Add(itemgenre);
+        }
+        dbContext.SaveChanges();
+        return itemgenre;
+    }
 }

@@ -20,11 +20,15 @@ public class EpicGameFinderService : IEpicGameFinderService
     private readonly GameLauncherContext dbContext;
     private readonly IAssetDownloader assetDownloader;
     private readonly ISteamGridDbService steangriddbService;
-    public EpicGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService)
+    private readonly IDevService devService;
+    private readonly IEditeurService editService;
+    public EpicGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService)
     {
         this.dbContext = dbContext;
         this.assetDownloader = assetDownloader;
         this.steangriddbService = steangriddbService;
+        this.devService = devService;
+        this.editService = editService;
     }
     public async Task GetGameAsync()
     {
@@ -49,10 +53,12 @@ public class EpicGameFinderService : IEpicGameFinderService
                 item.Video = string.Empty;
                 item.Description = string.Empty;
                 item.ReleaseDate = DateTime.MinValue;
-                item.Develloppeurs = new List<Develloppeur>();
-                item.Editeurs = new List<Editeur>();
+                item.Develloppeurs = new List<ItemDev>();
+                item.Editeurs = new List<ItemEditeur>();
+                item.Genres = new List<ItemGenre>();
                 dbContext.Items.Add(item);
                 await GetEpicData(item);
+                dbContext.SaveChanges();
             }
         }
         dbContext.SaveChanges();
@@ -131,10 +137,12 @@ query searchStoreQuery($allowCountries: String, $category: String, $country: Str
 
                 var editor = epicdatagame.CustomAttributes.FirstOrDefault(x => x.Key == "publisherName");
                 if (editor != null)
-                    item.Editeurs.Add(ExtractEditor(editor, item));
+                    item.Editeurs.Add(editService.AddEditeurToItem(editor.Value, item));
+                    //item.Editeurs.Add(ExtractEditor(editor, item));
                 var dev = epicdatagame.CustomAttributes.FirstOrDefault(x => x.Key == "developerName");
                 if (dev != null)
-                    item.Develloppeurs.Add(ExtractDev(dev, item));
+                    item.Develloppeurs.Add(devService.AddDevToItem(dev.Value, item));
+                //    item.Develloppeurs.Add(ExtractDev(dev, item));
 
                 var assetfolder = assetDownloader.CreateItemAssetFolder(item.ID);
                 var firstlogo = epicdatagame.KeyImages.FirstOrDefault(x => x.Type == "ProductLogo");
@@ -195,38 +203,64 @@ query searchStoreQuery($allowCountries: String, $category: String, $country: Str
             }
         }
     }
-    private Editeur ExtractEditor(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
-    {
-        if (!dbContext.Editeurs.Any(x => x.Name == data.Value))
-        {
-            var dbdev = new Editeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<Item>() { game } };
-            dbContext.Editeurs.Add(dbdev);
-            return dbdev;
-        }
-        else
-        {
-            var dbdev = dbContext.Editeurs.First(x => x.Name == data.Value);
-            if (dbdev.Items == null) dbdev.Items = new List<Item>();
-            dbdev.Items.Add(game);
-            dbContext.Editeurs.Update(dbdev);
-            return dbdev;
-        }
-    }
-    private Develloppeur ExtractDev(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
-    {
-        if (!dbContext.Develloppeurs.Any(x => x.Name == data.Value))
-        {
-            var dbdev = new Develloppeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<Item>() { game } };
-            dbContext.Develloppeurs.Add(dbdev);
-            return dbdev;
-        }
-        else
-        {
-            var dbdev = dbContext.Develloppeurs.First(x => x.Name == data.Value);
-            if (dbdev.Items == null) dbdev.Items = new List<Item>();
-            dbdev.Items.Add(game);
-            dbContext.Develloppeurs.Update(dbdev);
-            return dbdev;
-        }
-    }
+    //private ItemEditeur ExtractEditor(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
+    //{
+    //    if (!dbContext.Editeurs.Any(x => x.Name == data.Value))
+    //    {
+    //        var dbdev = new Editeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<ItemEditeur>() };
+    //        dbContext.Editeurs.Add(dbdev);
+    //        var ItemEdit = new ItemEditeur();
+    //        ItemEdit.ID = Guid.NewGuid();
+    //        ItemEdit.Editeur = dbdev;
+    //        ItemEdit.Item = game;
+    //        ItemEdit.EditeurID = dbdev.ID;
+    //        ItemEdit.ItemID = game.ID;
+    //        dbdev.Items.Add(ItemEdit);
+    //        dbContext.EditeurdItems.Add(ItemEdit);
+    //        return ItemEdit;
+    //    }
+    //    else
+    //    {
+    //        var dbdev = dbContext.Editeurs.First(x => x.Name == data.Value);
+    //        var ItemEdit = new ItemEditeur();
+    //        ItemEdit.ID = Guid.NewGuid();
+    //        ItemEdit.Editeur = dbdev;
+    //        ItemEdit.Item = game;
+    //        ItemEdit.EditeurID = dbdev.ID;
+    //        ItemEdit.ItemID = game.ID;
+    //        dbdev.Items.Add(ItemEdit);
+    //        dbContext.EditeurdItems.Add(ItemEdit);
+    //        return ItemEdit;
+    //    }
+    //}
+    //private ItemDev ExtractDev(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
+    //{
+    //    if (!dbContext.Editeurs.Any(x => x.Name == data.Value))
+    //    {
+    //        var dbdev = new Develloppeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<ItemDev>() };
+    //        dbContext.Develloppeurs.Add(dbdev);
+    //        var ItemEdit = new ItemDev();
+    //        ItemEdit.ID = Guid.NewGuid();
+    //        ItemEdit.Develloppeur = dbdev;
+    //        ItemEdit.Item = game;
+    //        ItemEdit.DevID = dbdev.ID;
+    //        ItemEdit.ItemID = game.ID;
+    //        dbdev.Items.Add(ItemEdit);
+    //        dbContext.DevdItems.Add(ItemEdit);
+    //        return ItemEdit;
+    //    }
+    //    else
+    //    {
+    //        var dbdev = dbContext.Develloppeurs.First(x => x.Name == data.Value);
+    //        var ItemEdit = new ItemDev();
+    //        ItemEdit.ID = Guid.NewGuid();
+    //        ItemEdit.Develloppeur = dbdev;
+    //        ItemEdit.Item = game;
+    //        ItemEdit.DevID = dbdev.ID;
+    //        ItemEdit.ItemID = game.ID;
+    //        dbdev.Items.Add(ItemEdit);
+    //        dbContext.DevdItems.Add(ItemEdit);
+    //        return ItemEdit;
+    //    }
+    //}
 }

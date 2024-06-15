@@ -3,6 +3,7 @@ using System;
 using GameLauncher.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameLauncher.DAL.Migrations
 {
     [DbContext(typeof(GameLauncherContext))]
-    partial class GameLauncherContextModelSnapshot : ModelSnapshot
+    [Migration("20240614214202_ChangeManyToManyRelation")]
+    partial class ChangeManyToManyRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
@@ -196,6 +199,9 @@ namespace GameLauncher.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("DevID")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("DevelloppeurID")
                         .HasColumnType("TEXT");
 
@@ -309,21 +315,21 @@ namespace GameLauncher.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            ID = new Guid("33b0b08a-31e6-4daf-b28a-b5e68e8ac247"),
+                            ID = new Guid("bce4011a-b705-4d18-993d-c8d81fec3c66"),
                             CodeName = "Steam",
                             Databases = "",
                             Name = "Steam"
                         },
                         new
                         {
-                            ID = new Guid("4efcb77a-5787-4b7f-87a0-75ff1a1b2944"),
+                            ID = new Guid("4d230b99-fb69-4e93-9e7a-9215c3bc45b1"),
                             CodeName = "Epic",
                             Databases = "",
                             Name = "Epic Games Store"
                         },
                         new
                         {
-                            ID = new Guid("fe143a6a-e98d-412f-be37-6675d1824107"),
+                            ID = new Guid("dbe21f56-6e46-46b6-8c5b-8e565f68b10e"),
                             CodeName = "EA Play",
                             Databases = "",
                             Name = "EA Origin"
