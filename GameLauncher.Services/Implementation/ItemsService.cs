@@ -13,10 +13,12 @@ public class ItemsService : IItemsService
 {
     private readonly GameLauncherContext dbContext;
     private readonly IAssetDownloader assetService;
-    public ItemsService(GameLauncherContext dbContext, IAssetDownloader assetService)
+    private readonly IGenreService genreService;
+    public ItemsService(GameLauncherContext dbContext, IAssetDownloader assetService, IGenreService genreService)
     {
         this.dbContext = dbContext;
         this.assetService = assetService;
+        this.genreService = genreService;
     }
     public IEnumerable<Item> GetAll()
     {
@@ -39,12 +41,7 @@ public class ItemsService : IItemsService
             item.Cover = updateditem.Cover;
             item.Logo = updateditem.Logo;
             item.Video = updateditem.Video;
-            item.Genres = updateditem.Genres;
-            //foreach (var genre in updateditem.Genres) 
-            //{
-            //    if(!dbContext.Genres.Any(x=>x.ID == genre.ID))
-            //    dbContext.Genres.Add(genre); 
-            //}
+            //genreService.UpdateGenreInItem(item, updateditem.Genres);
             //item.Editeurs = updateditem.Editeurs;
             //foreach (var editeur in updateditem.Editeurs)
             //{

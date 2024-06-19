@@ -17,7 +17,7 @@ public class Editeur
     {
         get; set;
     }
-    public List<ItemEditeur> Items
+    public List<ItemEditeur>? Items
     {
         get; set;
     }

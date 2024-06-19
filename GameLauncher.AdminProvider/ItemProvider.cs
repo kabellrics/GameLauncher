@@ -81,5 +81,17 @@ namespace GameLauncher.AdminProvider
         {
             await apiconnector.UpdateItemAsync(item.Item);
         }
+        public async Task UpdatesGenresForItem(Item item, List<Genre> newGenres)
+        {
+            await apiconnector.UpdateGenreForItem(item,newGenres);
+        }
+        public async Task UpdatesDevsForItem(Item item, List<Develloppeur> newDevs)
+        {
+            await apiconnector.UpdateDevForItem(item, newDevs);
+        }
+        public async Task UpdatesEditsForItem(Item item, List<Editeur> newEdits)
+        {
+            await apiconnector.UpdateEditForItem(item, newEdits);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GameLauncher.Models;
+using GameLauncher.Models.APIObject;
 using GameLauncher.Models.EpicGame;
 using Newtonsoft.Json;
 using RestSharp;
@@ -159,6 +160,37 @@ namespace GameLauncher.Connector
             if (!response.IsSuccessful)
             {
                 throw new Exception("Update Failed");
+            }
+        }
+
+        public async Task UpdateGenreForItem(Item item, List<Genre> newGenres)
+        {
+            var request = new RestRequest($"/api/Genres/ChangeGenreForItem", Method.Post);
+            var itemmessage = new UpdateGenreMessage() { newGenres = newGenres,Item = item };
+            request.AddJsonBody(itemmessage); var response = await _client.ExecuteAsync(request);
+            if (!response.IsSuccessful)
+            {
+                //throw new Exception("Update Failed");
+            }
+        }
+        public async Task UpdateDevForItem(Item item, List<Develloppeur> newDevs)
+        {
+            var request = new RestRequest($"/api/Dev/ChangeDevForItem", Method.Post);
+            var itemmessage = new UpdateDevMessage() { newDevs = newDevs, Item = item };
+            request.AddJsonBody(itemmessage); var response = await _client.ExecuteAsync(request);
+            if (!response.IsSuccessful)
+            {
+                //throw new Exception("Update Failed");
+            }
+        }
+        public async Task UpdateEditForItem(Item item, List<Editeur> newEdits)
+        {
+            var request = new RestRequest($"/api/Editeurs/ChangeEditeurForItem", Method.Post);
+            var itemmessage = new UpdateEditeurMessage() { newEditeurs = newEdits, Item = item };
+            request.AddJsonBody(itemmessage); var response = await _client.ExecuteAsync(request);
+            if (!response.IsSuccessful)
+            {
+                //throw new Exception("Update Failed");
             }
         }
     }

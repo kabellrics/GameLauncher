@@ -22,7 +22,7 @@ public class GenreService : IGenreService
     }
     public IEnumerable<Genre> GetAllForItem(Guid id)
     {
-        return dbContext.Genres.Where(x=>x.Items.Any(item=>item.ID == id));
+        return dbContext.Genres.Where(x=>x.Items.Any(item=>item.ItemID == id));
     }
     public ItemGenre AddGenreToItem(string genrename, Item item)
     {
@@ -47,5 +47,16 @@ public class GenreService : IGenreService
         }
         dbContext.SaveChanges();
         return itemgenre;
+    }
+    public void UpdateGenreInItem(Item Item, List<Genre> newgenres)
+    {
+        var existingPostTags = dbContext.GenredItems.Where(pt => pt.ItemID == Item.ID);
+        dbContext.GenredItems.RemoveRange(existingPostTags);
+        if (Item.Genres != null)
+            Item.Genres.Clear();
+        foreach (var genre in newgenres)
+        {
+            AddGenreToItem(genre.Name, Item);
+        }
     }
 }

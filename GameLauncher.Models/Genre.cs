@@ -17,7 +17,7 @@ public class Genre
     {
         get; set;
     }
-    public List<ItemGenre> Items
+    public List<ItemGenre>? Items
     {
         get; set;
     }

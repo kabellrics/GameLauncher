@@ -22,7 +22,7 @@ public class DevService : IDevService
     }
     public IEnumerable<Develloppeur> GetAllForItem(Guid id)
     {
-        return dbContext.Develloppeurs.Where(x => x.Items.Any(item => item.ID == id));
+        return dbContext.Develloppeurs.Where(x => x.Items.Any(item => item.ItemID == id));
     }
     public ItemDev AddDevToItem(string editeurname, Item item)
     {
@@ -47,5 +47,16 @@ public class DevService : IDevService
         }
         dbContext.SaveChanges();
         return itemgenre;
+    }
+    public void UpdateDevInItem(Item Item, List<Develloppeur> newDevs)
+    {
+        var existingPostTags = dbContext.DevdItems.Where(pt => pt.ItemID == Item.ID);
+        dbContext.DevdItems.RemoveRange(existingPostTags);
+        if(Item.Develloppeurs != null)
+            Item.Develloppeurs.Clear();
+        foreach (var dev in newDevs)
+        {
+            AddDevToItem(dev.Name, Item);
+        }
     }
 }

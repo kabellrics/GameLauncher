@@ -361,6 +361,9 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     private async void SaveAndGoBack()
     {
         await _itemService.UpdateItem(Item);
+        await _itemService.UpdatesGenresForItem(Item.Item, Item.Genres.Select(x => x.Item).ToList());
+        await _itemService.UpdatesDevsForItem(Item.Item, Item.Develloppeurs.Select(x => x.Item).ToList());
+        await _itemService.UpdatesEditsForItem(Item.Item, Item.Editeurs.Select(x => x.Item).ToList());
         GoBackToList();
     }
     private void GoBackToList()

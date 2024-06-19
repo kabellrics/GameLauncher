@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using GameLauncher.AdminProvider.Interface;
 using GameLauncher.Connector;
 using GameLauncher.Models;
@@ -149,11 +151,6 @@ public class MetadataProvider : IMetadataProvider
         item.ReleaseDate = ConvertFromIGDB(game.first_release_date);
         try
         {
-            //item.Genres = game.genres.Select(x => new Models.Genre { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>()}).ToList();
-        }
-        catch (Exception ex){/*throw;*/}
-        try
-        {
             item.Artwork = game.artworks.FirstOrDefault()?.url ?? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
 
         }
@@ -163,19 +160,25 @@ public class MetadataProvider : IMetadataProvider
             item.Cover = game.cover?.url ?? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "default.png");
         }
         catch (Exception ex) { /*throw;*/ }
+        var obsItem = new ObservableItem(item);
+        try
+        {
+            obsItem.Genres = new ObservableCollection<ObservableGenre>(game.genres.Select(x =>new ObservableGenre(new Models.Genre { ID = Guid.NewGuid(), Name = x.name})));
+        }
+        catch (Exception ex) {/*throw;*/}
         try
         {
             var devs = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.developer).ToList());
-            //item.Develloppeurs = devs.Select(x => new Develloppeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
+            obsItem.Develloppeurs = new ObservableCollection<ObservableDevelloppeur>(devs.Select(x =>new ObservableDevelloppeur( new Develloppeur { ID = Guid.NewGuid(), Name = x.name})));
         }
         catch (Exception ex) { /*throw;*/ }
         try
         {
             var edits = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.publisher).ToList());
-            //item.Editeurs = edits.Select(x => new Models.Editeur { ID = Guid.NewGuid(), Name = x.name, Items = new List<Item>() }).ToList();
+            obsItem.Editeurs = new ObservableCollection<ObservableEditeur>(edits.Select(x => new ObservableEditeur(new Models.Editeur { ID = Guid.NewGuid(), Name = x.name })));
         }
         catch (Exception ex) { /*throw;*/ }
-        return new ObservableItem(item);
+        return obsItem;
     }
     private DateTime ConvertFromIGDB(int value)
     {
@@ -252,8 +255,6 @@ public class MetadataProvider : IMetadataProvider
                     game.noms.FirstOrDefault(x => x.region == "ss")?.text ??
                     game.noms.FirstOrDefault(x => x.region == "eu")?.text ??
                     game.noms.FirstOrDefault(x => x.region == "fr")?.text;
-        //item.Develloppeurs = new List<Develloppeur>() { new Develloppeur { ID = Guid.NewGuid(), Name = game.developpeur.text, Items = new List<Item>() } };
-        //item.Editeurs = new List<Models.Editeur>() { new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text, Items = new List<Item>() } };
         item.Description = game.synopsis.FirstOrDefault(x => x.langue == "fr")?.text ?? game.synopsis.FirstOrDefault()?.text ?? string.Empty;
         var stringdate = game.dates.FirstOrDefault(x => x.region == "fr")?.text ??
                          game.dates.FirstOrDefault(x => x.region == "eu")?.text ??
@@ -261,10 +262,6 @@ public class MetadataProvider : IMetadataProvider
                          game.dates.FirstOrDefault(x => x.region == "wor")?.text ?? string.Empty;
         if (!string.IsNullOrEmpty(stringdate))
             item.ReleaseDate = DateTime.Parse(stringdate);
-        var genres = game.genres.SelectMany(x => x.noms).Where(x => x.langue == "fr");
-        //item.Genres = new List<Models.Genre>();
-        //foreach (var genre in genres)
-            //item.Genres.Add(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text, Items = new List<Item>()  });
         item.Video = game.medias.FirstOrDefault(x => x.type == "video")?.url ?? string.Empty;
         item.Artwork = game.medias.FirstOrDefault(x => x.type == "fanart")?.url ?? string.Empty;
         item.Cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr")?.url ??
@@ -277,7 +274,19 @@ public class MetadataProvider : IMetadataProvider
                     game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss")?.url ??
                     game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor")?.url ??
                     string.Empty;
-        return new ObservableItem(item);
+        var obsItem = new ObservableItem(item);
+        //obsItem.Genres = new List<Models.Genre>();
+        //foreach (var genre in genres)
+        //obsItem.Genres.Add(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text, Items = new List<Item>()  });
+        obsItem.Genres = new ObservableCollection<ObservableGenre>();
+        var genres = game.genres.SelectMany(x => x.noms).Where(x => x.langue == "fr");
+        foreach (var genre in genres)
+            obsItem.Genres.Add(new ObservableGenre(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text }));
+        obsItem.Develloppeurs = new ObservableCollection<ObservableDevelloppeur>();// { new Develloppeur { ID = Guid.NewGuid(), Name = game.developpeur.text } };
+        obsItem.Develloppeurs.Add(new ObservableDevelloppeur(new Develloppeur { ID = Guid.NewGuid(), Name = game.developpeur.text }));
+        obsItem.Editeurs = new ObservableCollection<ObservableEditeur>();// { new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text, Items = new List<Item>() } };
+        obsItem.Editeurs.Add(new ObservableEditeur(new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text }));
+        return obsItem;
     }
 
 }

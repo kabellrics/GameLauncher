@@ -22,7 +22,7 @@ public class EditeurService : IEditeurService
     }
     public IEnumerable<Editeur> GetAllForItem(Guid id)
     {
-        return dbContext.Editeurs.Where(x => x.Items.Any(item => item.ID == id));
+        return dbContext.Editeurs.Where(x => x.Items.Any(item => item.ItemID == id));
     }
     public ItemEditeur AddEditeurToItem(string editeurname, Item item)
     {
@@ -47,5 +47,16 @@ public class EditeurService : IEditeurService
         }
         dbContext.SaveChanges();
         return itemgenre;
+    }
+    public void UpdateEditeurInItem(Item Item, List<Editeur> newEditeurs)
+    {
+        var existingPostTags = dbContext.EditeurdItems.Where(pt => pt.ItemID == Item.ID);
+        dbContext.EditeurdItems.RemoveRange(existingPostTags);
+        if (Item.Editeurs != null)
+            Item.Editeurs.Clear();
+        foreach (var editeur in newEditeurs)
+        {
+            AddEditeurToItem(editeur.Name, Item);
+        }
     }
 }

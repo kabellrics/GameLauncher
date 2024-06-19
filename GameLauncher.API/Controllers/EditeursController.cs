@@ -1,4 +1,6 @@
-﻿using GameLauncher.Services.Interface;
+﻿using GameLauncher.Models;
+using GameLauncher.Models.APIObject;
+using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,5 +23,11 @@ public class EditeursController : ControllerBase
     public async Task<ActionResult> Get(Guid id)
     {
         return Ok(_Service.GetAllForItem(id));
+    }
+    [HttpPost("ChangeEditeurForItem")]
+    public async Task<ActionResult> UpdateEditeurFotItem([FromBody] UpdateEditeurMessage Message)
+    {
+        _Service.UpdateEditeurInItem(Message.Item, Message.newEditeurs);
+        return Ok();
     }
 }
