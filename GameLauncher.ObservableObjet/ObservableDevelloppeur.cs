@@ -26,4 +26,5 @@ public class ObservableDevelloppeur : ObservableObject
             SetProperty(Item.Name, value, Item, (syteme, item) => Item.Name = item);
         }
     }
+    public override string ToString() => Name;
 }

@@ -3,4 +3,5 @@
 public interface IEAOriginGameFinderService
 {
     Task GetGameAsync();
+    Task CleaningGame();
 }

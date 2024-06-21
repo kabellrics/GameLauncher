@@ -7,6 +7,35 @@
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <ListView x:Name="listItem"
+            Grid.Column="0"
+            SelectionMode="Single"
+            SelectedItem="{x:Bind ViewModel.Current,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"/>
+        <ScrollViewer Grid.Column="1">
+            <StackPanel Orientation="Vertical">
+                <TextBox Style="{StaticResource AutoSuggestBoxTextBoxStyle}" Text="{x:Bind ViewModel.Current.Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Center" Content="Absorber un autre élément" Command="{x:Bind ViewModel.GetFusionListCommand}"/>
+                <ListView x:Name="listfusion"
+            Visibility="{x:Bind ViewModel.VisibilityFusionList,Mode=OneWay}"
+            SelectionMode="Single"
+            SelectedItem="{x:Bind ViewModel.AbsorbeItem,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{x:Bind ViewModel.FusionList,Mode=OneWay}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}"
+                       Text="{x:Bind ViewModel.Current.Name,Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.VisibilityFusionList,Mode=OneWay}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}"
+                       Text="Absorbera"
+            Visibility="{x:Bind ViewModel.VisibilityFusionList,Mode=OneWay}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}"
+                       Text="{x:Bind ViewModel.AbsorbeItem.Name,Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.VisibilityFusionList,Mode=OneWay}"/>
+                <Button Style="{StaticResource ButtonRevealStyle}" Command="{x:Bind ViewModel.SaveCommand}" HorizontalAlignment="Right" Content="Enregistrer les Modifications"/>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

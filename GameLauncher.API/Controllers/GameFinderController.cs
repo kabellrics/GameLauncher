@@ -36,4 +36,22 @@ public class GameFinderController : ControllerBase
        await EpicGameFinderService.GetGameAsync();
         return Ok();
     }
+    [HttpGet("/CleanSteamGame")]
+    public async Task<ActionResult> CleanSteamGame()
+    {
+       await SteamGameFinderService.CleaningGame();
+        return Ok();
+    }
+    [HttpGet("/CleanEAOriginGame")]
+    public async Task<ActionResult> CleanEAOriginGame()
+    {
+       await EAOriginGameFinderService.CleaningGame();
+        return Ok();
+    }
+    [HttpGet("/CleanEpicGame")]
+    public async Task<ActionResult> CleanEpicGame()
+    {
+       await EpicGameFinderService.CleaningGame();
+        return Ok();
+    }
 }

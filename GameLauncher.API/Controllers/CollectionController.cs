@@ -1,5 +1,4 @@
 ﻿using GameLauncher.Models;
-using GameLauncher.Models.APIObject;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace GameLauncher.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class GenresController : ControllerBase
+public class CollectionController : ControllerBase
 {
-    private readonly IGenreService _Service;
-    public GenresController(IGenreService itemService)
+    private readonly ICollectionService _Service;
+    public CollectionController(ICollectionService itemService)
     {
         _Service = itemService;
     }
@@ -20,25 +19,25 @@ public class GenresController : ControllerBase
     {
         return Ok(_Service.GetAll());
     }
-    [HttpGet("ByItem/{id}")]
-    public async Task<ActionResult> Get(Guid id)
+    [HttpGet("GetAllItemInside/{id}")]
+    public async Task<ActionResult> GetAllItemInside(Guid id)
     {
-        return Ok(_Service.GetAllForItem(id));
+        return Ok(_Service.GetAllItemInside(id));
     }
-    [HttpGet("Fusion/{idToDelete}/{idToKeep}")]
-    public async Task<ActionResult> Fusion(Guid idToDelete, Guid idToKeep)
+    [HttpGet("AddToCollectionEnd/{id}/{gameid}")]
+    public async Task<ActionResult> AddToCollectionEnd(Guid id, Guid gameid)
     {
-        _Service.Fusionnage(idToDelete, idToKeep);
+        _Service.AddToCollectionEnd(id, gameid);
         return Ok();
     }
-    [HttpPost("ChangeGenreForItem")]
-    public async Task<ActionResult> UpdateGenreFotItem([FromBody] UpdateGenreMessage Message)
+    [HttpGet("UpdateCollectionItemOrder/{id}/{gameid}/{newOrder}")]
+    public async Task<ActionResult> UpdateCollectionItemOrder(Guid id, Guid gameid,int newOrder)
     {
-        _Service.UpdateGenreInItem(Message.Item, Message.newGenres);
+        _Service.UpdateCollectionItemOrder(id, gameid, newOrder);
         return Ok();
     }
     [HttpPut("{id}")]
-    public ActionResult Put(Guid id, [FromBody] Genre todoItem)
+    public ActionResult Put(Guid id, [FromBody] Collection todoItem)
     {
         if (id != todoItem.ID)
         {

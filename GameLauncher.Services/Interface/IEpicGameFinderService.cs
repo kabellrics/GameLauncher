@@ -3,4 +3,5 @@
 public interface IEpicGameFinderService
 {
     Task GetGameAsync();
+    Task CleaningGame();
 }

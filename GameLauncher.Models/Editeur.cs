@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GameLauncher.Models;
 public class Editeur
@@ -17,8 +18,10 @@ public class Editeur
     {
         get; set;
     }
+    [JsonIgnore]
     public List<ItemEditeur>? Items
     {
         get; set;
     }
+    public override string ToString() => Name;
 }

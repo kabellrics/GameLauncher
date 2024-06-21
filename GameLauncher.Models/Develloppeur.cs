@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GameLauncher.Models;
 public class Develloppeur
@@ -18,8 +19,10 @@ public class Develloppeur
     {
         get; set;
     }
+    [JsonIgnore]
     public List<ItemDev>? Items
     {
         get; set;
     }
+    public override string ToString() => Name;
 }

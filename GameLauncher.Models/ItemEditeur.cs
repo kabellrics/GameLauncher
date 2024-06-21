@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GameLauncher.Models;
 public class ItemEditeur
@@ -19,10 +20,12 @@ public class ItemEditeur
     {
         get; set;
     }
+    [JsonIgnore]
     public Item Item
     {
         get; set;
     }
+    [JsonIgnore]
     public Editeur Editeur
     {
         get;set;

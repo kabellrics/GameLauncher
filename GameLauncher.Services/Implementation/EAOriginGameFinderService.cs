@@ -26,6 +26,16 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
         this.assetDownloader = assetDownloader;
         this.steangriddbService = steangriddbService;
     }
+    public async Task CleaningGame()
+    {
+        var handler = new EADesktopHandler(FileSystem.Shared, new HardwareInfoProvider());
+        var results = handler.FindAllGames();
+        var gamesfind = new List<EADesktopGame>();
+        var storeIdList = results.Select(x => x.AsT0.EADesktopGameId.Value);
+        var gameToRemoves = dbContext.Items.Where(x => x.Platformes.Name == "EA Origin" && !storeIdList.Contains(x.StoreId));
+        dbContext.Items.RemoveRange(gameToRemoves);
+        dbContext.SaveChanges();
+    }
     public async Task GetGameAsync()
     {
         var resultlist = new List<Item>();

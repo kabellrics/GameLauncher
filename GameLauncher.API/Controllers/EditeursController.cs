@@ -3,6 +3,7 @@ using GameLauncher.Models.APIObject;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameLauncher.API.Controllers;
 [Route("api/[controller]")]
@@ -24,10 +25,35 @@ public class EditeursController : ControllerBase
     {
         return Ok(_Service.GetAllForItem(id));
     }
+    [HttpGet("Fusion/{idToDelete}/{idToKeep}")]
+    public async Task<ActionResult> Fusion(Guid idToDelete, Guid idToKeep)
+    {
+        _Service.Fusionnage(idToDelete, idToKeep);
+        return Ok();
+    }
     [HttpPost("ChangeEditeurForItem")]
     public async Task<ActionResult> UpdateEditeurFotItem([FromBody] UpdateEditeurMessage Message)
     {
         _Service.UpdateEditeurInItem(Message.Item, Message.newEditeurs);
         return Ok();
+    }
+    [HttpPut("{id}")]
+    public ActionResult Put(Guid id, [FromBody] Editeur todoItem)
+    {
+        if (id != todoItem.ID)
+        {
+            return BadRequest();
+        }
+        try
+        {
+            _Service.Update(todoItem);
+            return Ok();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw;
+        }
+
+        return NoContent();
     }
 }

@@ -18,7 +18,7 @@ public class GenreService : IGenreService
     }
     public IEnumerable<Genre> GetAll()
     {
-        return dbContext.Genres.Include(x => x.Items);
+        return dbContext.Genres;//.Include(x => x.Items);
     }
     public IEnumerable<Genre> GetAllForItem(Guid id)
     {
@@ -57,6 +57,23 @@ public class GenreService : IGenreService
         foreach (var genre in newgenres)
         {
             AddGenreToItem(genre.Name, Item);
+        }
+    }
+    public void Fusionnage(Guid idToDelete, Guid idToKeep)
+    {
+        dbContext.GenredItems.Where(x => x.GenreID == idToDelete).ForEachAsync(x => x.GenreID = idToKeep);
+        var deleteItem = dbContext.Genres.First(x => x.ID == idToDelete);
+        dbContext.Genres.Remove(deleteItem);
+        dbContext.SaveChanges();
+    }
+    public void Update(Genre updateditem)
+    {
+        var item = dbContext.Genres.FirstOrDefault(x => x.ID == updateditem.ID);
+        if (item != null)
+        {
+            item.Name = updateditem.Name;
+            dbContext.Genres.Update(item);
+            dbContext.SaveChanges();
         }
     }
 }

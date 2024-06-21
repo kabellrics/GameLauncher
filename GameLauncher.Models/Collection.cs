@@ -29,11 +29,11 @@ public class Collection
     {
         get; set;
     }
-    public string ShowOrder
+    public int Order
     {
         get; set;
     }
-    public List<CollectionItem> Items
+    public List<CollectionItem>? Items
     {
         get; set;
     }

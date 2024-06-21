@@ -35,85 +35,127 @@ namespace GameLauncher.Services.Implementation
             this.editService = editService;
             this.genreService = genreService;
         }
-        public async Task GetGameAsync()
+        public async Task CleaningGame()
         {
-            string steamfolder;
-            var key64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam";
-            var key32 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam";
-            if (Environment.Is64BitOperatingSystem)
-            {
-                steamfolder = (string)Microsoft.Win32.Registry.GetValue(key64, "InstallPath", string.Empty);
-            }
-            else
-            {
-                steamfolder = (string)Microsoft.Win32.Registry.GetValue(key32, "InstallPath", string.Empty);
-            }
-
+            string steamfolder = GetSteamFolder();
             if (steamfolder != null)
             {
-                var foldersTosearch = new List<string>();
-                foldersTosearch.Add(Path.Combine(steamfolder, "steamapps"));
-                var volvo = VdfConvert.Deserialize(File.ReadAllText(Path.Combine(steamfolder, "steamapps", "libraryfolders.vdf")));
-                var childs = volvo.Value.Children();
-                foreach (var child in childs)
-                {
-                    var childKV = (VProperty)child;
-                    var childValueKV = childKV.Value;
-                    var pathchildKV = childValueKV.FirstOrDefault();
-                    if (pathchildKV != null)
-                    {
-                        //if (Directory.Exists(((VProperty)child).Value.ToString()))
-                        if (Directory.Exists(((VProperty)pathchildKV).Value.ToString()))
-                        {
-                            foldersTosearch.Add(Path.Combine(((VProperty)pathchildKV).Value.ToString(), "steamapps"));
-                        }
-                    }
-                }
-                var appmanifestfiles = new List<string>();
-                foreach (var foldertoSeek in foldersTosearch)
-                {
-                    appmanifestfiles.AddRange(Directory.GetFiles(foldertoSeek, "appmanifest_*.acf").ToList());
-                }
+                var foldersToSearch = GetFoldersToSearch(steamfolder);
+                var appManifestFiles = GetAppManifestFiles(foldersToSearch);
+                var storeIdList = GetStoreIdList(appManifestFiles);
 
-                foreach (var file in appmanifestfiles)
+                var gameToRemoves = dbContext.Items.Where(x => x.Platformes.Name == "Steam" && !storeIdList.Contains(x.StoreId));
+                dbContext.Items.RemoveRange(gameToRemoves);
+                dbContext.SaveChanges();
+            }
+        }
+
+        public async Task GetGameAsync()
+        {
+            string steamfolder = GetSteamFolder();
+            if (steamfolder != null)
+            {
+                var foldersToSearch = GetFoldersToSearch(steamfolder);
+                var appManifestFiles = GetAppManifestFiles(foldersToSearch);
+
+                foreach (var file in appManifestFiles)
                 {
                     try
                     {
-                        //dynamic appfile = VdfConvert.Deserialize(File.ReadAllText(file));
-                        var appVproperty = VdfConvert.Deserialize(File.ReadAllText(file));
-                        var steamid = appVproperty.Value["appid"].ToString();
-                        var steamname = appVproperty.Value["name"].ToString();
-                        if (!dbContext.Items.Any(x => x.StoreId == steamid))
+                        var appVProperty = VdfConvert.Deserialize(File.ReadAllText(file));
+                        var steamId = appVProperty.Value["appid"].ToString();
+                        var steamName = appVProperty.Value["name"].ToString();
+
+                        if (!dbContext.Items.Any(x => x.StoreId == steamId))
                         {
-                            Item game = new Item();
-                            game.StoreId = steamid;
-                            game.Name = steamname;
-                            game.SearchName = steamname;
-                            game.Path = $"steam://rungameid/{game.StoreId.ToString()}";
-                            game.Platformes = dbContext.Platformes.First(x=> x.Name== "Steam");
-                            game.LUPlatformesId = game.Platformes.ID;
-                            game.Logo = string.Empty;
-                            game.Cover = string.Empty;
-                            game.Banner = string.Empty;
-                            game.Artwork = string.Empty;
-                            game.Video = string.Empty;
-                            game.Description = string.Empty;
-                            game.ReleaseDate = DateTime.MinValue;
-                            game.Genres = new List<ItemGenre>();
-                            game.Develloppeurs = new List<ItemDev>();
-                            game.Editeurs = new List<ItemEditeur>();
+                            Item game = new Item
+                            {
+                                StoreId = steamId,
+                                Name = steamName,
+                                SearchName = steamName,
+                                Path = $"steam://rungameid/{steamId}",
+                                Platformes = dbContext.Platformes.First(x => x.Name == "Steam"),
+                                LUPlatformesId = dbContext.Platformes.First(x => x.Name == "Steam").ID,
+                                Logo = string.Empty,
+                                Cover = string.Empty,
+                                Banner = string.Empty,
+                                Artwork = string.Empty,
+                                Video = string.Empty,
+                                Description = string.Empty,
+                                ReleaseDate = DateTime.MinValue,
+                                Genres = new List<ItemGenre>(),
+                                Develloppeurs = new List<ItemDev>(),
+                                Editeurs = new List<ItemEditeur>()
+                            };
+
                             dbContext.Items.Add(game);
-                            var assetfolder = assetDownloader.CreateItemAssetFolder(game.ID);
-                            game = await GetSteamInfos(game, assetfolder);
+                            var assetFolder = assetDownloader.CreateItemAssetFolder(game.ID);
+                            game = await GetSteamInfos(game, assetFolder);
                             dbContext.SaveChanges();
                         }
                     }
                     catch (Exception ex)
                     {
-                        //throw;
+                        // Log exception or handle it accordingly
                     }
                 }
             }
+        }
+
+        private string GetSteamFolder()
+        {
+            var key64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam";
+            var key32 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam";
+            return Environment.Is64BitOperatingSystem
+                ? (string)Microsoft.Win32.Registry.GetValue(key64, "InstallPath", string.Empty)
+                : (string)Microsoft.Win32.Registry.GetValue(key32, "InstallPath", string.Empty);
+        }
+
+        private List<string> GetFoldersToSearch(string steamfolder)
+        {
+            var foldersToSearch = new List<string> { Path.Combine(steamfolder, "steamapps") };
+            var volvo = VdfConvert.Deserialize(File.ReadAllText(Path.Combine(steamfolder, "steamapps", "libraryfolders.vdf")));
+            var children = volvo.Value.Children();
+
+            foreach (var child in children)
+            {
+                var childKV = (VProperty)child;
+                var childValueKV = childKV.Value;
+                var pathChildKV = childValueKV.FirstOrDefault();
+                if (pathChildKV != null && Directory.Exists(((VProperty)pathChildKV).Value.ToString()))
+                {
+                    foldersToSearch.Add(Path.Combine(((VProperty)pathChildKV).Value.ToString(), "steamapps"));
+                }
+            }
+            return foldersToSearch;
+        }
+
+        private List<string> GetAppManifestFiles(List<string> foldersToSearch)
+        {
+            var appManifestFiles = new List<string>();
+            foreach (var folderToSeek in foldersToSearch)
+            {
+                appManifestFiles.AddRange(Directory.GetFiles(folderToSeek, "appmanifest_*.acf").ToList());
+            }
+            return appManifestFiles;
+        }
+
+        private List<string> GetStoreIdList(List<string> appManifestFiles)
+        {
+            var storeIdList = new List<string>();
+            foreach (var file in appManifestFiles)
+            {
+                try
+                {
+                    var appVProperty = VdfConvert.Deserialize(File.ReadAllText(file));
+                    storeIdList.Add(appVProperty.Value["appid"].ToString());
+                }
+                catch (Exception ex)
+                {
+                    // Log exception or handle it accordingly
+                }
+            }
+            return storeIdList;
         }
 
 

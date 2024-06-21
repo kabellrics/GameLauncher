@@ -18,7 +18,7 @@ public class DevService : IDevService
     }
     public IEnumerable<Develloppeur> GetAll()
     {
-        return dbContext.Develloppeurs.Include(x=>x.Items);
+        return dbContext.Develloppeurs;//.Include(x=>x.Items);
     }
     public IEnumerable<Develloppeur> GetAllForItem(Guid id)
     {
@@ -57,6 +57,23 @@ public class DevService : IDevService
         foreach (var dev in newDevs)
         {
             AddDevToItem(dev.Name, Item);
+        }
+    }
+    public void Fusionnage(Guid idToDelete, Guid idToKeep)
+    {
+        dbContext.DevdItems.Where(x => x.DevelloppeurID == idToDelete).ForEachAsync(x => x.DevelloppeurID = idToKeep);
+        var deleteItem = dbContext.Develloppeurs.First(x => x.ID == idToDelete);
+        dbContext.Develloppeurs.Remove(deleteItem);
+        dbContext.SaveChanges();
+    }
+    public void Update(Develloppeur updateditem)
+    {
+        var item = dbContext.Develloppeurs.FirstOrDefault(x => x.ID == updateditem.ID);
+        if (item != null)
+        {
+            item.Name = updateditem.Name;
+            dbContext.Develloppeurs.Update(item);
+            dbContext.SaveChanges();
         }
     }
 }

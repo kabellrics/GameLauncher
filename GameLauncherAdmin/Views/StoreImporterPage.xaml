@@ -4,9 +4,28 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <controls:ImageEx Grid.Column="0" Grid.Row="0" Source="ms-appx:///Assets/StoreImporterLogo/Steam.png" Stretch="Uniform" IsCacheEnabled="True" EnableLazyLoading="True"/>
+        <controls:ImageEx Grid.Column="0" Grid.Row="1" Source="ms-appx:///Assets/StoreImporterLogo/Epic.png" Stretch="Uniform" IsCacheEnabled="True" EnableLazyLoading="True"/>
+        <controls:ImageEx Grid.Column="0" Grid.Row="2" Source="ms-appx:///Assets/StoreImporterLogo/EA Play.png" Stretch="Uniform" IsCacheEnabled="True" EnableLazyLoading="True"/>
+        <Button Grid.Column="1" Grid.Row="0" Command="{x:Bind ViewModel.ScanSteamCommand}" Content="Récupérer Les Jeux Steam" Style="{StaticResource PivotTitleContentControlStyle}"></Button>
+        <Button Grid.Column="1" Grid.Row="1" Command="{x:Bind ViewModel.ScanEpicCommand}" Content="Récupérer Les Jeux Epic" Style="{StaticResource PivotTitleContentControlStyle}"></Button>
+        <Button Grid.Column="1" Grid.Row="2" Command="{x:Bind ViewModel.ScanEAPlayCommand}" Content="Récupérer Les Jeux EA Play" Style="{StaticResource PivotTitleContentControlStyle}"></Button>
+        <Button Grid.Column="2" Grid.Row="0" Command="{x:Bind ViewModel.CleanSteamCommand}" Content="Nettoyez Les Jeux Steam" Style="{StaticResource PivotTitleContentControlStyle}"></Button>
+        <Button Grid.Column="2" Grid.Row="1" Command="{x:Bind ViewModel.CleanEpicCommand}" Content="Nettoyez Les Jeux Epic" Style="{StaticResource PivotTitleContentControlStyle}"></Button>
+        <Button Grid.Column="2" Grid.Row="2" Command="{x:Bind ViewModel.CleanEAPlayCommand}" Content="Nettoyez Les Jeux EA Play" Style="{StaticResource PivotTitleContentControlStyle}"></Button>
     </Grid>
 </Page>

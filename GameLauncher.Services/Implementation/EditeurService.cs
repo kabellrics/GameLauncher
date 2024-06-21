@@ -18,7 +18,7 @@ public class EditeurService : IEditeurService
     }
     public IEnumerable<Editeur> GetAll()
     {
-        return dbContext.Editeurs.Include(x => x.Items);
+        return dbContext.Editeurs;//.Include(x => x.Items);
     }
     public IEnumerable<Editeur> GetAllForItem(Guid id)
     {
@@ -57,6 +57,23 @@ public class EditeurService : IEditeurService
         foreach (var editeur in newEditeurs)
         {
             AddEditeurToItem(editeur.Name, Item);
+        }
+    }
+    public void Fusionnage(Guid idToDelete, Guid idToKeep)
+    {
+        dbContext.EditeurdItems.Where(x => x.EditeurID == idToDelete).ForEachAsync(x => x.EditeurID = idToKeep);
+        var deleteItem = dbContext.Editeurs.First(x => x.ID == idToDelete);
+        dbContext.Editeurs.Remove(deleteItem);
+        dbContext.SaveChanges();
+    }
+    public void Update(Editeur updateditem)
+    {
+        var item = dbContext.Editeurs.FirstOrDefault(x => x.ID == updateditem.ID);
+        if (item != null)
+        {
+            item.Name = updateditem.Name;
+            dbContext.Editeurs.Update(item);
+            dbContext.SaveChanges();
         }
     }
 }

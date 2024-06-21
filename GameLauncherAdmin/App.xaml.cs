@@ -73,7 +73,10 @@ public partial class App : Application
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<IItemProvider, ItemProvider>();
+            services.AddSingleton<ICollectionProvider, CollectionProvider>();
             services.AddSingleton<IMetadataProvider, MetadataProvider>();
+            services.AddSingleton<IStoreProvider, StoreProvider>();
+            services.AddSingleton<ILookupProvider, LookupProvider>();
 
             // Views and ViewModels
             services.AddTransient<SettingsViewModel>();

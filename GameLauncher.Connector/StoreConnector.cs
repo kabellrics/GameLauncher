@@ -61,4 +61,46 @@ public class StoreConnector
             Console.WriteLine("Error: " + response.ErrorMessage);
         }
     }
+    public async Task CleaningSteamGameAsync()
+    {
+        var request = new RestRequest("/CleanSteamGame", Method.Get);
+        var response = await _client.ExecuteAsync(request);
+
+        if (response.IsSuccessful)
+        {
+            Console.WriteLine("Steam Game: " + response.Content);
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+        }
+    }
+    public async Task CleaningEpicGameAsync()
+    {
+        var request = new RestRequest("/CleanEpicGame", Method.Get);
+        var response = await _client.ExecuteAsync(request);
+
+        if (response.IsSuccessful)
+        {
+            Console.WriteLine("Steam Game: " + response.Content);
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+        }
+    }
+    public async Task CleaningEAGameAsync()
+    {
+        var request = new RestRequest("/CleanEAOriginGame", Method.Get);
+        var response = await _client.ExecuteAsync(request);
+
+        if (response.IsSuccessful)
+        {
+            Console.WriteLine("Steam Game: " + response.Content);
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+        }
+    }
 }

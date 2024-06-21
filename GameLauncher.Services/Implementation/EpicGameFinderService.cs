@@ -30,6 +30,16 @@ public class EpicGameFinderService : IEpicGameFinderService
         this.devService = devService;
         this.editService = editService;
     }
+    public async Task CleaningGame()
+    {
+        var resultlist = new List<Item>();
+        var handler = new EGSHandler(WindowsRegistry.Shared, FileSystem.Shared);
+        var results = handler.FindAllGames();
+        var storeIdList = results.Select(x => x.AsT0.CatalogItemId.Value);
+        var gameToRemoves = dbContext.Items.Where(x => x.Platformes.Name == "Epic Games Store" && !storeIdList.Contains(x.StoreId));
+        dbContext.Items.RemoveRange(gameToRemoves);
+        dbContext.SaveChanges();
+    }
     public async Task GetGameAsync()
     {
         var resultlist = new List<Item>();
