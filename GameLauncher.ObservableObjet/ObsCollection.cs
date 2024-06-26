@@ -11,54 +11,53 @@ using GameLauncher.Models.ScreenScraper;
 namespace GameLauncher.ObservableObjet;
 public class ObsCollection : ObservableObject
 {
-    public Collection Collection;
-    public override string ToString() => Name;
+    public Collection _collection;
     public ObsCollection(Collection Collection)
     {
-        Collection = Collection;
+        _collection = Collection;
     }
     public Guid Id
     {
-        get => Collection.ID;
+        get => _collection.ID;
     }
     public string Name
     {
-        get => Collection.Name;
+        get => _collection.Name;
         set
         {
-            SetProperty(Collection.Name, value, Collection, (syteme, item) => Collection.Name = item);
+            SetProperty(_collection.Name, value, _collection, (syteme, item) => _collection.Name = item);
         }
     }
     public string CodeName
     {
-        get => Collection.CodeName;
+        get => _collection.CodeName;
         set
         {
-            SetProperty(Collection.CodeName, value, Collection, (syteme, item) => Collection.CodeName = item);
+            SetProperty(_collection.CodeName, value, _collection, (syteme, item) => _collection.CodeName = item);
         }
     }
     public string Fanart
     {
-        get => Collection.Fanart;
+        get => _collection.Fanart;
         set
         {
-            SetProperty(Collection.Fanart, value, Collection, (syteme, item) => Collection.Fanart = item);
+            SetProperty(_collection.Fanart, value, _collection, (syteme, item) => _collection.Fanart = item);
         }
     }
     public string Logo
     {
-        get => Collection.Logo;
+        get => _collection.Logo;
         set
         {
-            SetProperty(Collection.Logo, value, Collection, (syteme, item) => Collection.Logo = item);
+            SetProperty(_collection.Logo, value, _collection, (syteme, item) => _collection.Logo = item);
         }
     }
     public int Order
     {
-        get => Collection.Order;
+        get => _collection.Order;
         set
         {
-            SetProperty(Collection.Order, value, Collection, (syteme, item) => Collection.Order = item);
+            SetProperty(_collection.Order, value, _collection, (syteme, item) => _collection.Order = item);
         }
     }
 }

@@ -4,25 +4,37 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.ComponentModel.DataAnnotations;
 
 namespace GameLauncher.Models;
+[Keyless]
 public class LUEmulateur
 {
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public string ID
+
+    [JsonProperty("Id")]
+    public string Id
     {
         get; set;
     }
+
+    [JsonProperty("Name")]
     public string Name
     {
         get; set;
     }
-    public Uri Website
+
+    [JsonProperty("Website")]
+    public string Website
     {
         get; set;
     }
-    public List<LUProfile> Profiles
+
+    [JsonProperty("Profiles")]
+    public List<Guid>? Profiles
     {
         get; set;
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using GameLauncher.Models;
 using GameLauncher.Models.APIObject;
@@ -35,6 +36,32 @@ namespace GameLauncher.Connector
             {
                 Console.WriteLine("Error: " + response.ErrorMessage);
                 return new List<Item>();
+            }
+        }
+        // Méthode pour obtenir des items
+        public async IAsyncEnumerable<Item> GetItemsStreamAsync()
+        {
+            var request = new RestRequest("/api/Items/Stream", Method.Get);
+            var response = await _client.ExecuteAsync<List<Item>>(request);
+            if (!response.IsSuccessful)
+            {
+                throw new Exception($"Error retrieving items: {response.ErrorMessage}");
+            }
+
+            var channel = Channel.CreateUnbounded<Item>();
+            _ = Task.Run(async () =>
+            {
+                foreach (var item in response.Data)
+                {
+                    await channel.Writer.WriteAsync(item);
+                }
+                channel.Writer.Complete();
+            });
+
+            // Return an IAsyncEnumerable from the channel reader
+            await foreach (var item in channel.Reader.ReadAllAsync())
+            {
+                yield return item;
             }
         }
         public async Task<IEnumerable<Develloppeur>> GetDevsByItemAsync(Guid id)

@@ -88,8 +88,18 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <!--<NavigationViewItem x:Uid="Shell_CollectionDetail" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.CollectionDetailViewModel">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>-->
+                <NavigationViewItem x:Uid="Shell_VideoIntro" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.VideoIntroViewModel">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
-            <NavigationView.HeaderTemplate>
+            <!--<NavigationView.HeaderTemplate>
                 <DataTemplate>
                     <Grid>
                         <TextBlock
@@ -111,7 +121,7 @@
                         </DataTemplate>
                     </behaviors:NavigationViewHeaderBehavior.DefaultHeaderTemplate>
                 </behaviors:NavigationViewHeaderBehavior>
-            </i:Interaction.Behaviors>
+            </i:Interaction.Behaviors>-->
             <Grid Margin="{StaticResource NavigationViewPageContentMargin}">
                 <Frame x:Name="NavigationFrame" />
             </Grid>

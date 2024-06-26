@@ -1,5 +1,6 @@
-﻿using GameLauncher.AdminProvider.Interface;
-using GameLauncher.AdminProvider;
+﻿using GameLauncher.AdminProvider;
+using GameLauncher.AdminProvider.Interface;
+
 using GameLauncherAdmin.Activation;
 using GameLauncherAdmin.Contracts.Services;
 using GameLauncherAdmin.Core.Contracts.Services;
@@ -79,6 +80,10 @@ public partial class App : Application
             services.AddSingleton<ILookupProvider, LookupProvider>();
 
             // Views and ViewModels
+            services.AddTransient<VideoIntroViewModel>();
+            services.AddTransient<VideoIntroPage>();
+            services.AddTransient<CollectionDetailViewModel>();
+            services.AddTransient<CollectionDetailPage>();
             services.AddTransient<SettingsViewModel>();
             services.AddTransient<SettingsPage>();
             services.AddTransient<DevelloppeurViewModel>();

@@ -18,10 +18,27 @@ namespace GameLauncher.AdminProvider
         {
             apiconnector = new GameLauncherClient("https://localhost:7197");
         }
+        public async IAsyncEnumerable<ObservableItem> GetAllItemsStream()
+        {
+            await foreach (var item in apiconnector.GetItemsStreamAsync())
+            {
+                var obsItem = new ObservableItem(item);
+                var devs = await apiconnector.GetDevsByItemAsync(item.ID);
+                foreach (var dev in devs.OrderBy(x => x.Name))
+                    obsItem.Develloppeurs.Add(new ObservableDevelloppeur(dev));
+                var edits = await apiconnector.GetEditeursByItemAsync(item.ID);
+                foreach (var edit in edits.OrderBy(x => x.Name))
+                    obsItem.Editeurs.Add(new ObservableEditeur(edit));
+                var genres = await apiconnector.GetGenresByItemAsync(item.ID);
+                foreach (var genre in genres.OrderBy(x => x.Name))
+                    obsItem.Genres.Add(new ObservableGenre(genre));
+                yield return obsItem;
+            }
+        }
         public async IAsyncEnumerable<ObservableItem> GetAllItemsAsyncEnumerable()
         {
             var items = await apiconnector.GetItemsAsync();
-            foreach (var item in items.OrderBy(x=>x.Name))
+            foreach (var item in items.OrderBy(x=>x.LUPlatformesId).ThenBy(x=>x.Name))
             {
                 var obsItem = new ObservableItem(item);
                 var devs = await apiconnector.GetDevsByItemAsync(item.ID);
@@ -40,7 +57,7 @@ namespace GameLauncher.AdminProvider
         {
             var obsitems = new List<ObservableItem>();
             var items = await apiconnector.GetItemsAsync();
-            foreach (var item in items.OrderBy(x=>x.Name))
+            foreach (var item in items.OrderBy(x => x.LUPlatformesId).ThenBy(x => x.Name))
             {
                 var obsItem = new ObservableItem(item);
                 var devs = await apiconnector.GetDevsByItemAsync(item.ID);
@@ -60,7 +77,7 @@ namespace GameLauncher.AdminProvider
         {
             var items = await apiconnector.GetItemsAsync();
             var obsitems = new List<ObservableItem>();
-            foreach (var item in items.OrderBy(x => x.Name))
+            foreach (var item in items.OrderBy(x => x.LUPlatformesId).ThenBy(x => x.Name))
             {
                 var obsItem = new ObservableItem(item);
                 var devs = await apiconnector.GetDevsByItemAsync(item.ID);

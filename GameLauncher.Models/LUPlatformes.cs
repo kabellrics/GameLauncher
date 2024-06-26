@@ -4,32 +4,44 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameLauncher.Models;
-public class LUPlatformes
+[Keyless]
+public partial class LUPlatformes
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid ID
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public Guid Id
     {
         get; set;
     }
+    [JsonProperty("Name")]
     public string Name
     {
         get; set;
     }
-    public string CodeName
+
+    [JsonProperty("Id")]
+    public string Codename
     {
         get; set;
     }
+
+    [JsonProperty("IgdbId", NullValueHandling = NullValueHandling.Ignore)]
     public long? IgdbId
     {
         get; set;
     }
-    public string Databases
+
+    [JsonProperty("Databases", NullValueHandling = NullValueHandling.Ignore)]
+    public string[]? Databases
     {
         get; set;
     }
-    public List<LUEmulateur>? Emulators
+
+    [JsonProperty("Emulators", NullValueHandling = NullValueHandling.Ignore)]
+    public string[]? Emulators
     {
         get; set;
     }

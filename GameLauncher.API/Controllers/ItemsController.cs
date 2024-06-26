@@ -21,6 +21,11 @@ public class ItemsController : ControllerBase
     {        
         return Ok(_itemService.GetAll());
     }
+    [HttpGet("Stream")]
+    public IAsyncEnumerable<Item> Stream()
+    {        
+        return _itemService.GetAllAsync();
+    }
     [HttpPut("{id}")]
     public ActionResult Put(Guid id, [FromBody] Item todoItem)
     {

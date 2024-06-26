@@ -1,4 +1,5 @@
 ﻿using GameLauncher.Models;
+using GameLauncher.Models.APIObject;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +21,15 @@ public class CollectionController : ControllerBase
         return Ok(_Service.GetAll());
     }
     [HttpGet("GetAllItemInside/{id}")]
-    public async Task<ActionResult> GetAllItemInside(Guid id)
+    public IAsyncEnumerable<ItemInCollection> GetAllItemInside(Guid id)
     {
-        return Ok(_Service.GetAllItemInside(id));
+        return _Service.GetAllItemInside(id);
+    }
+    [HttpGet("CreateCollectionFromPlateforme")]
+    public async Task<ActionResult> CreateCollectionFromPlateforme()
+    {
+        _Service.CreateCollectionFromPlateforme();
+        return Ok();
     }
     [HttpGet("AddToCollectionEnd/{id}/{gameid}")]
     public async Task<ActionResult> AddToCollectionEnd(Guid id, Guid gameid)

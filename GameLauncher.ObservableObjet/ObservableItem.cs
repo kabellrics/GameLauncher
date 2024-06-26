@@ -9,7 +9,7 @@ using GameLauncher.Models;
 
 namespace GameLauncher.ObservableObjet
 {
-    public class ObservableItem : ObservableObject
+    public partial class ObservableItem : ObservableObject
     {
         public Item Item;
         public override string ToString() =>Name;
@@ -33,14 +33,8 @@ namespace GameLauncher.ObservableObjet
                 SetProperty(Item.Name, value, Item, (syteme, item) => Item.Name = item);
             }
         }
-        public LUPlatformes Platforme
-        {
-            get => Item.Platformes;
-            set
-            {
-                SetProperty(Item.Platformes, value, Item, (syteme, item) => Item.Platformes = item);
-            }
-        }
+        [ObservableProperty]
+        private LUPlatformes platforme;
         public string SearchName
         {
             get => Item.SearchName;

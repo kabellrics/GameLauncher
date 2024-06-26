@@ -6,6 +6,7 @@ using GameLauncher.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using NexusMods.Paths;
 
 namespace GameLauncher.API;
 
@@ -42,14 +43,17 @@ public class Program
         });
 
         var app = builder.Build();
-
+        using (var scope = app.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<GameLauncherContext>();
+            GameLauncherDBInitializer.Iniatialize(context);
+        }
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
         app.UseHttpsRedirection();
 
         app.UseAuthorization();

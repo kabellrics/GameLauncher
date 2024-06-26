@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GameLauncher.Models;
 public class Item
@@ -13,19 +14,11 @@ public class Item
     {
         get; set;
     }
-    public Guid LUPlatformesId
+    public string LUPlatformesId
     {
         get; set;
     }
     public Guid? LUProfileId
-    {
-        get; set;
-    }
-    public LUPlatformes Platformes
-    {
-        get; set;
-    }
-    public LUProfile? Profile
     {
         get; set;
     }
@@ -50,6 +43,10 @@ public class Item
         get; set;
     }
     public DateTime ReleaseDate
+    {
+        get; set;
+    }
+    public DateTime AddingDate
     {
         get; set;
     }
@@ -97,6 +94,8 @@ public class Item
     {
         get; set;
     }
+
+    [JsonIgnore]
     public List<CollectionItem>? Collections
     {
         get; set;

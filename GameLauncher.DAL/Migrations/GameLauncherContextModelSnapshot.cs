@@ -122,6 +122,9 @@ namespace GameLauncher.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("AddingDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Artwork")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -141,7 +144,8 @@ namespace GameLauncher.DAL.Migrations
                     b.Property<bool>("IsFavorite")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("LUPlatformesId")
+                    b.Property<string>("LUPlatformesId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("LUProfileId")
@@ -181,10 +185,6 @@ namespace GameLauncher.DAL.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("LUPlatformesId");
-
-                    b.HasIndex("LUProfileId");
 
                     b.ToTable("Items");
                 });
@@ -254,89 +254,58 @@ namespace GameLauncher.DAL.Migrations
 
             modelBuilder.Entity("GameLauncher.Models.LUEmulateur", b =>
                 {
-                    b.Property<string>("ID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("LUPlatformesID")
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Profiles")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Website")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
-
-                    b.HasIndex("LUPlatformesID");
+                    b.HasKey("Id");
 
                     b.ToTable("Emulateurs");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.LUPlatformes", b =>
                 {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CodeName")
+                    b.Property<string>("Codename")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Databases")
-                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Emulators")
                         .HasColumnType("TEXT");
 
                     b.Property<long?>("IgdbId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid?>("LUProfileID")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
-
-                    b.HasIndex("LUProfileID");
+                    b.HasKey("Id");
 
                     b.ToTable("Platformes");
-
-                    b.HasData(
-                        new
-                        {
-                            ID = new Guid("8557d4a3-f172-4af5-b38a-d958d1f2339a"),
-                            CodeName = "Steam",
-                            Databases = "",
-                            Name = "Steam"
-                        },
-                        new
-                        {
-                            ID = new Guid("3b24e0f9-50e3-457d-bd90-64e5fb06e20f"),
-                            CodeName = "Epic",
-                            Databases = "",
-                            Name = "Epic Games Store"
-                        },
-                        new
-                        {
-                            ID = new Guid("853358e9-071e-40e8-b185-d47112ff9350"),
-                            CodeName = "EA Play",
-                            Databases = "",
-                            Name = "EA Origin"
-                        });
                 });
 
             modelBuilder.Entity("GameLauncher.Models.LUProfile", b =>
                 {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImageExtensions")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LUEmulateurId")
@@ -347,8 +316,10 @@ namespace GameLauncher.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Platforms")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ProfileFiles")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("StartupArguments")
@@ -356,50 +327,26 @@ namespace GameLauncher.DAL.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("StartupExecutable")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
-
-                    b.HasIndex("LUEmulateurId");
+                    b.HasKey("Id");
 
                     b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.CollectionItem", b =>
                 {
-                    b.HasOne("GameLauncher.Models.Collection", "Collection")
+                    b.HasOne("GameLauncher.Models.Collection", null)
                         .WithMany("Items")
                         .HasForeignKey("CollectionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GameLauncher.Models.Item", "Item")
+                    b.HasOne("GameLauncher.Models.Item", null)
                         .WithMany("Collections")
                         .HasForeignKey("ItemID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Collection");
-
-                    b.Navigation("Item");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.Item", b =>
-                {
-                    b.HasOne("GameLauncher.Models.LUPlatformes", "Platformes")
-                        .WithMany()
-                        .HasForeignKey("LUPlatformesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GameLauncher.Models.LUProfile", "Profile")
-                        .WithMany()
-                        .HasForeignKey("LUProfileId");
-
-                    b.Navigation("Platformes");
-
-                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.ItemDev", b =>
@@ -459,29 +406,6 @@ namespace GameLauncher.DAL.Migrations
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("GameLauncher.Models.LUEmulateur", b =>
-                {
-                    b.HasOne("GameLauncher.Models.LUPlatformes", null)
-                        .WithMany("Emulators")
-                        .HasForeignKey("LUPlatformesID");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUPlatformes", b =>
-                {
-                    b.HasOne("GameLauncher.Models.LUProfile", null)
-                        .WithMany("Platformes")
-                        .HasForeignKey("LUProfileID");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUProfile", b =>
-                {
-                    b.HasOne("GameLauncher.Models.LUEmulateur", null)
-                        .WithMany("Profiles")
-                        .HasForeignKey("LUEmulateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("GameLauncher.Models.Collection", b =>
                 {
                     b.Navigation("Items");
@@ -511,21 +435,6 @@ namespace GameLauncher.DAL.Migrations
                     b.Navigation("Editeurs");
 
                     b.Navigation("Genres");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUEmulateur", b =>
-                {
-                    b.Navigation("Profiles");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUPlatformes", b =>
-                {
-                    b.Navigation("Emulators");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUProfile", b =>
-                {
-                    b.Navigation("Platformes");
                 });
 #pragma warning restore 612, 618
         }

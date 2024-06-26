@@ -31,18 +31,8 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
     {
         Source.Clear();
         GroupedItems.Clear();
-        var obsitems = await _itemProvider.GetAllItemsAsync();
-        //GroupedItems = new ObservableGroupedCollection<string, ObservableItem>(
-        //    obsitems.GroupBy(x => x.Platforme.Name).OrderBy(g => g.Key)
-        //    );
-        //OnPropertyChanged(nameof(GroupedItems));
-        await InitializeData(_itemProvider.GetAllItemsAsyncEnumerable());
-        //// TODO: Replace with real data.
-        //var data = await _sampleDataService.GetContentGridDataAsync();
-        //foreach (var item in data)
-        //{
-        //    Source.Add(item);
-        //}
+        //await InitializeData(_itemProvider.GetAllItemsAsyncEnumerable());
+        await InitializeData(_itemProvider.GetAllItemsStream());
     }
     private async Task InitializeData(IAsyncEnumerable<ObservableItem> asyncitems)
     {

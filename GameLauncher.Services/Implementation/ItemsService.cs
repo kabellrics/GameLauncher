@@ -22,8 +22,11 @@ public class ItemsService : IItemsService
     }
     public IEnumerable<Item> GetAll()
     {
-        return dbContext.Items
-            .Include(item=>item.Platformes);
+        return dbContext.Items.OrderBy(x => x.LUPlatformesId).ThenBy(x => x.Name);
+    }
+    public IAsyncEnumerable<Item> GetAllAsync()
+    {
+        return dbContext.Items.OrderBy(x=>x.LUPlatformesId).ThenBy(x=>x.Name).AsAsyncEnumerable();
     }
     public void UpdateItem(Item updateditem)
     {

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GameLauncher.Models;
 public class Collection
@@ -33,6 +34,8 @@ public class Collection
     {
         get; set;
     }
+
+    [JsonIgnore]
     public List<CollectionItem>? Items
     {
         get; set;

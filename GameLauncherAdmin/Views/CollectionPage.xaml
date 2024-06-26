@@ -4,9 +4,49 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <ListView x:Name="listItem"
+            Grid.Column="0"
+            SelectionMode="Single"
+            IsTapEnabled="True"
+                  Tapped="listItem_Tapped"
+                   CanReorderItems="True"
+            ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <winuicontrols:ConstrainedBox AspectRatio="1920:1080">
+                    <Grid Margin="0" Padding="0">
+                        <Grid.Background>
+                            <ImageBrush Stretch="Fill" ImageSource="{Binding Fanart,Mode=OneWay}" x:Name="bckBrush"></ImageBrush>
+                        </Grid.Background>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Margin="0" Padding="0">
+                            <Rectangle Fill="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}" Opacity="0.8" />
+                        </Border>
+                        <StackPanel Orientation="Vertical" Margin="0" Padding="0">
+                            <winuicontrols:ConstrainedBox AspectRatio="1:1"  Height="250" Margin="0" Padding="0">
+                                <Image Source="{Binding Logo,Mode=OneWay}" Stretch="Uniform" Margin="0"/>
+                            </winuicontrols:ConstrainedBox>
+                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center" HorizontalTextAlignment="Center" Text="{Binding Name}"></TextBlock>
+                        </StackPanel>
+                        </Grid>
+                    </winuicontrols:ConstrainedBox>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <ScrollViewer Grid.Column="1">
+            <StackPanel Orientation="Vertical">
+                <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Center" Content="Générer des Collections pour toutes les Plateformes" Command="{x:Bind ViewModel.CreateCollectionForPlateformeCommand}"/>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

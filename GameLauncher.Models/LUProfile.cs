@@ -1,40 +1,54 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace GameLauncher.Models;
-
+[Keyless]
 public class LUProfile
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid ID
+
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public Guid Id
     {
         get; set;
     }
+    [JsonProperty("Name")]
     public string Name
     {
         get; set;
     }
-    
-    public string LUEmulateurId
-    {
-        get; set;
-    }
+
+    [JsonProperty("StartupArguments")]
     public string StartupArguments
     {
         get; set;
     }
-    public List<LUPlatformes> Platformes
+
+    [JsonProperty("Platforms")]
+    public string[]? Platforms
     {
         get; set;
     }
-    public string ImageExtensions
+
+    [JsonProperty("ImageExtensions")]
+    public string[]? ImageExtensions
     {
         get; set;
     }
-    public string ProfileFiles
+
+    [JsonProperty("ProfileFiles")]
+    public string[]? ProfileFiles
     {
         get; set;
     }
-    public string StartupExecutable
+
+    [JsonProperty("StartupExecutable")]
+    public string? StartupExecutable
+    {
+        get; set;
+    }
+    public string LUEmulateurId
     {
         get; set;
     }

@@ -25,6 +25,8 @@ public class PageService : IPageService
         Configure<EditeurViewModel, EditeurPage>();
         Configure<DevelloppeurViewModel, DevelloppeurPage>();
         Configure<SettingsViewModel, SettingsPage>();
+        Configure<CollectionDetailViewModel, CollectionDetailPage>();
+        Configure<VideoIntroViewModel, VideoIntroPage>();
     }
 
     public Type GetPageType(string key)

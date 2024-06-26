@@ -61,13 +61,18 @@ namespace GameLauncher.DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Code to seed data
-            modelBuilder.Entity<LUPlatformes>().HasData(
-                new LUPlatformes { ID = Guid.NewGuid(), Name = "Steam", CodeName = "Steam", Databases=string.Empty },
-                new LUPlatformes { ID = Guid.NewGuid(), Name = "Epic Games Store", CodeName = "Epic", Databases = string.Empty },
-                new LUPlatformes { ID = Guid.NewGuid(), Name = "EA Origin", CodeName = "EA Play", Databases = string.Empty }
-                );
+            modelBuilder.Entity<LUPlatformes>(entity =>
+            {
+                entity.HasKey(e=>e.Id);
+            });
+            modelBuilder.Entity<LUEmulateur>(entity =>
+            {
+                entity.HasKey(e=>e.Id);
+            });
+            modelBuilder.Entity<LUProfile>(entity =>
+            {
+                entity.HasKey(e=>e.Id);
+            });
         }
     }
 }

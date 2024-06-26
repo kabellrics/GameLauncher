@@ -36,7 +36,7 @@ public class EpicGameFinderService : IEpicGameFinderService
         var handler = new EGSHandler(WindowsRegistry.Shared, FileSystem.Shared);
         var results = handler.FindAllGames();
         var storeIdList = results.Select(x => x.AsT0.CatalogItemId.Value);
-        var gameToRemoves = dbContext.Items.Where(x => x.Platformes.Name == "Epic Games Store" && !storeIdList.Contains(x.StoreId));
+        var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "Epic" && !storeIdList.Contains(x.StoreId));
         dbContext.Items.RemoveRange(gameToRemoves);
         dbContext.SaveChanges();
     }
@@ -53,9 +53,9 @@ public class EpicGameFinderService : IEpicGameFinderService
                 item.Name = result.AsT0.DisplayName;
                 item.SearchName = item.Name;
                 item.StoreId = result.AsT0.CatalogItemId.Value;
-                item.Platformes = dbContext.Platformes.First(x => x.Name == "Epic Games Store");
-                item.LUPlatformesId = item.Platformes.ID;
+                item.LUPlatformesId = dbContext.Platformes.First(x => x.Name == "Epic Games Store").Codename;
                 item.Path = $"com.epicgames.launcher://apps/{item.StoreId}?action=launch&silent=true";
+                item.AddingDate = DateTime.Now;
                 item.Logo = string.Empty;
                 item.Cover = string.Empty;
                 item.Banner = string.Empty;

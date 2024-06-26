@@ -1,0 +1,97 @@
+﻿<Page
+    x:Class="GameLauncherAdmin.Views.CollectionDetailPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:models="using:GameLauncher.ObservableObjet"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollMode="Enabled" HorizontalScrollMode="Disabled">
+        <Grid x:Name="ContentArea">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0"
+                   HorizontalAlignment="Center" HorizontalTextAlignment="Center" FontSize="60" Margin="10"
+                   Text="{x:Bind ViewModel.Collection.Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            <Grid Grid.Row="1" Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" FontSize="35" Text="Nom : "/>
+                <TextBlock Grid.Column="1" Style="{StaticResource AutoSuggestBoxTextBoxStyle}" FontSize="35" Text="{x:Bind ViewModel.Collection.Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                <TextBlock Grid.Column="2" Style="{StaticResource TitleTextBlockStyle}" FontSize="35" Text="Code : "/>
+                <TextBlock Grid.Column="3" Style="{StaticResource AutoSuggestBoxTextBoxStyle}" FontSize="35" Text="{x:Bind ViewModel.Collection.CodeName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                <TextBlock Grid.Column="4" Style="{StaticResource TitleTextBlockStyle}" FontSize="35" Text="Ordre : "/>
+                <TextBlock Grid.Column="5" Style="{StaticResource AutoSuggestBoxTextBoxStyle}" FontSize="35" Text="{x:Bind ViewModel.Collection.Order,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Vertical" Grid.Column="0">
+                    <TextBlock Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}"
+                           HorizontalAlignment="Center" Text="Logo"/>
+                    <winuicontrols:ConstrainedBox AspectRatio="1:1"  Height="400" Margin="2">
+                        <Image Source="{x:Bind ViewModel.Collection.Logo,Mode=OneWay}" Stretch="Uniform"/>
+                    </winuicontrols:ConstrainedBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Grid.Column="1">
+                    <TextBlock Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}"
+                           HorizontalAlignment="Center" Text="Fanart"/>
+                    <winuicontrols:ConstrainedBox AspectRatio="1920:1080"  Height="400" Margin="2">
+                        <Image Source="{x:Bind ViewModel.Collection.Fanart,Mode=OneWay}" Stretch="Uniform"/>
+                    </winuicontrols:ConstrainedBox>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Items dans la Collections"
+           HorizontalAlignment="Left" HorizontalTextAlignment="Center" FontSize="35" Margin="10"></TextBlock>
+                <ComboBox Grid.Column="1" PlaceholderText="Trier la liste par:"
+                          Style="{StaticResource DefaultComboBoxStyle}"
+                          ItemsSource="{x:Bind ViewModel.SortType}" SelectionChanged="ComboBox_SelectionChanged">
+                </ComboBox>
+            </Grid>
+            <ListView Grid.Row="4" ItemsSource="{x:Bind ViewModel.ItemCollections,Mode=OneWay}"
+                      DropCompleted="ListView_DropCompleted" CanDragItems="True" CanReorderItems="True" AllowDrop="True">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ObservableItemInCollection">
+                        <Grid Height="250">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind Order}"/>
+                            <winuicontrols:ConstrainedBox AspectRatio="2:3" Grid.Column="1">
+                                <Image Source="{x:Bind Cover}" Stretch="Fill"/>
+                            </winuicontrols:ConstrainedBox>
+                            <StackPanel Orientation="Vertical" Grid.Column="2">
+                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind Name}"/>
+                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind ReleaseDate}"/>
+                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind AddingDate}"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </ScrollViewer>
+</Page>

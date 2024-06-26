@@ -44,7 +44,7 @@ namespace GameLauncher.Services.Implementation
                 var appManifestFiles = GetAppManifestFiles(foldersToSearch);
                 var storeIdList = GetStoreIdList(appManifestFiles);
 
-                var gameToRemoves = dbContext.Items.Where(x => x.Platformes.Name == "Steam" && !storeIdList.Contains(x.StoreId));
+                var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "Steam" && !storeIdList.Contains(x.StoreId));
                 dbContext.Items.RemoveRange(gameToRemoves);
                 dbContext.SaveChanges();
             }
@@ -74,8 +74,8 @@ namespace GameLauncher.Services.Implementation
                                 Name = steamName,
                                 SearchName = steamName,
                                 Path = $"steam://rungameid/{steamId}",
-                                Platformes = dbContext.Platformes.First(x => x.Name == "Steam"),
-                                LUPlatformesId = dbContext.Platformes.First(x => x.Name == "Steam").ID,
+                                LUPlatformesId = dbContext.Platformes.First(x => x.Name == "Steam").Codename,
+                                AddingDate=DateTime.Now,
                                 Logo = string.Empty,
                                 Cover = string.Empty,
                                 Banner = string.Empty,

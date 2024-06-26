@@ -11,59 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameLauncher.DAL.Migrations
 {
     [DbContext(typeof(GameLauncherContext))]
-    [Migration("20240608030600_SetGenre")]
-    partial class SetGenre
+    [Migration("20240626160958_FixLookup")]
+    partial class FixLookup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
-
-            modelBuilder.Entity("CollectionItem", b =>
-                {
-                    b.Property<Guid>("CollectionsID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ItemsID")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("CollectionsID", "ItemsID");
-
-                    b.HasIndex("ItemsID");
-
-                    b.ToTable("CollectionItem");
-                });
-
-            modelBuilder.Entity("DevelloppeurItem", b =>
-                {
-                    b.Property<Guid>("DevelloppeursID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ItemsID")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("DevelloppeursID", "ItemsID");
-
-                    b.HasIndex("ItemsID");
-
-                    b.ToTable("DevelloppeurItem");
-                });
-
-            modelBuilder.Entity("EditeurItem", b =>
-                {
-                    b.Property<Guid>("EditeursID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ItemsID")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("EditeursID", "ItemsID");
-
-                    b.HasIndex("ItemsID");
-
-                    b.ToTable("EditeurItem");
-                });
 
             modelBuilder.Entity("GameLauncher.Models.Collection", b =>
                 {
@@ -87,13 +42,36 @@ namespace GameLauncher.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ShowOrder")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
 
                     b.ToTable("Collections");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.CollectionItem", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CollectionID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ItemID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("CollectionID");
+
+                    b.HasIndex("ItemID");
+
+                    b.ToTable("CollectiondItems");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.Develloppeur", b =>
@@ -147,6 +125,9 @@ namespace GameLauncher.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("AddingDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Artwork")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -166,7 +147,8 @@ namespace GameLauncher.DAL.Migrations
                     b.Property<bool>("IsFavorite")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("LUPlatformesId")
+                    b.Property<string>("LUPlatformesId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("LUProfileId")
@@ -207,98 +189,126 @@ namespace GameLauncher.DAL.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("LUPlatformesId");
-
-                    b.HasIndex("LUProfileId");
-
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.ItemDev", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("DevelloppeurID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ItemID")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DevelloppeurID");
+
+                    b.HasIndex("ItemID");
+
+                    b.ToTable("DevdItems");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.ItemEditeur", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("EditeurID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ItemID")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EditeurID");
+
+                    b.HasIndex("ItemID");
+
+                    b.ToTable("EditeurdItems");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.ItemGenre", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("GenreID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ItemID")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("GenreID");
+
+                    b.HasIndex("ItemID");
+
+                    b.ToTable("GenredItems");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.LUEmulateur", b =>
                 {
-                    b.Property<string>("ID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("LUPlatformesID")
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Profiles")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Website")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
-
-                    b.HasIndex("LUPlatformesID");
+                    b.HasKey("Id");
 
                     b.ToTable("Emulateurs");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.LUPlatformes", b =>
                 {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CodeName")
+                    b.Property<string>("Codename")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Databases")
-                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Emulators")
                         .HasColumnType("TEXT");
 
                     b.Property<long?>("IgdbId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid?>("LUProfileID")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
-
-                    b.HasIndex("LUProfileID");
+                    b.HasKey("Id");
 
                     b.ToTable("Platformes");
-
-                    b.HasData(
-                        new
-                        {
-                            ID = new Guid("9cfb55d2-e47f-4cb3-b2c0-65789cdfe620"),
-                            CodeName = "Steam",
-                            Databases = "",
-                            Name = "Steam"
-                        },
-                        new
-                        {
-                            ID = new Guid("fc042e25-0ea5-4db2-b242-7aa4c60165de"),
-                            CodeName = "Epic",
-                            Databases = "",
-                            Name = "Epic Games Store"
-                        },
-                        new
-                        {
-                            ID = new Guid("42d3de15-0041-4a26-a4e3-06e34f029a70"),
-                            CodeName = "EA Play",
-                            Databases = "",
-                            Name = "EA Origin"
-                        });
                 });
 
             modelBuilder.Entity("GameLauncher.Models.LUProfile", b =>
                 {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImageExtensions")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LUEmulateurId")
@@ -309,8 +319,10 @@ namespace GameLauncher.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Platforms")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ProfileFiles")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("StartupArguments")
@@ -318,144 +330,114 @@ namespace GameLauncher.DAL.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("StartupExecutable")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
-
-                    b.HasIndex("LUEmulateurId");
+                    b.HasKey("Id");
 
                     b.ToTable("Profiles");
                 });
 
-            modelBuilder.Entity("GenreItem", b =>
-                {
-                    b.Property<Guid>("GenresID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ItemsID")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("GenresID", "ItemsID");
-
-                    b.HasIndex("ItemsID");
-
-                    b.ToTable("GenreItem");
-                });
-
-            modelBuilder.Entity("CollectionItem", b =>
+            modelBuilder.Entity("GameLauncher.Models.CollectionItem", b =>
                 {
                     b.HasOne("GameLauncher.Models.Collection", null)
-                        .WithMany()
-                        .HasForeignKey("CollectionsID")
+                        .WithMany("Items")
+                        .HasForeignKey("CollectionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GameLauncher.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsID")
+                        .WithMany("Collections")
+                        .HasForeignKey("ItemID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DevelloppeurItem", b =>
+            modelBuilder.Entity("GameLauncher.Models.ItemDev", b =>
                 {
-                    b.HasOne("GameLauncher.Models.Develloppeur", null)
-                        .WithMany()
-                        .HasForeignKey("DevelloppeursID")
+                    b.HasOne("GameLauncher.Models.Develloppeur", "Develloppeur")
+                        .WithMany("Items")
+                        .HasForeignKey("DevelloppeurID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GameLauncher.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsID")
+                    b.HasOne("GameLauncher.Models.Item", "Item")
+                        .WithMany("Develloppeurs")
+                        .HasForeignKey("ItemID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Develloppeur");
+
+                    b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("EditeurItem", b =>
+            modelBuilder.Entity("GameLauncher.Models.ItemEditeur", b =>
                 {
-                    b.HasOne("GameLauncher.Models.Editeur", null)
-                        .WithMany()
-                        .HasForeignKey("EditeursID")
+                    b.HasOne("GameLauncher.Models.Editeur", "Editeur")
+                        .WithMany("Items")
+                        .HasForeignKey("EditeurID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GameLauncher.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsID")
+                    b.HasOne("GameLauncher.Models.Item", "Item")
+                        .WithMany("Editeurs")
+                        .HasForeignKey("ItemID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Editeur");
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.ItemGenre", b =>
+                {
+                    b.HasOne("GameLauncher.Models.Genre", "Genre")
+                        .WithMany("Items")
+                        .HasForeignKey("GenreID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GameLauncher.Models.Item", "Item")
+                        .WithMany("Genres")
+                        .HasForeignKey("ItemID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.Collection", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.Develloppeur", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.Editeur", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.Genre", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.Item", b =>
                 {
-                    b.HasOne("GameLauncher.Models.LUPlatformes", "Platformes")
-                        .WithMany()
-                        .HasForeignKey("LUPlatformesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Collections");
 
-                    b.HasOne("GameLauncher.Models.LUProfile", "Profile")
-                        .WithMany()
-                        .HasForeignKey("LUProfileId");
+                    b.Navigation("Develloppeurs");
 
-                    b.Navigation("Platformes");
+                    b.Navigation("Editeurs");
 
-                    b.Navigation("Profile");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUEmulateur", b =>
-                {
-                    b.HasOne("GameLauncher.Models.LUPlatformes", null)
-                        .WithMany("Emulators")
-                        .HasForeignKey("LUPlatformesID");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUPlatformes", b =>
-                {
-                    b.HasOne("GameLauncher.Models.LUProfile", null)
-                        .WithMany("Platformes")
-                        .HasForeignKey("LUProfileID");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUProfile", b =>
-                {
-                    b.HasOne("GameLauncher.Models.LUEmulateur", null)
-                        .WithMany("Profiles")
-                        .HasForeignKey("LUEmulateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("GenreItem", b =>
-                {
-                    b.HasOne("GameLauncher.Models.Genre", null)
-                        .WithMany()
-                        .HasForeignKey("GenresID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GameLauncher.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUEmulateur", b =>
-                {
-                    b.Navigation("Profiles");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUPlatformes", b =>
-                {
-                    b.Navigation("Emulators");
-                });
-
-            modelBuilder.Entity("GameLauncher.Models.LUProfile", b =>
-                {
-                    b.Navigation("Platformes");
+                    b.Navigation("Genres");
                 });
 #pragma warning restore 612, 618
         }

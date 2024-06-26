@@ -32,7 +32,7 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
         var results = handler.FindAllGames();
         var gamesfind = new List<EADesktopGame>();
         var storeIdList = results.Select(x => x.AsT0.EADesktopGameId.Value);
-        var gameToRemoves = dbContext.Items.Where(x => x.Platformes.Name == "EA Origin" && !storeIdList.Contains(x.StoreId));
+        var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "EA Play" && !storeIdList.Contains(x.StoreId));
         dbContext.Items.RemoveRange(gameToRemoves);
         dbContext.SaveChanges();
     }
@@ -87,8 +87,8 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
                                 //var notrialexe = dipManifest.runtime.launcher.FirstOrDefault(x => x.trial == 0);
                                 exe.Path = $"{item.BaseInstallPath.GetFullPath()}/{getExeName(notrialexe.filePath)}";
                                 exe.StoreId = item.EADesktopGameId.Value;
-                                exe.Platformes = dbContext.Platformes.First(x => x.Name == "EA Origin");
-                                exe.LUPlatformesId = exe.Platformes.ID;
+                                exe.LUPlatformesId = dbContext.Platformes.First(x => x.Name == "EA Origin").Codename;
+                                exe.AddingDate = DateTime.Now;
                                 resultlist.Add(exe);
                             }
                         }
