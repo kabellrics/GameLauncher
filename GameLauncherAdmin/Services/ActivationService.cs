@@ -1,7 +1,7 @@
 ﻿using GameLauncherAdmin.Activation;
 using GameLauncherAdmin.Contracts.Services;
 using GameLauncherAdmin.Views;
-
+using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -12,13 +12,15 @@ public class ActivationService : IActivationService
     private readonly ActivationHandler<LaunchActivatedEventArgs> _defaultHandler;
     private readonly IEnumerable<IActivationHandler> _activationHandlers;
     private readonly IThemeSelectorService _themeSelectorService;
+    private readonly IHostedService _hostedService;
     private UIElement? _shell = null;
 
-    public ActivationService(ActivationHandler<LaunchActivatedEventArgs> defaultHandler, IEnumerable<IActivationHandler> activationHandlers, IThemeSelectorService themeSelectorService)
+    public ActivationService(ActivationHandler<LaunchActivatedEventArgs> defaultHandler, IEnumerable<IActivationHandler> activationHandlers, IThemeSelectorService themeSelectorService, IHostedService hostedService)
     {
         _defaultHandler = defaultHandler;
         _activationHandlers = activationHandlers;
         _themeSelectorService = themeSelectorService;
+        _hostedService = hostedService;
     }
 
     public async Task ActivateAsync(object activationArgs)
@@ -38,6 +40,8 @@ public class ActivationService : IActivationService
 
         // Activate the MainWindow.
         App.MainWindow.Activate();
+
+        await _hostedService.StartAsync(CancellationToken.None);
 
         // Execute tasks after activation.
         await StartupAsync();

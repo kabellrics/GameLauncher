@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Genre = GameLauncher.Models.Genre;
 using Microsoft.EntityFrameworkCore;
+using GameLauncher.Models.APIObject;
 
 namespace GameLauncher.Services.Implementation
 {
@@ -26,7 +27,8 @@ namespace GameLauncher.Services.Implementation
         private readonly IDevService devService;
         private readonly IEditeurService editService;
         private readonly IGenreService genreService;
-        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService,IGenreService genreService)
+        private readonly INotificationService notifService;
+        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService,IGenreService genreService, INotificationService notifService)
         {
             this.dbContext = dbContext;
             this.assetDownloader = assetDownloader;
@@ -34,6 +36,7 @@ namespace GameLauncher.Services.Implementation
             this.devService = devService;
             this.editService = editService;
             this.genreService = genreService;
+            this.notifService = notifService;
         }
         public async Task CleaningGame()
         {
@@ -47,6 +50,7 @@ namespace GameLauncher.Services.Implementation
                 var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "Steam" && !storeIdList.Contains(x.StoreId));
                 dbContext.Items.RemoveRange(gameToRemoves);
                 dbContext.SaveChanges();
+                await notifService.SendMessage(new NotificationMessage() { Message = $"Suppression de {gameToRemoves.Count()} jeux Steam désintallés", Type = MsgType.NeedUpdate });
             }
         }
 
@@ -92,6 +96,7 @@ namespace GameLauncher.Services.Implementation
                             var assetFolder = assetDownloader.CreateItemAssetFolder(game.ID);
                             game = await GetSteamInfos(game, assetFolder);
                             dbContext.SaveChanges();
+                            await notifService.SendMessage(new NotificationMessage() { Message = $"Ajout de {game.Name} depuis Steam", Type = MsgType.Info });
                         }
                     }
                     catch (Exception ex)
@@ -99,6 +104,7 @@ namespace GameLauncher.Services.Implementation
                         // Log exception or handle it accordingly
                     }
                 }
+                await notifService.SendMessage(new NotificationMessage() { Message = $"Fin de l'ajout de jeux depuis Steam", Type = MsgType.NeedUpdate });
             }
         }
 

@@ -7,5 +7,6 @@ public interface IAssetDownloader
     void CopyFile(string url, string targetPath);
     Task DownloadFile(string url, string targetPath);
     Task RapatrierAsset(Item item);
+    Task RapatrierAsset(Collection item);
     string CreateItemAssetFolder(Guid guid);
 }

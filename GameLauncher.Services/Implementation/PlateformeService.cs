@@ -20,4 +20,8 @@ public class PlateformeService : IPlateformeService
     {
         return dbContext.Platformes;
     }
+    public LUPlatformes Get(string id)
+    {
+        return dbContext.Platformes.FirstOrDefault(x=>x.Codename == id);
+    }
 }

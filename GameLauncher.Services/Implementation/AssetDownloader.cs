@@ -98,6 +98,36 @@ public class AssetDownloader : IAssetDownloader
             item.Artwork = targetfile;
         }
     }
+    public async Task RapatrierAsset(Collection item)
+    {
+        var folderPath = CreateItemAssetFolder(item.ID);
+        if (!item.Fanart.Contains(Path.Combine("GameLauncher", "Assets", "background")))
+        {
+            var targetfile = Path.Combine(folderPath, $"{item.CodeName}.jpg");
+            if (File.Exists(item.Fanart))
+            {
+                CopyFile(item.Fanart, targetfile);
+            }
+            else
+            {
+                await DownloadFile(item.Fanart, targetfile);
+            }
+            item.Fanart = targetfile;
+        }
+        if (!item.Logo.Contains(Path.Combine("GameLauncher", "Assets", "Collection V2")))
+        {
+            var targetfile = Path.Combine(folderPath,$"{item.CodeName}.png");
+            if (File.Exists(item.Logo))
+            {
+                CopyFile(item.Logo, targetfile);
+            }
+            else
+            {
+                await DownloadFile(item.Logo, targetfile);
+            }
+            item.Logo = targetfile;
+        }
+    }
     public string CreateItemAssetFolder(Guid guid)
     {
         string currentUser = Environment.UserName;

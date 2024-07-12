@@ -87,7 +87,7 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
                                 //var notrialexe = dipManifest.runtime.launcher.FirstOrDefault(x => x.trial == 0);
                                 exe.Path = $"{item.BaseInstallPath.GetFullPath()}/{getExeName(notrialexe.filePath)}";
                                 exe.StoreId = item.EADesktopGameId.Value;
-                                exe.LUPlatformesId = dbContext.Platformes.First(x => x.Name == "EA Origin").Codename;
+                                exe.LUPlatformesId = dbContext.Platformes.First(x => x.Name == "EA Play").Codename;
                                 exe.AddingDate = DateTime.Now;
                                 resultlist.Add(exe);
                             }

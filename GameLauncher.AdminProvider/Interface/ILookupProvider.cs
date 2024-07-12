@@ -14,4 +14,5 @@ public interface ILookupProvider
     Task UpdateDev(ObservableDevelloppeur item);
     Task UpdateEditeur(ObservableEditeur item);
     Task UpdateGenre(ObservableGenre item);
+    Task<LUPlatformes> GetPlateformebycodename(string codename);
 }

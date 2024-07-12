@@ -3,7 +3,9 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using GameLauncher.AdminProvider.Interface;
+using GameLauncher.Models.APIObject;
 using GameLauncher.ObservableObjet;
 using GameLauncherAdmin.Contracts.Services;
 using GameLauncherAdmin.Contracts.ViewModels;
@@ -26,6 +28,10 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
         _sampleDataService = sampleDataService;
         _itemProvider = itemProvider;
     }
+    protected override void OnActivated()
+    {
+        Messenger.Register<NotificationMessage>(this,async (r, m) => await InitializeData(_itemProvider.GetAllItemsStream()));
+    }
 
     public async void OnNavigatedTo(object parameter)
     {
@@ -33,6 +39,17 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
         GroupedItems.Clear();
         //await InitializeData(_itemProvider.GetAllItemsAsyncEnumerable());
         await InitializeData(_itemProvider.GetAllItemsStream());
+        WeakReferenceMessenger.Default.Register<NotificationMessage>(this, async (r, m) =>
+        {
+            if(m is NotificationMessage msg)
+            {
+                if (msg.Type == MsgType.NeedUpdate)
+                {
+                    await InitializeData(_itemProvider.GetAllItemsStream());
+                }
+            }
+        });
+
     }
     private async Task InitializeData(IAsyncEnumerable<ObservableItem> asyncitems)
     {

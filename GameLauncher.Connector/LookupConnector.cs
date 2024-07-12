@@ -86,6 +86,22 @@ public class LookupConnector
         var response = await _client.ExecuteAsync(request);
         return response.IsSuccessful;
     }
+    public async Task<LUPlatformes> GetPlateformebycodename(string codename)
+    {
+        var request = new RestRequest($"/api/Plateforme/{codename}", Method.Get);
+        var response = await _client.ExecuteAsync<LUPlatformes>(request);
+        if (response.IsSuccessful)
+        {
+            Console.WriteLine("Plateforme: " + response.Content);
+            //return JsonConvert.DeserializeObject<LUPlatformes>(response.Content);
+            return response.Data;
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+            return null;
+        }
+    }
     public async Task<bool> FusionEditeur(Guid idToDelete, Guid idToKeep)
     {
         var request = new RestRequest($"/api/Editeurs/Fusion/{idToDelete}/{idToKeep}", Method.Get);

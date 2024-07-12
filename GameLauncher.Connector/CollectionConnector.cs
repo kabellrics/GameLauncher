@@ -61,25 +61,32 @@ public class CollectionConnector
     }
     public async IAsyncEnumerable<ItemInCollection> GetAllItemInsideStream(Guid id)
     {
-        var request = new RestRequest($"api/Collection/GetAllItemInside/{id}", Method.Get);
-        var response = await _client.ExecuteAsync<List<ItemInCollection>>(request);
-        if (!response.IsSuccessful)
-        {
-            throw new Exception($"Error retrieving items: {response.ErrorMessage}");
-        }
+        #region OldVersion
+        //var request = new RestRequest($"api/Collection/GetAllItemInside/{id}", Method.Get);
+        //var response = await _client.ExecuteAsync<List<ItemInCollection>>(request);
+        //if (!response.IsSuccessful)
+        //{
+        //    throw new Exception($"Error retrieving items: {response.ErrorMessage}");
+        //}
 
-        var channel = Channel.CreateUnbounded<ItemInCollection>();
-        _ = Task.Run(async () =>
-        {
-            foreach (var item in response.Data)
-            {
-                await channel.Writer.WriteAsync(item);
-            }
-            channel.Writer.Complete();
-        });
+        //var channel = Channel.CreateUnbounded<ItemInCollection>();
+        //_ = Task.Run(async () =>
+        //{
+        //    foreach (var item in response.Data)
+        //    {
+        //        await channel.Writer.WriteAsync(item);
+        //    }
+        //    channel.Writer.Complete();
+        //});
 
-        // Return an IAsyncEnumerable from the channel reader
-        await foreach (var item in channel.Reader.ReadAllAsync())
+        //// Return an IAsyncEnumerable from the channel reader
+        //await foreach (var item in channel.Reader.ReadAllAsync())
+        //{
+        //    yield return item;
+        //}            //var request = new RestRequest("/api/Items/Stream", Method.Get); 
+        #endregion
+        var response = _client.StreamJsonAsync<ItemInCollection>($"api/Collection/GetAllItemInsideStream/{id}", CancellationToken.None);
+        await foreach (var item in response)
         {
             yield return item;
         }
@@ -94,6 +101,16 @@ public class CollectionConnector
         var request = new RestRequest($"/api/Collection/UpdateCollectionItemOrder/{id}/{gameid}/{newOrder}", Method.Get);
         var response = await _client.ExecuteAsync(request);
     }
+    public async Task DeleteCollectionItem(Guid id)
+    {
+        var request = new RestRequest($"/api/Collection/CollectionItem/{id}", Method.Delete);
+        var response = await _client.ExecuteAsync(request);
+    }
+    public async Task DeleteCollection(Guid id)
+    {
+        var request = new RestRequest($"/api/Collection/{id}", Method.Delete);
+        var response = await _client.ExecuteAsync(request);
+    }
     public async Task UpdateCollection(Collection item)
     {
         var request = new RestRequest($"/api/Collection/{item.ID}", Method.Put);
@@ -104,6 +121,16 @@ public class CollectionConnector
         if (!response.IsSuccessful)
         {
             throw new Exception("Update Failed");
+        }
+    }
+    public async Task CreateCollection(Collection item)
+    {
+        var request = new RestRequest($"/api/Collection", Method.Post);
+        request.AddJsonBody(item);
+        var response = await _client.ExecuteAsync(request);
+        if (!response.IsSuccessful)
+        {
+            throw new Exception("Creation Failed");
         }
     }
 }

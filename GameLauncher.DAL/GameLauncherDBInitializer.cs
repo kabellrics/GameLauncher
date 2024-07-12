@@ -104,6 +104,7 @@ public static class GameLauncherDBInitializer
                 emulator.Id = lines[0].Substring(lines[0].IndexOf(":") + 1).Trim();
                 emulator.Name = lines[1].Substring(lines[1].IndexOf(":") + 1).Trim();
                 emulator.Website = lines[2].Substring(lines[2].IndexOf(":") + 1).Trim();
+                emulator.IsLocal = false;
                 emulator.Profiles = new List<Guid>();
                 var profilelines = GetLinesStartingFromName(lines);
                 List<string[]> blocks = SplitIntoPlateformBlocks(profilelines);
@@ -112,6 +113,7 @@ public static class GameLauncherDBInitializer
                     LUProfile profile = new LUProfile();
                     profile.Id = Guid.NewGuid();
                     profile.LUEmulateurId = emulator.Id;
+                    profile.IsLocal = false;
                     foreach (var line in block)
                     {
                         if (line.TrimStart().StartsWith("- Name:"))

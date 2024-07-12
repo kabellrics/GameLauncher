@@ -28,7 +28,7 @@ public class CollectionProvider : ICollectionProvider
     public async IAsyncEnumerable<ObsCollection> GetCollectionsAsyncEnumerable()
     {
         var collecs = await colectionconnector.GetCollectionsAsync();
-        foreach (var colle in collecs)
+        foreach (var colle in collecs.OrderBy(x=>x.Order))
         {
             var obsitem = new ObsCollection(colle);
             yield return obsitem;
@@ -64,5 +64,17 @@ public class CollectionProvider : ICollectionProvider
     public async Task UpdateCollection(ObsCollection item)
     {
         await colectionconnector.UpdateCollection(item._collection);
+    }
+    public async Task DeleteCollectionItem(Guid id)
+    {
+        await colectionconnector.DeleteCollectionItem(id);
+    }
+    public async Task DeleteCollection(Guid id)
+    {
+        await colectionconnector.DeleteCollection(id);
+    }
+    public async Task CreateCollection(Collection item)
+    {
+        await colectionconnector.CreateCollection(item);
     }
 }

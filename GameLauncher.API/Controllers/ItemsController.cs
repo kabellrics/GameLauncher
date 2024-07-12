@@ -1,10 +1,13 @@
-﻿using GameLauncher.DAL;
+﻿using System.Text.Json;
+using System.Text;
+using GameLauncher.DAL;
 using GameLauncher.Models;
 using GameLauncher.Services.Implementation;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace GameLauncher.API.Controllers;
 [Route("api/[controller]")]
@@ -22,9 +25,29 @@ public class ItemsController : ControllerBase
         return Ok(_itemService.GetAll());
     }
     [HttpGet("Stream")]
-    public IAsyncEnumerable<Item> Stream()
+    public async IAsyncEnumerable<Item> Stream()
     {        
-        return _itemService.GetAllAsync();
+        await foreach(var item in _itemService.GetAllAsync()){
+            yield return item;
+        }
+    }
+    [HttpGet("StreamJSON")]
+    public async Task StreamJSON()
+    {
+        Response.ContentType = "application/x-ndjson"; // Set the content type to NDJSON
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false // Ensure single-line JSON
+        };
+
+        await foreach (var item in _itemService.GetAllAsync())
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(item, options);
+            await Response.WriteAsync(json + "\n", Encoding.UTF8);
+            await Response.Body.FlushAsync(); // Ensure the response is sent immediately
+        }
     }
     [HttpPut("{id}")]
     public ActionResult Put(Guid id, [FromBody] Item todoItem)

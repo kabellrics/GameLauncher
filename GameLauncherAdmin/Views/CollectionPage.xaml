@@ -17,7 +17,7 @@
             SelectionMode="Single"
             IsTapEnabled="True"
                   Tapped="listItem_Tapped"
-                   CanReorderItems="True"
+                  ReorderMode="Enabled" CanDragItems="True" CanReorderItems="True" AllowDrop="True"
             ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}">
             <ListView.ItemTemplate>
                 <DataTemplate>
@@ -45,7 +45,34 @@
         </ListView>
         <ScrollViewer Grid.Column="1">
             <StackPanel Orientation="Vertical">
-                <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Center" Content="Générer des Collections pour toutes les Plateformes" Command="{x:Bind ViewModel.CreateCollectionForPlateformeCommand}"/>
+                <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Center"
+                        Content="Générer des Collections pour toutes les Plateformes" Command="{x:Bind ViewModel.CreateCollectionForPlateformeCommand}"/>
+                <Expander Background="Transparent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                          IsExpanded="{x:Bind ViewModel.ShowCreateCollection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <Expander.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="Créer une nouvelle Collection" Style="{StaticResource SubheaderTextBlockStyle}"/>
+                        </DataTemplate>
+                    </Expander.HeaderTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Nom :" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <TextBlock Grid.Column="0" Grid.Row="1" Text="Code :" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <TextBox Grid.Column="1" Grid.Row="0" Text="{x:Bind ViewModel.NewCollectionName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <TextBox Grid.Column="1" Grid.Row="1" Text="{x:Bind ViewModel.NewCollectionCode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource AccentButtonStyle}"
+                                Content="Ajouter la nouvelle Collection" HorizontalAlignment="Right"
+                                Command="{x:Bind ViewModel.CreateCollectionCommand}"/>
+                    </Grid>
+                </Expander>
             </StackPanel>
         </ScrollViewer>
     </Grid>

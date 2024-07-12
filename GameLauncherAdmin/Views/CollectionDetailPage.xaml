@@ -17,6 +17,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0"
                    HorizontalAlignment="Center" HorizontalTextAlignment="Center" FontSize="60" Margin="10"
@@ -37,7 +38,7 @@
                 <TextBlock Grid.Column="4" Style="{StaticResource TitleTextBlockStyle}" FontSize="35" Text="Ordre : "/>
                 <TextBlock Grid.Column="5" Style="{StaticResource AutoSuggestBoxTextBoxStyle}" FontSize="35" Text="{x:Bind ViewModel.Collection.Order,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
             </Grid>
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="2" Margin="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -48,6 +49,9 @@
                     <winuicontrols:ConstrainedBox AspectRatio="1:1"  Height="400" Margin="2">
                         <Image Source="{x:Bind ViewModel.Collection.Logo,Mode=OneWay}" Stretch="Uniform"/>
                     </winuicontrols:ConstrainedBox>
+                        <Button Style="{StaticResource AccentButtonStyle}"
+                                Click="Button_ChangeLogo"
+                                Content=" Choisir un fichier Local"/>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Grid.Column="1">
                     <TextBlock Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}"
@@ -55,43 +59,114 @@
                     <winuicontrols:ConstrainedBox AspectRatio="1920:1080"  Height="400" Margin="2">
                         <Image Source="{x:Bind ViewModel.Collection.Fanart,Mode=OneWay}" Stretch="Uniform"/>
                     </winuicontrols:ConstrainedBox>
+                    <Button Style="{StaticResource AccentButtonStyle}"
+                            Click="Button_ChangeFanart"
+                                Content=" Choisir un fichier Local"/>
                 </StackPanel>
             </Grid>
-            <Grid Grid.Row="3">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Items dans la Collections"
+
+
+            <Expander Background="Transparent" Padding="0" Margin="0" Header="Items dans la Collections" Grid.Row="3"
+                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <StackPanel Orientation="Vertical">
+                    <Grid Margin="10" Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Items dans la Collections"
            HorizontalAlignment="Left" HorizontalTextAlignment="Center" FontSize="35" Margin="10"></TextBlock>
-                <ComboBox Grid.Column="1" PlaceholderText="Trier la liste par:"
+                        <Button Grid.Column="1" Content="Supprimer de la Collections" Style="{StaticResource ButtonRevealStyle}"
+                        Click="Button_Click_2"/>
+                        <Button Grid.Column="2" Content="Enregistrer les modifications" Style="{StaticResource ButtonRevealStyle}"
+                        Click="Button_Click"/>
+                        <ComboBox Grid.Column="3" PlaceholderText="Trier la liste par:"
                           Style="{StaticResource DefaultComboBoxStyle}"
                           ItemsSource="{x:Bind ViewModel.SortType}" SelectionChanged="ComboBox_SelectionChanged">
-                </ComboBox>
-            </Grid>
-            <ListView Grid.Row="4" ItemsSource="{x:Bind ViewModel.ItemCollections,Mode=OneWay}"
-                      DropCompleted="ListView_DropCompleted" CanDragItems="True" CanReorderItems="True" AllowDrop="True">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:ObservableItemInCollection">
-                        <Grid Height="250">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="50"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind Order}"/>
-                            <winuicontrols:ConstrainedBox AspectRatio="2:3" Grid.Column="1">
-                                <Image Source="{x:Bind Cover}" Stretch="Fill"/>
-                            </winuicontrols:ConstrainedBox>
-                            <StackPanel Orientation="Vertical" Grid.Column="2">
-                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind Name}"/>
-                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind ReleaseDate}"/>
-                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind AddingDate}"/>
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                        </ComboBox>
+                    </Grid>
+                    <ListView Margin="10" x:Name="collectioncontent" ItemsSource="{x:Bind ViewModel.ItemCollections,Mode=OneWay}" HorizontalAlignment="Stretch"
+                      ReorderMode="Enabled" CanDragItems="True" CanReorderItems="True" AllowDrop="True" SelectionMode="Multiple">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ObservableItemInCollection">
+                                <Grid Height="250">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind Order}"/>
+                                    <winuicontrols:ConstrainedBox AspectRatio="2:3" Grid.Column="1">
+                                        <Image Source="{x:Bind Cover}" Stretch="Fill"/>
+                                    </winuicontrols:ConstrainedBox>
+                                    <Grid Grid.Column="2" Margin="10,5,5,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="Titre :"/>
+                                        <TextBlock Grid.Column="0" Grid.Row="1" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="Date de Sortie :"/>
+                                        <TextBlock Grid.Column="0" Grid.Row="2" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="Date d'ajout :"/>
+                                        <TextBlock Grid.Column="1" Grid.Row="0" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind Name}"/>
+                                        <TextBlock Grid.Column="1" Grid.Row="1" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind ReleaseDate}"/>
+                                        <TextBlock Grid.Column="1" Grid.Row="2" Style="{StaticResource TitleTextBlockStyle}" FontSize="20" Text="{x:Bind AddingDate}"/>
+                                    </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Expander>
+            <Expander Background="Transparent" Padding="0" Margin="0" Grid.Row="5" Header="Ajouter des items dans la Collection" 
+                HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <StackPanel Orientation="Vertical">
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Items Ajoutables"
+           HorizontalAlignment="Left" HorizontalTextAlignment="Center" FontSize="35" Margin="10"></TextBlock>
+                        <Button Grid.Column="1" Content="Ajouter les jeux sélectionnés" Style="{StaticResource ButtonRevealStyle}"
+                                Click="Button_Click_1"/>
+                    </Grid>
+                    <controls:AdaptiveGridView
+                        x:Name="proposalItem"
+                        ItemsSource="{x:Bind ViewModel.AddingCollections,Mode=OneWay}"
+                        DesiredWidth="200"
+                        ItemHeight="360"
+                        IsItemClickEnabled="True"
+                        SelectionMode="Multiple"
+                        StretchContentForSingleRow="False">     
+                        <controls:AdaptiveGridView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ObservableItem">
+                                <Grid
+                x:Name="itemThumbnail"
+                Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <winuicontrols:ConstrainedBox AspectRatio="2:3">
+                                            <Image Source="{Binding Cover,Mode=OneWay}" Stretch="Fill"/>
+                                        </winuicontrols:ConstrainedBox>
+                                        <TextBlock Height="60"
+                        Margin="{StaticResource XXSmallTopMargin}"
+                        HorizontalAlignment="Center"
+                        Style="{ThemeResource BodyTextStyle}"
+                        Text="{x:Bind Name}" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </controls:AdaptiveGridView.ItemTemplate>
+                    </controls:AdaptiveGridView>
+                </StackPanel>
+            </Expander>
         </Grid>
     </ScrollViewer>
 </Page>

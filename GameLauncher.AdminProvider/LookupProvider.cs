@@ -58,4 +58,8 @@ public class LookupProvider : ILookupProvider
     {
         await lookupconnector.UpdateGenreAsync(item.Item);
     }
+    public async Task<LUPlatformes> GetPlateformebycodename(string codename)
+    {
+        return await lookupconnector.GetPlateformebycodename(codename);
+    }
 }

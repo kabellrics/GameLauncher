@@ -41,25 +41,26 @@ namespace GameLauncher.Connector
         // Méthode pour obtenir des items
         public async IAsyncEnumerable<Item> GetItemsStreamAsync()
         {
-            var request = new RestRequest("/api/Items/Stream", Method.Get);
-            var response = await _client.ExecuteAsync<List<Item>>(request);
-            if (!response.IsSuccessful)
-            {
-                throw new Exception($"Error retrieving items: {response.ErrorMessage}");
-            }
+            //var request = new RestRequest("/api/Items/Stream", Method.Get);
+            var response = _client.StreamJsonAsync<Item>("/api/Items/StreamJSON",CancellationToken.None);
+            //if (!response.IsSuccessful)
+            //{
+            //    throw new Exception($"Error retrieving items: {response.ErrorMessage}");
+            //}
 
-            var channel = Channel.CreateUnbounded<Item>();
-            _ = Task.Run(async () =>
-            {
-                foreach (var item in response.Data)
-                {
-                    await channel.Writer.WriteAsync(item);
-                }
-                channel.Writer.Complete();
-            });
+            //var channel = Channel.CreateUnbounded<Item>();
+            //_ = Task.Run(async () =>
+            //{
+            //    foreach (var item in response.Data)
+            //    {
+            //        await channel.Writer.WriteAsync(item);
+            //    }
+            //    channel.Writer.Complete();
+            //});
 
             // Return an IAsyncEnumerable from the channel reader
-            await foreach (var item in channel.Reader.ReadAllAsync())
+            //await foreach (var item in channel.Reader.ReadAllAsync())
+            await foreach (var item in response)
             {
                 yield return item;
             }

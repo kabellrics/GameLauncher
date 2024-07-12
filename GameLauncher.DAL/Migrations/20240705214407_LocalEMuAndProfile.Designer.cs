@@ -3,6 +3,7 @@ using System;
 using GameLauncher.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameLauncher.DAL.Migrations
 {
     [DbContext(typeof(GameLauncherContext))]
-    partial class GameLauncherContextModelSnapshot : ModelSnapshot
+    [Migration("20240705214407_LocalEMuAndProfile")]
+    partial class LocalEMuAndProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
@@ -257,9 +260,6 @@ namespace GameLauncher.DAL.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsLocal")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -273,7 +273,7 @@ namespace GameLauncher.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Emulateurs");
+                    b.ToTable("LUEmulateur");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.LUPlatformes", b =>
@@ -311,9 +311,6 @@ namespace GameLauncher.DAL.Migrations
                     b.Property<string>("ImageExtensions")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsLocal")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("LUEmulateurId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -337,7 +334,7 @@ namespace GameLauncher.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Profiles");
+                    b.ToTable("LUProfile");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.CollectionItem", b =>

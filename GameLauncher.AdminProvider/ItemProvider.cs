@@ -14,15 +14,18 @@ namespace GameLauncher.AdminProvider
     public class ItemProvider : IItemProvider
     {
         private readonly GameLauncherClient apiconnector;
+        private readonly LookupConnector lookconnector;
         public ItemProvider()
         {
             apiconnector = new GameLauncherClient("https://localhost:7197");
+            lookconnector = new LookupConnector("https://localhost:7197");
         }
         public async IAsyncEnumerable<ObservableItem> GetAllItemsStream()
         {
             await foreach (var item in apiconnector.GetItemsStreamAsync())
             {
                 var obsItem = new ObservableItem(item);
+                obsItem.Platforme = await lookconnector.GetPlateformebycodename(item.LUPlatformesId);
                 var devs = await apiconnector.GetDevsByItemAsync(item.ID);
                 foreach (var dev in devs.OrderBy(x => x.Name))
                     obsItem.Develloppeurs.Add(new ObservableDevelloppeur(dev));

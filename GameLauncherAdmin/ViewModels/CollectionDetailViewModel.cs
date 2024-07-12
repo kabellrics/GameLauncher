@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using GameLauncher.AdminProvider.Interface;
+using GameLauncher.Models;
 using GameLauncher.ObservableObjet;
 using GameLauncherAdmin.Contracts.Services;
 using GameLauncherAdmin.Contracts.ViewModels;
@@ -16,6 +17,8 @@ public partial class CollectionDetailViewModel : ObservableRecipient, INavigatio
     [ObservableProperty]
     private ObsCollection _collection;
     public ObservableCollection<ObservableItemInCollection> ItemCollections { get; } = new ObservableCollection<ObservableItemInCollection>();
+    public ObservableCollection<ObservableItemInCollection> ToDeleteItems { get; } = new ObservableCollection<ObservableItemInCollection>();
+    public ObservableCollection<ObservableItem> AddingCollections { get; } = new ObservableCollection<ObservableItem>();
     public List<String> SortType = new List<string> { "Nom Ascendant", "Nom Descendant", "Date de sortie Ascendant", "Date de sortie descendante", "Date d'ajout ascendant", "Date d'ajout descendant" };
     public CollectionDetailViewModel(INavigationService navigationService, ICollectionProvider collecProvider, IItemProvider itemProvider)
     {
@@ -30,16 +33,40 @@ public partial class CollectionDetailViewModel : ObservableRecipient, INavigatio
     {
         if (parameter is ObsCollection detailitem)
         {
-            //var data = await _sampleDataService.GetContentGridDataAsync();
-            //Item = data.First(i => i.OrderID == orderID);
             Collection = detailitem;
-            //await foreach (var item in _collecProvider.GetAllItemInsideAsyncStream(Collection.Id)) 
+            ItemCollections.Clear();
+            ItemCollections.Clear();
+            ToDeleteItems.Clear();
+
             await foreach (var item in _collecProvider.GetAllItemInsideAsyncStream(Collection.Id)) 
             {
-                //ItemCollections.Insert(item.Order,item);
                 ItemCollections.Add(item);
             }
+            await foreach( var item in _itemProvider.GetAllItemsStream())
+            {
+                if (!ItemCollections.Any(x => x.Id == item.Id))
+                    AddingCollections.Add(item);
+            }
         }
+    }
+    public void AddToCollec(IEnumerable<ObservableItem> items)
+    {
+        var order = ItemCollections.Max(x => x.Order);
+        foreach (var item in items)
+        {
+            CollectionItem collecitem = new CollectionItem() { ID = Guid.NewGuid(), CollectionID = Collection.Id, ItemID = item.Id, Order = order++ };
+            ItemCollections.Add(new ObservableItemInCollection(item.Item,collecitem));
+        }
+        ReInitOrder();
+    }
+    public void RemoveToCollec(IEnumerable<ObservableItemInCollection> items)
+    {
+        foreach (var item in items)
+        {
+            ToDeleteItems.Add(item);
+            ItemCollections.Remove(item);
+        }
+        ReInitOrder();
     }
     public void SortObs(string sortype)
     {
@@ -74,5 +101,27 @@ public partial class CollectionDetailViewModel : ObservableRecipient, INavigatio
         {
             item.Order = order++;
         }
+    }
+    public async void SaveChanges()
+    {
+        ReInitOrder();
+        await _collecProvider.UpdateCollection(_collection);
+        foreach(var item in ItemCollections)
+        {
+            await _collecProvider.UpdateCollectionItemOrder(item.CollectionItem.CollectionID,item.CollectionItem.ItemID,item.Order);
+        }
+        foreach (var item in ToDeleteItems)
+        {
+            await _collecProvider.DeleteCollectionItem(item.Id);
+        }
+        _navigationService.GoBack();
+    }
+    public void SetNewLogoPath(string newLogoPath)
+    {
+        Collection.Logo = newLogoPath;
+    }
+    public void SetNewFanartPath(string newFanartPath)
+    {
+        Collection.Logo = newFanartPath;
     }
 }

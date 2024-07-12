@@ -52,4 +52,8 @@ public class LUProfile
     {
         get; set;
     }
+    public bool IsLocal
+    {
+        get; set;
+    }
 }

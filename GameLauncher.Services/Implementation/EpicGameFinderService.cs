@@ -8,6 +8,7 @@ using GameFinder.RegistryUtils;
 using GameFinder.StoreHandlers.EGS;
 using GameLauncher.DAL;
 using GameLauncher.Models;
+using GameLauncher.Models.APIObject;
 using GameLauncher.Services.Interface;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,13 +23,15 @@ public class EpicGameFinderService : IEpicGameFinderService
     private readonly ISteamGridDbService steangriddbService;
     private readonly IDevService devService;
     private readonly IEditeurService editService;
-    public EpicGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService)
+    private readonly INotificationService notifService;
+    public EpicGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService, INotificationService notifService)
     {
         this.dbContext = dbContext;
         this.assetDownloader = assetDownloader;
         this.steangriddbService = steangriddbService;
         this.devService = devService;
         this.editService = editService;
+        this.notifService = notifService;
     }
     public async Task CleaningGame()
     {
@@ -39,6 +42,7 @@ public class EpicGameFinderService : IEpicGameFinderService
         var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "Epic" && !storeIdList.Contains(x.StoreId));
         dbContext.Items.RemoveRange(gameToRemoves);
         dbContext.SaveChanges();
+        await notifService.SendMessage(new NotificationMessage() { Message = $"Suppression de {gameToRemoves.Count()} jeux Epic games désintallés",Type=MsgType.NeedUpdate });
     }
     public async Task GetGameAsync()
     {
@@ -69,9 +73,11 @@ public class EpicGameFinderService : IEpicGameFinderService
                 dbContext.Items.Add(item);
                 await GetEpicData(item);
                 dbContext.SaveChanges();
+                await notifService.SendMessage(new NotificationMessage() { Message = $"Ajout de {item.Name} depuis Epic Games Store", Type = MsgType.Info });
             }
         }
         dbContext.SaveChanges();
+        await notifService.SendMessage(new NotificationMessage() { Message = $"Fin de l'ajout de jeux depuis Epic Games Store", Type = MsgType.NeedUpdate });
     }
 
     private async Task GetEpicData(Item item)

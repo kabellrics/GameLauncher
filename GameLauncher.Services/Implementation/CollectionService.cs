@@ -18,9 +18,13 @@ namespace GameLauncher.Services.Implementation;
 public class CollectionService : ICollectionService
 {
     private readonly GameLauncherContext dbContext;
-    public CollectionService(GameLauncherContext dbContext)
+    private readonly IAssetDownloader assetService;
+    private readonly INotificationService notifService;
+    public CollectionService(GameLauncherContext dbContext, INotificationService notifService, IAssetDownloader assetService)
     {
         this.dbContext = dbContext;
+        this.notifService = notifService;
+        this.assetService = assetService;
     }
     public IEnumerable<Collection> GetAll()
     {
@@ -44,18 +48,61 @@ public class CollectionService : ICollectionService
         dbContext.CollectiondItems.Add(newCollecItem);
         dbContext.SaveChanges();
     }
-    public void UpdateCollectionItemOrder(Guid id, Guid gameid, int newOrder)
+    public bool DelteCollectionItem(Guid id)
     {
-        var collecitem = dbContext.CollectiondItems.FirstOrDefault(x => x.CollectionID == id && x.ItemID == gameid);
+        var collecitem = dbContext.CollectiondItems.FirstOrDefault(x => x.ID == id);
         if (collecitem != null)
         {
-            collecitem.Order = newOrder;
-            var collecitemstoupdate = dbContext.CollectiondItems.Where(x => x.CollectionID == id && x.Order >= newOrder);
-            foreach (var toupdatecollecitem in collecitemstoupdate)
-                toupdatecollecitem.Order += 1;
+            dbContext.CollectiondItems.Remove(collecitem);
             dbContext.SaveChanges();
+            return true;
+        }
+        return false;
+    }
+    public bool DelteCollection(Guid id)
+    {
+        var collec = dbContext.Collections.FirstOrDefault(x => x.ID == id);
+        if (collec != null)
+        {
+            dbContext.Collections.Remove(collec);
+            dbContext.SaveChanges();
+            notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection supprimé" });
+            return true;
+        }
+        return false;
+    }
+    public void CreateCollection(Collection collec)
+    {
+        collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
+        collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
+        dbContext.Collections.Add(collec);
+        dbContext.SaveChanges(true);
+        notifService.SendMessage(new NotificationMessage {Type=MsgType.NeedUpdate,Message="Collection ajouté" });
+    }
+    public void UpsertCollectionItem(Guid collectionId, Guid gameId, int order)
+    {
+        var collecitem = dbContext.CollectiondItems.FirstOrDefault(x => x.CollectionID == collectionId && x.ItemID == gameId);
+
+        if (collecitem != null)
+        {
+            // Update the existing item
+            collecitem.Order = order;
+        }
+        else
+        {
+            // Insert a new item
+            collecitem = new CollectionItem
+            {
+                ID = Guid.NewGuid(),
+                CollectionID = collectionId,
+                ItemID = gameId,
+                Order = order
+            };
+            dbContext.CollectiondItems.Add(collecitem);
         }
 
+        dbContext.SaveChanges();
+        notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection Item mis à jour" });
     }
     public void Update(Collection updatedcollection)
     {
@@ -67,16 +114,19 @@ public class CollectionService : ICollectionService
             item.CodeName = updatedcollection.CodeName;
             item.Fanart = updatedcollection.Fanart;
             item.Logo = updatedcollection.Logo;
+            assetService.RapatrierAsset(item);
             dbContext.Collections.Update(item);
             dbContext.SaveChanges();
+            //notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection mis à jour" });
         }
     }
 
     public void CreateCollectionFromPlateforme()
     {
-        var distinctplateforme = dbContext.Items.GroupBy(x=>x.LUPlatformesId).Select(grp => grp.First()).ToList();
+        var distinctplateforme = dbContext.Items.GroupBy(x=>x.LUPlatformesId).Select(grp => grp.First().LUPlatformesId).ToList();
+        var plateformes = dbContext.Platformes.Where(x => distinctplateforme.Contains(x.Codename));
         int plateformeOrder = 1;
-        foreach (var itemplateform in distinctplateforme.OrderBy(x => x.Name))
+        foreach (var itemplateform in plateformes.OrderBy(x => x.Name))
         {
             var collec = dbContext.Collections.FirstOrDefault(x => x.Name == itemplateform.Name);
             if (collec == null)
@@ -91,7 +141,7 @@ public class CollectionService : ICollectionService
                 dbContext.Collections.Add(collec);
             }
             int itemorder = 1;
-            var itemsplateforms = dbContext.Items.Where(x => x.LUPlatformesId == itemplateform.LUPlatformesId).OrderBy(x => x.Name);
+            var itemsplateforms = dbContext.Items.Where(x => x.LUPlatformesId == itemplateform.Codename).OrderBy(x => x.Name);
             if (dbContext.CollectiondItems.Any(x => x.CollectionID == collec.ID))
             {
                 var maxorder = dbContext.CollectiondItems.Where(x => x.CollectionID == collec.ID).Max(x => x.Order);
@@ -112,5 +162,6 @@ public class CollectionService : ICollectionService
 
         }
         dbContext.SaveChanges();
+        notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection ajouté" });
     }
 }

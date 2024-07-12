@@ -33,6 +33,10 @@ public class Program
         builder.Services.AddScoped<IDevService, DevService>();
         builder.Services.AddScoped<ICollectionService, CollectionService>();
         builder.Services.AddScoped<IAssetDownloader, AssetDownloader>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<IStartingService, StartingService>();
+        builder.Services.AddScoped<IEmulateurService, EmulateurService>();
+        builder.Services.AddSignalR();
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -57,7 +61,7 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
+        app.MapHub<NotificationHub>("/Notif");
 
         app.MapControllers();
 

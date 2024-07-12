@@ -78,6 +78,7 @@ public partial class App : Application
             services.AddSingleton<IMetadataProvider, MetadataProvider>();
             services.AddSingleton<IStoreProvider, StoreProvider>();
             services.AddSingleton<ILookupProvider, LookupProvider>();
+            services.AddSingleton<IHostedService, NotificationBackgroundTask>();
 
             // Views and ViewModels
             services.AddTransient<VideoIntroViewModel>();
@@ -109,11 +110,16 @@ public partial class App : Application
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
 
+            //services.Configure<HostOptions>(options =>
+            //{
+            //    options.ServicesStartConcurrently = true;
+            //    options.ServicesStopConcurrently = true;
+            //});
+            //services.AddHostedService<NotificationBackgroundTask>();
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
         }).
         Build();
-
         UnhandledException += App_UnhandledException;
     }
 

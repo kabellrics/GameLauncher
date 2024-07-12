@@ -14,4 +14,7 @@ public interface ICollectionProvider
     Task UpdateCollectionItemOrder(Guid id, Guid gameid, int newOrder);
     Task CreateCollectionFromPlateforme();
     IAsyncEnumerable<ObservableItem> GetAllItemInsideAsync(Guid id);
+    Task DeleteCollectionItem(Guid id);
+    Task CreateCollection(Collection item);
+    Task DeleteCollection(Guid id);
 }

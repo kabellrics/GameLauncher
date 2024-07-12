@@ -8,6 +8,9 @@ public interface ICollectionService
     IEnumerable<Collection> GetAll();
     IAsyncEnumerable<ItemInCollection> GetAllItemInside(Guid id);
     void Update(Collection updatedcollection);
-    void UpdateCollectionItemOrder(Guid id, Guid gameid, int newOrder);
+    void UpsertCollectionItem(Guid id, Guid gameid, int newOrder);
     void CreateCollectionFromPlateforme();
+    bool DelteCollectionItem(Guid id);
+    bool DelteCollection(Guid id);
+    void CreateCollection(Collection collec);
 }

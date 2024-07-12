@@ -17,4 +17,9 @@ public class PlateformeController : ControllerBase
     {
         return Ok(_Service.GetAll());
     }
+    [HttpGet("{id}")]
+    public async Task<ActionResult> Get(string id)
+    {
+        return Ok(_Service.Get(id));
+    }
 }

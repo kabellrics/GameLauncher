@@ -32,6 +32,10 @@ public class LUEmulateur
     {
         get; set;
     }
+    public bool IsLocal
+    {
+        get; set;
+    }
 
     [JsonProperty("Profiles")]
     public List<Guid>? Profiles

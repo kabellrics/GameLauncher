@@ -137,6 +137,14 @@ namespace GameLauncher.ObservableObjet
                 SetProperty(Item.ReleaseDate, value, Item, (syteme, item) => Item.ReleaseDate = item);
             }
         }
+        public DateTime AddingDate
+        {
+            get => Item.AddingDate;
+            set
+            {
+                SetProperty(Item.AddingDate, value, Item, (syteme, item) => Item.AddingDate = item);
+            }
+        }
         public DateTime LastStartDate
         {
             get => Item.LastStartDate;

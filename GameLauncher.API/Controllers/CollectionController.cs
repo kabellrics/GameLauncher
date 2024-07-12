@@ -1,5 +1,8 @@
-﻿using GameLauncher.Models;
+﻿using System.Text.Json;
+using System.Text;
+using GameLauncher.Models;
 using GameLauncher.Models.APIObject;
+using GameLauncher.Services.Implementation;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +28,24 @@ public class CollectionController : ControllerBase
     {
         return _Service.GetAllItemInside(id);
     }
+    [HttpGet("GetAllItemInsideStream/{id}")]
+    public async Task StreamJSON(Guid id)
+    {
+        Response.ContentType = "application/x-ndjson"; // Set the content type to NDJSON
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false // Ensure single-line JSON
+        };
+
+        await foreach (var item in _Service.GetAllItemInside(id))
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(item, options);
+            await Response.WriteAsync(json + "\n", Encoding.UTF8);
+            await Response.Body.FlushAsync(); // Ensure the response is sent immediately
+        }
+    }
     [HttpGet("CreateCollectionFromPlateforme")]
     public async Task<ActionResult> CreateCollectionFromPlateforme()
     {
@@ -40,8 +61,21 @@ public class CollectionController : ControllerBase
     [HttpGet("UpdateCollectionItemOrder/{id}/{gameid}/{newOrder}")]
     public async Task<ActionResult> UpdateCollectionItemOrder(Guid id, Guid gameid,int newOrder)
     {
-        _Service.UpdateCollectionItemOrder(id, gameid, newOrder);
+        _Service.UpsertCollectionItem(id, gameid, newOrder);
         return Ok();
+    }
+    [HttpPost]
+    public ActionResult Post([FromBody] Collection value)
+    {
+        if (ModelState.IsValid)
+        {
+            _Service.CreateCollection(value);
+            return Ok();
+        }
+        else
+        {
+            return BadRequest(ModelState);
+        }
     }
     [HttpPut("{id}")]
     public ActionResult Put(Guid id, [FromBody] Collection todoItem)
@@ -54,6 +88,36 @@ public class CollectionController : ControllerBase
         {
             _Service.Update(todoItem);
             return Ok();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw;
+        }
+
+        return NoContent();
+    }
+    [HttpDelete("CollectionItem/{id}")]
+    public ActionResult DeleteCollecItem(Guid id)
+    {
+        try
+        {
+            return Ok(
+            _Service.DelteCollectionItem(id));
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw;
+        }
+
+        return NoContent();
+    }
+    [HttpDelete("{id}")]
+    public ActionResult DeleteCollec(Guid id)
+    {
+        try
+        {
+            return Ok(
+            _Service.DelteCollection(id));
         }
         catch (DbUpdateConcurrencyException)
         {
