@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" />
     <PackageReference Include="EpicGamesStoreNET" Version="1.0.2" />
     <PackageReference Include="GameFinder.StoreHandlers.EADesktop" Version="4.2.2" />
     <PackageReference Include="GameFinder.StoreHandlers.EGS" Version="4.2.2" />

@@ -25,6 +25,7 @@ public class ActivationService : IActivationService
 
     public async Task ActivateAsync(object activationArgs)
     {
+        //await _hostedService.StartAsync(CancellationToken.None);
         // Execute tasks before activation.
         await InitializeAsync();
 
@@ -41,7 +42,6 @@ public class ActivationService : IActivationService
         // Activate the MainWindow.
         App.MainWindow.Activate();
 
-        await _hostedService.StartAsync(CancellationToken.None);
 
         // Execute tasks after activation.
         await StartupAsync();

@@ -132,6 +132,10 @@ public static class GameLauncherDBInitializer
                         {
                             profile.ImageExtensions = ParsePlatformList(line);
                         }
+                        else if (line.TrimStart().StartsWith("Platforms:"))
+                        {
+                            profile.Platforms = ParsePlatformList(line);
+                        }
                         else if (line.TrimStart().StartsWith("ProfileFiles:"))
                         {
                             profile.ProfileFiles = ParsePlatformList(line);

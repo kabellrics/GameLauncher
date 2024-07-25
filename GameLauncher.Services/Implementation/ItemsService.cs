@@ -44,19 +44,6 @@ public class ItemsService : IItemsService
             item.Cover = updateditem.Cover;
             item.Logo = updateditem.Logo;
             item.Video = updateditem.Video;
-            //genreService.UpdateGenreInItem(item, updateditem.Genres);
-            //item.Editeurs = updateditem.Editeurs;
-            //foreach (var editeur in updateditem.Editeurs)
-            //{
-            //    if (!dbContext.Editeurs.Any(x => x.ID == editeur.ID))
-            //        dbContext.Editeurs.Add(editeur); 
-            //}
-            //item.Develloppeurs = updateditem.Develloppeurs;
-            //foreach (var devs in updateditem.Develloppeurs)
-            //{
-            //    if (!dbContext.Develloppeurs.Any(x => x.ID == devs.ID))
-            //        dbContext.Develloppeurs.Add(devs);
-            //}
             assetService.RapatrierAsset(item);
             dbContext.Items.Update(item);
             dbContext.SaveChanges();

@@ -4,6 +4,8 @@ using GameLauncher.Models;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
+using GameLauncher.Models.APIObject;
 
 namespace GameLauncher.API.Controllers;
 [Route("api/[controller]")]
@@ -25,10 +27,16 @@ public class EmulateurController : ControllerBase
     {
         return _Service.GetLocalEmulatorProfile();
     }
-    [HttpGet("ScanFolder/{folder}")]
-    public IEnumerable<LUEmulateur> ScanFolder(string folder)
+    [HttpPost("ScanFolder")]
+    public IEnumerable<LUEmulateur> ScanFolder([FromBody] FolderRequest folder)
     {
-        return _Service.ScanFolderForEmulator(folder);
+        return _Service.ScanFolderForEmulator(folder.Folder);
+    }
+    [HttpPost("ScanProfile")]
+    public async Task<ActionResult> ScanProfile([FromBody] ScanProfile scanprofile)
+    {
+        await _Service.ScanFolderForRom(scanprofile);
+        return Ok();
     }
     [HttpGet("StreamFolder/{folder}")]
     public async Task StreamFolder(string folder)

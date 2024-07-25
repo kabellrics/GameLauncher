@@ -55,10 +55,10 @@ public partial class CollectionViewModel : ObservableRecipient, INavigationAware
         {
             if (m is NotificationMessage msg)
             {
-                if (msg.Type == MsgType.NeedUpdate)
-                {
-                    await GetAllCollectionAsync();
-                }
+                //if (msg.Type == MsgType.NeedUpdate)
+                //{
+                //    await GetAllCollectionAsync();
+                //}
             }
         });
     }

@@ -16,6 +16,8 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using Genre = GameLauncher.Models.Genre;
 using Microsoft.EntityFrameworkCore;
 using GameLauncher.Models.APIObject;
+using System.Runtime.InteropServices.JavaScript;
+using Microsoft.AspNetCore.SignalR;
 
 namespace GameLauncher.Services.Implementation
 {
@@ -27,8 +29,8 @@ namespace GameLauncher.Services.Implementation
         private readonly IDevService devService;
         private readonly IEditeurService editService;
         private readonly IGenreService genreService;
-        private readonly INotificationService notifService;
-        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService,IGenreService genreService, INotificationService notifService)
+        private readonly IHubContext<SignalRNotificationHub, INotificationService> notifService;
+        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService,IGenreService genreService, IHubContext<SignalRNotificationHub, INotificationService> notifService)
         {
             this.dbContext = dbContext;
             this.assetDownloader = assetDownloader;
@@ -50,7 +52,7 @@ namespace GameLauncher.Services.Implementation
                 var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "Steam" && !storeIdList.Contains(x.StoreId));
                 dbContext.Items.RemoveRange(gameToRemoves);
                 dbContext.SaveChanges();
-                await notifService.SendMessage(new NotificationMessage() { Message = $"Suppression de {gameToRemoves.Count()} jeux Steam désintallés", Type = MsgType.NeedUpdate });
+                await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Suppression de {gameToRemoves.Count()} jeux Steam désintallés", Type = MsgCategory.EndTask });
             }
         }
 
@@ -96,7 +98,7 @@ namespace GameLauncher.Services.Implementation
                             var assetFolder = assetDownloader.CreateItemAssetFolder(game.ID);
                             game = await GetSteamInfos(game, assetFolder);
                             dbContext.SaveChanges();
-                            await notifService.SendMessage(new NotificationMessage() { Message = $"Ajout de {game.Name} depuis Steam", Type = MsgType.Info });
+                            await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Ajout de {game.Name} depuis Steam", Type = MsgCategory.Create });
                         }
                     }
                     catch (Exception ex)
@@ -104,7 +106,7 @@ namespace GameLauncher.Services.Implementation
                         // Log exception or handle it accordingly
                     }
                 }
-                await notifService.SendMessage(new NotificationMessage() { Message = $"Fin de l'ajout de jeux depuis Steam", Type = MsgType.NeedUpdate });
+                await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Fin de l'ajout de jeux depuis Steam", Type = MsgCategory.EndTask });
             }
         }
 

@@ -1,12 +1,9 @@
 
-using System;
 using GameLauncher.DAL;
 using GameLauncher.Services.Implementation;
 using GameLauncher.Services.Interface;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
-using NexusMods.Paths;
 
 namespace GameLauncher.API;
 
@@ -17,6 +14,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
         // Add services to the container.
+        builder.Services.AddSignalR();
 
         builder.Services.AddDbContext<GameLauncherContext>(options =>
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
@@ -33,10 +31,10 @@ public class Program
         builder.Services.AddScoped<IDevService, DevService>();
         builder.Services.AddScoped<ICollectionService, CollectionService>();
         builder.Services.AddScoped<IAssetDownloader, AssetDownloader>();
-        builder.Services.AddScoped<INotificationService, NotificationService>();
+        //builder.Services.AddScoped<INotificationService, NotificationService>();
+        //builder.Services.AddScoped<INotificationService, SignalRNotificationHub>();
         builder.Services.AddScoped<IStartingService, StartingService>();
         builder.Services.AddScoped<IEmulateurService, EmulateurService>();
-        builder.Services.AddSignalR();
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -45,13 +43,21 @@ public class Program
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameLauncher API", Version = "v1" });
 
         });
-
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())
         {
             var context = scope.ServiceProvider.GetRequiredService<GameLauncherContext>();
             GameLauncherDBInitializer.Iniatialize(context);
         }
+        app.UseCors("CorsPolicy");
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -61,10 +67,14 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-        app.MapHub<NotificationHub>("/Notif");
+        //app.MapHub<NotificationService>("/notif");
+        app.MapHub<SignalRNotificationHub>("/notif");
 
         app.MapControllers();
-
+        //app.UseEndpoints(endpoints => {
+        //    endpoints.MapControllers();
+        //    endpoints.MapHub<SignalRNotificationHub>("/notif");
+        //});
         app.Run();
     }
 

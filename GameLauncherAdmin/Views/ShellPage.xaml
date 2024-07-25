@@ -32,17 +32,11 @@
             IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}"
             IsSettingsVisible="True"
+            AlwaysShowHeader="False"            
             ExpandedModeThresholdWidth="1280"
             DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
             Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay}">
             <NavigationView.MenuItems>
-                <!--
-                TODO: Update item titles by updating <x:Uid>.Content entries in Strings/en-us/Resources.resw.
-                https://docs.microsoft.com/windows/uwp/app-resources/localize-strings-ui-manifest#refer-to-a-string-resource-identifier-from-xaml
-            
-                TODO: Update item icons by updating FontIcon.Glyph properties.
-                https://docs.microsoft.com/windows/apps/design/style/segoe-fluent-icons-font#icon-list
-                -->
                 <NavigationViewItem x:Uid="Shell_Main" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.MainViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
@@ -60,45 +54,78 @@
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_EmulateurImporter" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.EmulateurImporterViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_RomImporter" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.RomImporterViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE721;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Collection" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.CollectionViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE14C;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Genre" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.GenreViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE1CB;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Editeur" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.EditeurViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE80F;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Develloppeur" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.DevelloppeurViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE77B;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <!--<NavigationViewItem x:Uid="Shell_CollectionDetail" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.CollectionDetailViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>-->
                 <NavigationViewItem x:Uid="Shell_VideoIntro" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.VideoIntroViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE714;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
+            <NavigationView.PaneFooter>
+                <Grid Height="500">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <ListView Grid.Row="0" Margin="0,5" ItemsSource="{x:Bind ViewModel.Notif,Mode=OneWay}"
+                              HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" SelectionMode="None"
+                                  ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.IsVerticalRailEnabled="True">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MaxHeight="200" BorderBrush="Gray" BorderThickness="2" Margin="5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Gray"></Border>
+                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" VerticalAlignment="Top"
+                                              Grid.Row="0" Grid.Column="0" Glyph="{Binding Icon}"/>
+                                    <Viewbox
+                                               Grid.Row="0" Grid.Column="1" >
+                                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="25,0,0,0"
+                                               HorizontalAlignment="Left" HorizontalTextAlignment="Center" TextLineBounds="TrimToCapHeight"
+                                               TextTrimming="Clip" TextWrapping="Wrap"
+                                               Text="{Binding MessageTitle}"></TextBlock>
+                                    </Viewbox>
+                                    <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="17,0,0,0"
+                                               HorizontalAlignment="Left" HorizontalTextAlignment="Center"
+                                               Grid.Row="1" Grid.Column="1" TextTrimming="CharacterEllipsis" 
+                                                MaxLines="2" FontSize="20"
+                                               Text="{Binding MessageCorps}"></TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button HorizontalAlignment="Right" Grid.Row="1" Style="{StaticResource AccentButtonStyle}"
+                            Content="Vider les notifications" Command="{x:Bind ViewModel.EmptyNotifCommand}"></Button>
+                </Grid>
+            </NavigationView.PaneFooter>
             <!--<NavigationView.HeaderTemplate>
                 <DataTemplate>
                     <Grid>

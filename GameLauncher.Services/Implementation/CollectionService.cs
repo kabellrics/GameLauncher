@@ -13,14 +13,15 @@ using Newtonsoft.Json;
 using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
 using GameLauncher.Models.APIObject;
+using Microsoft.AspNetCore.SignalR;
 
 namespace GameLauncher.Services.Implementation;
 public class CollectionService : ICollectionService
 {
     private readonly GameLauncherContext dbContext;
     private readonly IAssetDownloader assetService;
-    private readonly INotificationService notifService;
-    public CollectionService(GameLauncherContext dbContext, INotificationService notifService, IAssetDownloader assetService)
+    private readonly IHubContext<SignalRNotificationHub, INotificationService> notifService;
+    public CollectionService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetService)
     {
         this.dbContext = dbContext;
         this.notifService = notifService;
@@ -66,7 +67,7 @@ public class CollectionService : ICollectionService
         {
             dbContext.Collections.Remove(collec);
             dbContext.SaveChanges();
-            notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection supprimé" });
+            notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Delete, MessageTitle = "Collection supprimé" });
             return true;
         }
         return false;
@@ -77,7 +78,7 @@ public class CollectionService : ICollectionService
         collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
         dbContext.Collections.Add(collec);
         dbContext.SaveChanges(true);
-        notifService.SendMessage(new NotificationMessage {Type=MsgType.NeedUpdate,Message="Collection ajouté" });
+        notifService.Clients.All.SendMessage(new NotificationMessage {Type= MsgCategory.Create,MessageTitle="Collection ajouté" });
     }
     public void UpsertCollectionItem(Guid collectionId, Guid gameId, int order)
     {
@@ -102,7 +103,7 @@ public class CollectionService : ICollectionService
         }
 
         dbContext.SaveChanges();
-        notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection Item mis à jour" });
+        notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Update, MessageTitle = "Collection Item mis à jour" });
     }
     public void Update(Collection updatedcollection)
     {
@@ -162,6 +163,6 @@ public class CollectionService : ICollectionService
 
         }
         dbContext.SaveChanges();
-        notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection ajouté" });
+        notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Create, MessageTitle = "Collection ajouté" });
     }
 }

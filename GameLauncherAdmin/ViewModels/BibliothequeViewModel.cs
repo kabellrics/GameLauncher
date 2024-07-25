@@ -43,10 +43,10 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
         {
             if(m is NotificationMessage msg)
             {
-                if (msg.Type == MsgType.NeedUpdate)
-                {
-                    await InitializeData(_itemProvider.GetAllItemsStream());
-                }
+                //if (msg.Type == MsgType.NeedUpdate)
+                //{
+                //    await InitializeData(_itemProvider.GetAllItemsStream());
+                //}
             }
         });
 

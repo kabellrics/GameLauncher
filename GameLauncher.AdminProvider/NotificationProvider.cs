@@ -13,29 +13,24 @@ using RestSharp;
 namespace GameLauncher.AdminProvider;
 public class NotificationProvider
 {
-    private readonly HubConnection _hubConnection;
+    private HubConnection _hubConnection;
     public NotificationProvider()
     {
         _hubConnection = new HubConnectionBuilder()
             .WithUrl("https://localhost:7197/Notif")
             .WithAutomaticReconnect()
             .Build();
-
-        RegisterEventHandlers();
-    }
-    private void RegisterEventHandlers()
-    {
-        _hubConnection.On<NotificationMessage>("Notif", ( message) =>
-        {
-            WeakReferenceMessenger.Default.Send(message);
-            Console.WriteLine($"Message received : {message}");
-        });
     }
 
     public async Task StartAsync()
     {
         try
         {
+            _hubConnection.On<NotificationMessage>("SendNotif", (message) =>
+            {
+                WeakReferenceMessenger.Default.Send<NotificationMessage>(message);
+                Console.WriteLine($"Message received : {message}");
+            });
             await _hubConnection.StartAsync();
             Console.WriteLine("Connected to the hub.");
         }

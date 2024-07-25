@@ -48,6 +48,30 @@ public class EditeurService : IEditeurService
         dbContext.SaveChanges();
         return itemgenre;
     }
+    public ItemEditeur AddEditeurToItem(string editeurname, Item item, DbContext dbcontext)
+    {
+        var dbgenre = dbContext.Editeurs.FirstOrDefault(x => x.Name == editeurname);
+        if (dbgenre == null)
+        {
+            dbgenre = new Editeur();
+            dbgenre.Name = editeurname;
+            dbgenre.Items = new List<ItemEditeur>();
+            dbContext.Editeurs.Add(dbgenre);
+        }
+        var itemgenre = new ItemEditeur()
+        {
+            ID = Guid.NewGuid(),
+            EditeurID = dbgenre.ID,
+            ItemID = item.ID
+        };
+        dbContext.EditeurdItems.Add(itemgenre);
+        if (!dbgenre.Items.Contains(itemgenre))
+        {
+            dbgenre.Items.Add(itemgenre);
+        }
+        dbContext.SaveChanges();
+        return itemgenre;
+    }
     public void UpdateEditeurInItem(Item Item, List<Editeur> newEditeurs)
     {
         var existingPostTags = dbContext.EditeurdItems.Where(pt => pt.ItemID == Item.ID);
