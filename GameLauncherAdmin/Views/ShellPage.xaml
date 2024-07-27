@@ -8,7 +8,109 @@
     xmlns:behaviors="using:GameLauncherAdmin.Behaviors"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     Loaded="OnLoaded">
-
+    <Page.Resources>
+        <Flyout x:Name="notifFlyout" ShowMode="TransientWithDismissOnPointerMoveAway" Placement="Full" LightDismissOverlayMode="On">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                    <Setter Property="IsTabStop" Value="True"/>
+                    <Setter Property="TabNavigation" Value="Cycle"/>
+                    <Setter Property="MinHeight" Value="200"/>
+                    <Setter Property="MinWidth" Value="550"/>
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Viewbox Grid.Row="0">
+                    <TextBlock Style="{StaticResource HeaderTextBlockStyle}"
+               HorizontalAlignment="Center" HorizontalTextAlignment="Center" TextLineBounds="TrimToCapHeight"
+               TextTrimming="Clip" TextWrapping="Wrap"
+               Text="{Binding MessageTitle}"></TextBlock>
+                </Viewbox>
+                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="17,0,0,0"
+               HorizontalAlignment="Left" HorizontalTextAlignment="Center"
+               Grid.Row="1" TextWrapping="WrapWholeWords" FontSize="20"
+               Text="{Binding MessageCorps}"></TextBlock>
+            </Grid>
+        </Flyout>
+        <DataTemplate x:Name="FullWidhtTemplate">
+            <Grid MaxHeight="200" BorderBrush="Gray" BorderThickness="2" Padding="5" Margin="0" CornerRadius="25">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Gray" Margin="-5"></Border>
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" VerticalAlignment="Top"
+              Grid.Row="0" Grid.Column="0" Glyph="{Binding Icon}" ContextFlyout="{StaticResource notifFlyout}">
+                    <!--<FontIcon.ContextFlyout>
+                        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" Placement="Full" LightDismissOverlayMode="On">
+                            <Grid Width="600">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Viewbox Grid.Row="0">
+                                    <TextBlock Style="{StaticResource HeaderTextBlockStyle}"
+                                           HorizontalAlignment="Center" HorizontalTextAlignment="Center" TextLineBounds="TrimToCapHeight"
+                                           TextTrimming="Clip" TextWrapping="Wrap"
+                                           Text="{Binding MessageTitle}"></TextBlock>
+                                </Viewbox>
+                                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="17,0,0,0"
+                                           HorizontalAlignment="Left" HorizontalTextAlignment="Center"
+                                           Grid.Row="1" TextWrapping="WrapWholeWords" FontSize="20"
+                                           Text="{Binding MessageCorps}"></TextBlock>   
+                            </Grid>
+                        </Flyout>
+                    </FontIcon.ContextFlyout>-->
+                </FontIcon>
+                <Viewbox Grid.Row="0" Grid.Column="1" >
+                    <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="25,0,0,0"
+               HorizontalAlignment="Left" HorizontalTextAlignment="Center" TextLineBounds="TrimToCapHeight"
+               TextTrimming="Clip" TextWrapping="Wrap"
+               Text="{Binding MessageTitle}"></TextBlock>
+                </Viewbox>
+                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="17,0,0,0"
+               HorizontalAlignment="Left" HorizontalTextAlignment="Center"
+               Grid.Row="1" Grid.Column="1" TextTrimming="CharacterEllipsis" 
+                MaxLines="2" FontSize="20"
+               Text="{Binding MessageCorps}"></TextBlock>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Name="CompactWidhtTemplate">
+            <Grid Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon}" ContextFlyout="{StaticResource notifFlyout}">
+                    <!--<FontIcon.ContextFlyout>
+                        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway" Placement="Full" LightDismissOverlayMode="On">
+                            <Grid Width="600">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Viewbox Grid.Row="0">
+                                    <TextBlock Style="{StaticResource HeaderTextBlockStyle}"
+                                           HorizontalAlignment="Center" HorizontalTextAlignment="Center" TextLineBounds="TrimToCapHeight"
+                                           TextTrimming="Clip" TextWrapping="Wrap"
+                                           Text="{Binding MessageTitle}"></TextBlock>
+                                </Viewbox>
+                                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="17,0,0,0"
+                                           HorizontalAlignment="Left" HorizontalTextAlignment="Center"
+                                           Grid.Row="1" TextWrapping="WrapWholeWords" FontSize="20"
+                                           Text="{Binding MessageCorps}"></TextBlock>
+                            </Grid>
+                        </Flyout>
+                    </FontIcon.ContextFlyout>-->
+                </FontIcon>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
     <Grid>
         <Grid x:Name="AppTitleBar"
               Canvas.ZIndex="1"
@@ -84,43 +186,43 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.PaneFooter>
-                <Grid Height="500">
+                <Grid Height="550">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <ListView Grid.Row="0" Margin="0,5" ItemsSource="{x:Bind ViewModel.Notif,Mode=OneWay}"
-                              HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" SelectionMode="None"
+                    <ListView x:Name="notiflistview" Grid.Row="0" Margin="0,5" Padding="0" ItemsSource="{x:Bind ViewModel.Notif,Mode=OneWay}" SizeChanged="ListView_SizeChanged"
+                              HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" SelectionMode="None" ItemTemplate="{StaticResource FullWidhtTemplate}"
                                   ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.IsVerticalRailEnabled="True">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid MaxHeight="200" BorderBrush="Gray" BorderThickness="2" Margin="5">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Gray"></Border>
-                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" VerticalAlignment="Top"
-                                              Grid.Row="0" Grid.Column="0" Glyph="{Binding Icon}"/>
-                                    <Viewbox
-                                               Grid.Row="0" Grid.Column="1" >
-                                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Margin="25,0,0,0"
-                                               HorizontalAlignment="Left" HorizontalTextAlignment="Center" TextLineBounds="TrimToCapHeight"
-                                               TextTrimming="Clip" TextWrapping="Wrap"
-                                               Text="{Binding MessageTitle}"></TextBlock>
-                                    </Viewbox>
-                                    <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="17,0,0,0"
-                                               HorizontalAlignment="Left" HorizontalTextAlignment="Center"
-                                               Grid.Row="1" Grid.Column="1" TextTrimming="CharacterEllipsis" 
-                                                MaxLines="2" FontSize="20"
-                                               Text="{Binding MessageCorps}"></TextBlock>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+                                <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+                                <Setter Property="Margin" Value="0"></Setter>
+                                <!--<Setter Property="BorderBrush" Value="Cyan"></Setter>
+                                <Setter Property="BorderThickness" Value="2"></Setter>-->
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup>
+                                <VisualState x:Name="NarrowState">
+                                    <VisualState.StateTriggers>
+                                        <AdaptiveTrigger MinWindowWidth="0"/>
+                                    </VisualState.StateTriggers>
+                                    <VisualState.Setters>
+                                        <Setter Target="notiflistview.(ItemTemplate)" Value="{StaticResource CompactWidthTemplate}" />                                        
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="WideState">
+                                    <VisualState.StateTriggers>
+                                        <AdaptiveTrigger MinWindowWidth="50"/>
+                                    </VisualState.StateTriggers>
+                                    <VisualState.Setters>
+                                        <Setter Target="notiflistview.(ItemTemplate)" Value="{StaticResource FullWidhtTemplate}" />                                        
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
                     </ListView>
                     <Button HorizontalAlignment="Right" Grid.Row="1" Style="{StaticResource AccentButtonStyle}"
                             Content="Vider les notifications" Command="{x:Bind ViewModel.EmptyNotifCommand}"></Button>

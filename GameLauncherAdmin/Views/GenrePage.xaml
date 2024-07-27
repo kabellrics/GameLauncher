@@ -7,16 +7,24 @@
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource HeaderTextBlockStyle}" Text="Liste des Genres"/>
+        <Button Grid.Column="1" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}">
+            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
+        </Button>
         <ListView x:Name="listItem"
-            Grid.Column="0"
+            Grid.Column="0" Grid.Row="1"
             SelectionMode="Single"
             SelectedItem="{x:Bind ViewModel.Current,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
             ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"/>
-        <ScrollViewer Grid.Column="1">
+        <ScrollViewer Grid.Column="1" Grid.Row="1">
             <StackPanel Orientation="Vertical">
                 <TextBox Style="{StaticResource AutoSuggestBoxTextBoxStyle}" Text="{x:Bind ViewModel.Current.Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Center" Content="Absorber un autre élément" Command="{x:Bind ViewModel.GetFusionListCommand}"/>

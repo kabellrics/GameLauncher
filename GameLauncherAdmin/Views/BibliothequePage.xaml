@@ -21,8 +21,20 @@
     </Page.Resources>
 
     <Grid x:Name="ContentArea">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource HeaderTextBlockStyle}" Text="Liste des Items"/>
+        <Button Grid.Column="1" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}">
+            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
+        </Button>
         <!--ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"-->
-        <controls:AdaptiveGridView
+        <controls:AdaptiveGridView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
             animations:Connected.ListItemElementName="itemThumbnail"
             animations:Connected.ListItemKey="animationKeyContentGrid"
             ItemsSource="{x:Bind ItemsViewSource.View,Mode=OneWay}"

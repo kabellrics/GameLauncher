@@ -39,6 +39,20 @@ public partial class GenreViewModel : ObservableRecipient, INavigationAware
             return _getFusionListCommand ?? (_getFusionListCommand = new RelayCommand(GetFusionList));
         }
     }
+    private ICommand _refreshCommand;
+    public ICommand RefreshCommand
+    {
+        get
+        {
+            return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh));
+        }
+    }
+
+    private async void Refresh()
+    {
+        await GetData();
+    }
+
     public GenreViewModel(ILookupProvider lookupProvider)
     {
         _lookupProvider = lookupProvider;

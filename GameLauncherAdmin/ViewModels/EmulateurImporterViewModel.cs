@@ -52,7 +52,24 @@ public partial class EmulateurImporterViewModel : ObservableRecipient, INavigati
             return _startScanCommand ?? (_startScanCommand = new RelayCommand(StartScan));
         }
     }
+    private ICommand _refreshCommand;
+    public ICommand RefreshCommand
+    {
+        get
+        {
+            return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh));
+        }
+    }
 
+    private async void Refresh()
+    {
+        ExpandeEmulatorList = true;
+        ExpandeProfileEmulatorList = false;
+        ExpandeProfilePlateformList = false;
+        ExpandeFinalStartScanning = false;
+        await GetAllLocalEmulateurAsync();
+        SourcePlateforme.Clear();
+    }
 
     public EmulateurImporterViewModel(IEmulateurProvider emuProvider)
     {

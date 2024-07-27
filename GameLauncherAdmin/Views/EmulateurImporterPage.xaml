@@ -5,13 +5,27 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
+    xmlns:converter="using:GameLauncherAdmin.Helpers"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
-
+    <Page.Resources>
+        <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
     <Grid x:Name="ContentArea" HorizontalAlignment="Stretch">
         <!--<ScrollViewer VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible">-->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                <Expander HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Header="Choisir son émulateur"                      
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{StaticResource HeaderTextBlockStyle}" Text="Importer des Rom et les emulateurs"/>
+                <Button Grid.Column="1" Command="{x:Bind ViewModel.RefreshCommand}">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
+                </Button>
+            </Grid>
+                <Expander HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Header="Choisir son émulateur"
+                          Visibility="{x:Bind ViewModel.ExpandeEmulatorList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}"                    
                       IsExpanded="{x:Bind ViewModel.ExpandeEmulatorList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" MaxHeight="900">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -42,6 +56,7 @@
                     </Grid>
                 </Expander>
             <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Choisir son Profile" MaxHeight="900"
+                       Visibility="{x:Bind ViewModel.ExpandeProfileEmulatorList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}" 
                           IsExpanded="{x:Bind ViewModel.ExpandeProfileEmulatorList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -75,6 +90,7 @@
                     </Grid>
                 </Expander>
             <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Choisir son Profile"  MaxHeight="900"
+                       Visibility="{x:Bind ViewModel.ExpandeProfilePlateformList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}" 
                       IsExpanded="{x:Bind ViewModel.ExpandeProfilePlateformList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -103,68 +119,71 @@
                         </StackPanel>
                     </Grid>
                 </Expander>
-            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Finaliser votre import de rom" MaxHeight="900"
+            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Finaliser votre import de rom" MaxHeight="800"
+                       Visibility="{x:Bind ViewModel.ExpandeFinalStartScanning,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}" 
                            IsExpanded="{x:Bind ViewModel.ExpandeFinalStartScanning,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                <ScrollViewer VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible">
-                    <StackPanel Orientation="Vertical">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox Header="Dossier à scanner" PlaceholderText="Dossier cible" Grid.Column="0"
+                <Grid Height="800">
+                    <ScrollViewer VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible">
+                        <StackPanel Orientation="Vertical">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Header="Dossier à scanner" PlaceholderText="Dossier cible" Grid.Column="0"
                                      Text="{x:Bind ViewModel.ScanningProfile.FolderPath,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                            <Button Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <FontIcon Glyph="&#xE8B7;" FontSize="16" />
-                                        <TextBlock Text="Choisir le dossier" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
-                        </Grid>
-                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Emulateur Sélectionné"></TextBlock>
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="{x:Bind ViewModel.ChoosenEmulator.Name,Mode=OneWay}"></TextBlock>
-                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Profile Sélectionné"></TextBlock>
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="{x:Bind ViewModel.ScanningProfile.Profile.Name,Mode=OneWay}"></TextBlock>
-                        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Plateforme Sélectionné"></TextBlock>
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="{x:Bind ViewModel.ScanningProfile.Platforms.Name,Mode=OneWay}"></TextBlock>
-                        <TextBlock Margin="5" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Choix des Providers"></TextBlock>
-                        <Grid Margin="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <RadioButtons Header="Source des metadonnées" Grid.Column="0" Grid.Row="0"
+                                <Button Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Click="Button_Click_1">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <FontIcon Glyph="&#xE8B7;" FontSize="16" />
+                                            <TextBlock Text="Choisir le dossier" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Emulateur Sélectionné"></TextBlock>
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="{x:Bind ViewModel.ChoosenEmulator.Name,Mode=OneWay}"></TextBlock>
+                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Profile Sélectionné"></TextBlock>
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="{x:Bind ViewModel.ScanningProfile.Profile.Name,Mode=OneWay}"></TextBlock>
+                            <TextBlock Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Plateforme Sélectionné"></TextBlock>
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="{x:Bind ViewModel.ScanningProfile.Platforms.Name,Mode=OneWay}"></TextBlock>
+                            <TextBlock Margin="5" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Left" HorizontalTextAlignment="Center" Text="Choix des Providers"></TextBlock>
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <RadioButtons Header="Source des metadonnées" Grid.Column="0" Grid.Row="0"
                                       ItemsSource="{x:Bind ViewModel.ScanningProfile.MetadataProviders,Mode=OneWay}"
                                       SelectedItem="{x:Bind ViewModel.ScanningProfile.MetaProvider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            <RadioButtons Header="Source du Logo"  Grid.Column="1" Grid.Row="0"
+                                <RadioButtons Header="Source du Logo"  Grid.Column="1" Grid.Row="0"
                                       ItemsSource="{x:Bind ViewModel.ScanningProfile.LogoProviders,Mode=OneWay}"
                                       SelectedItem="{x:Bind ViewModel.ScanningProfile.LogoProvider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            <RadioButtons Header="Source de la Cover"  Grid.Column="2" Grid.Row="0"
+                                <RadioButtons Header="Source de la Cover"  Grid.Column="2" Grid.Row="0"
                                       ItemsSource="{x:Bind ViewModel.ScanningProfile.CoverProviders,Mode=OneWay}"
                                       SelectedItem="{x:Bind ViewModel.ScanningProfile.CoverProvider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            <RadioButtons Header="Source du Fanart"  Grid.Column="0" Grid.Row="1"
+                                <RadioButtons Header="Source du Fanart"  Grid.Column="0" Grid.Row="1"
                                       ItemsSource="{x:Bind ViewModel.ScanningProfile.FanartProviders,Mode=OneWay}"
                                       SelectedItem="{x:Bind ViewModel.ScanningProfile.FanartProvider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            <RadioButtons Header="Source de la Video"  Grid.Column="1" Grid.Row="1"
+                                <RadioButtons Header="Source de la Video"  Grid.Column="1" Grid.Row="1"
                                       ItemsSource="{x:Bind ViewModel.ScanningProfile.VideoProviders,Mode=OneWay}"
                                       SelectedItem="{x:Bind ViewModel.ScanningProfile.VideoProvider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                        </Grid>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1">
-                            <Button HorizontalAlignment="Left" Style="{StaticResource AccentButtonStyle}"
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1">
+                                <Button HorizontalAlignment="Left" Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.CancelCommand}" Content="Annuler"></Button>
-                            <Button HorizontalAlignment="Right" Style="{StaticResource AccentButtonStyle}"
+                                <Button HorizontalAlignment="Right" Style="{StaticResource AccentButtonStyle}"
                                     Command="{x:Bind ViewModel.StartScanCommand}" Content="Suivant"></Button>
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-                </Expander>
+                    </ScrollViewer>
+                </Grid>
+            </Expander>
             </StackPanel>
         <!--</ScrollViewer>-->
     </Grid>

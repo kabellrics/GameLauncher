@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using GameLauncher.AdminProvider.Interface;
 using GameLauncher.Models;
 using GameLauncher.ObservableObjet;
@@ -26,6 +28,21 @@ public partial class CollectionDetailViewModel : ObservableRecipient, INavigatio
         _collecProvider = collecProvider;
         _itemProvider = itemProvider;
     }
+    private ICommand _refreshCommand;
+    public ICommand RefreshCommand
+    {
+        get
+        {
+            return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh));
+        }
+    }
+
+    private async void Refresh()
+    {
+        var temp = Collection;
+        Collection = null;
+        await InitData(temp);
+    }
     public void OnNavigatedFrom()
     {
     }
@@ -33,22 +50,28 @@ public partial class CollectionDetailViewModel : ObservableRecipient, INavigatio
     {
         if (parameter is ObsCollection detailitem)
         {
-            Collection = detailitem;
-            ItemCollections.Clear();
-            ItemCollections.Clear();
-            ToDeleteItems.Clear();
-
-            await foreach (var item in _collecProvider.GetAllItemInsideAsyncStream(Collection.Id)) 
-            {
-                ItemCollections.Add(item);
-            }
-            await foreach( var item in _itemProvider.GetAllItemsStream())
-            {
-                if (!ItemCollections.Any(x => x.Id == item.Id))
-                    AddingCollections.Add(item);
-            }
+            await InitData(detailitem);
         }
     }
+
+    private async Task InitData(ObsCollection detailitem)
+    {
+        Collection = detailitem;
+        ItemCollections.Clear();
+        ItemCollections.Clear();
+        ToDeleteItems.Clear();
+
+        await foreach (var item in _collecProvider.GetAllItemInsideAsyncStream(Collection.Id))
+        {
+            ItemCollections.Add(item);
+        }
+        await foreach (var item in _itemProvider.GetAllItemsStream())
+        {
+            if (!ItemCollections.Any(x => x.Id == item.Id))
+                AddingCollections.Add(item);
+        }
+    }
+
     public void AddToCollec(IEnumerable<ObservableItem> items)
     {
         var order = ItemCollections.Max(x => x.Order);

@@ -64,7 +64,13 @@
                         RelativePanel.RightOf="itemHero"
                         Style="{ThemeResource TitleTextBlockStyle}"
                         Text="{x:Bind ViewModel.Item.Name, Mode=OneWay}" />
-
+                    <Button Command="{x:Bind ViewModel.RefreshCommand}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        RelativePanel.AlignTopWithPanel="True"
+                        RelativePanel.AlignRightWithPanel="True">
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
+                    </Button>
                     <StackPanel x:Name="propertiesGroup1" RelativePanel.Below="itemHero">
                         <StackPanel x:Name="statusGroup" Margin="{StaticResource SmallTopMargin}">
                             <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Path :" />

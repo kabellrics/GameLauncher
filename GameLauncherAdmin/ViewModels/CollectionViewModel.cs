@@ -44,7 +44,19 @@ public partial class CollectionViewModel : ObservableRecipient, INavigationAware
         }
     }
 
+    private ICommand _refreshCommand;
+    public ICommand RefreshCommand
+    {
+        get
+        {
+            return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh));
+        }
+    }
 
+    private async void Refresh()
+    {
+        await GetAllCollectionAsync();
+    }
     public CollectionViewModel(INavigationService navigationService, ICollectionProvider collecProvider, IItemProvider itemProvider)
     {
         _navigationService = navigationService;

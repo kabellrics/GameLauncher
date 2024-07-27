@@ -16,58 +16,56 @@ using GameLauncher.Models.APIObject;
 using Microsoft.AspNetCore.SignalR;
 
 namespace GameLauncher.Services.Implementation;
-public class CollectionService : ICollectionService
+public class CollectionService : BaseService, ICollectionService
 {
-    private readonly GameLauncherContext dbContext;
     private readonly IAssetDownloader assetService;
-    private readonly IHubContext<SignalRNotificationHub, INotificationService> notifService;
-    public CollectionService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetService)
+    public CollectionService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetService) : base(dbContext, notifService)
     {
-        this.dbContext = dbContext;
-        this.notifService = notifService;
         this.assetService = assetService;
     }
     public IEnumerable<Collection> GetAll()
     {
-        return dbContext.Collections;
+        return _dbContext.Collections;
     }
     public async IAsyncEnumerable<ItemInCollection> GetAllItemInside(Guid id)
     {
-        var collecItems = dbContext.CollectiondItems.Where(x => x.CollectionID == id);
+        var collecItems = _dbContext.CollectiondItems.Where(x => x.CollectionID == id);
         foreach (var collecittem in collecItems.OrderBy(x => x.Order))
         {
-            var item = dbContext.Items.FirstOrDefault(x => x.ID == collecittem.ItemID);
+            var item = _dbContext.Items.FirstOrDefault(x => x.ID == collecittem.ItemID);
             if (item != null)
                 yield return new ItemInCollection { Item = item, CollectionItem = collecittem };
         }
     }
     public void AddToCollectionEnd(Guid id, Guid gameid)
     {
-        var collecitems = dbContext.CollectiondItems.Where(x => x.CollectionID == id);
+        var collecitems = _dbContext.CollectiondItems.Where(x => x.CollectionID == id);
         var lastitemorder = collecitems.Max(x => x.Order);
         var newCollecItem = new CollectionItem { CollectionID = id, ItemID = gameid, Order = lastitemorder + 1 };
-        dbContext.CollectiondItems.Add(newCollecItem);
-        dbContext.SaveChanges();
+        _dbContext.CollectiondItems.Add(newCollecItem);
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.Create, "Item ajouté à la Collection", $"Ajout de l'item id {gameid} dans la collection ID {id}");
     }
     public bool DelteCollectionItem(Guid id)
     {
-        var collecitem = dbContext.CollectiondItems.FirstOrDefault(x => x.ID == id);
+        var collecitem = _dbContext.CollectiondItems.FirstOrDefault(x => x.ID == id);
         if (collecitem != null)
         {
-            dbContext.CollectiondItems.Remove(collecitem);
-            dbContext.SaveChanges();
+            _dbContext.CollectiondItems.Remove(collecitem);
+            _dbContext.SaveChanges();
+            SendNotification(MsgCategory.Delete, "Collection Item supprimé", "Item retiré de la collection");
             return true;
         }
         return false;
     }
     public bool DelteCollection(Guid id)
     {
-        var collec = dbContext.Collections.FirstOrDefault(x => x.ID == id);
+        var collec = _dbContext.Collections.FirstOrDefault(x => x.ID == id);
         if (collec != null)
         {
-            dbContext.Collections.Remove(collec);
-            dbContext.SaveChanges();
-            notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Delete, MessageTitle = "Collection supprimé" });
+            _dbContext.Collections.Remove(collec);
+            _dbContext.SaveChanges();
+            SendNotification(MsgCategory.Delete, "Collection supprimé", $"Suppression de {collec.Name}");
             return true;
         }
         return false;
@@ -76,13 +74,13 @@ public class CollectionService : ICollectionService
     {
         collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
         collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
-        dbContext.Collections.Add(collec);
-        dbContext.SaveChanges(true);
-        notifService.Clients.All.SendMessage(new NotificationMessage {Type= MsgCategory.Create,MessageTitle="Collection ajouté" });
+        _dbContext.Collections.Add(collec);
+        _dbContext.SaveChanges(true);
+        SendNotification(MsgCategory.Create, "Collection ajouté", $"Ajout de {collec.Name}");
     }
     public void UpsertCollectionItem(Guid collectionId, Guid gameId, int order)
     {
-        var collecitem = dbContext.CollectiondItems.FirstOrDefault(x => x.CollectionID == collectionId && x.ItemID == gameId);
+        var collecitem = _dbContext.CollectiondItems.FirstOrDefault(x => x.CollectionID == collectionId && x.ItemID == gameId);
 
         if (collecitem != null)
         {
@@ -99,15 +97,15 @@ public class CollectionService : ICollectionService
                 ItemID = gameId,
                 Order = order
             };
-            dbContext.CollectiondItems.Add(collecitem);
+            _dbContext.CollectiondItems.Add(collecitem);
         }
 
-        dbContext.SaveChanges();
-        notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Update, MessageTitle = "Collection Item mis à jour" });
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.Update,"Collection Item MAJ", "Collection Item mis à jour");
     }
     public void Update(Collection updatedcollection)
     {
-        var item = dbContext.Collections.FirstOrDefault(x => x.ID == updatedcollection.ID);
+        var item = _dbContext.Collections.FirstOrDefault(x => x.ID == updatedcollection.ID);
         if (item != null)
         {
             item.Name = updatedcollection.Name;
@@ -116,53 +114,57 @@ public class CollectionService : ICollectionService
             item.Fanart = updatedcollection.Fanart;
             item.Logo = updatedcollection.Logo;
             assetService.RapatrierAsset(item);
-            dbContext.Collections.Update(item);
-            dbContext.SaveChanges();
+            _dbContext.Collections.Update(item);
+            _dbContext.SaveChanges();
+            SendNotification(MsgCategory.Update, $"Collection {item.Name} MAJ", $"Collection {item.Name} mis à jour");
             //notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection mis à jour" });
         }
     }
 
     public void CreateCollectionFromPlateforme()
     {
-        var distinctplateforme = dbContext.Items.GroupBy(x=>x.LUPlatformesId).Select(grp => grp.First().LUPlatformesId).ToList();
-        var plateformes = dbContext.Platformes.Where(x => distinctplateforme.Contains(x.Codename));
+        var distinctplateforme = _dbContext.Items.GroupBy(x=>x.LUPlatformesId).Select(grp => grp.First().LUPlatformesId).ToList();
+        var plateformes = _dbContext.Platformes.Where(x => distinctplateforme.Contains(x.Codename));
         int plateformeOrder = 1;
         foreach (var itemplateform in plateformes.OrderBy(x => x.Name))
         {
-            var collec = dbContext.Collections.FirstOrDefault(x => x.Name == itemplateform.Name);
+            var collec = _dbContext.Collections.FirstOrDefault(x => x.Name == itemplateform.Name);
             if (collec == null)
             {
                 collec = new Collection();
                 collec.Name = itemplateform.Name;
-                var codename = dbContext.Platformes.FirstOrDefault(x => x.Name == collec.Name)?.Codename;
+                var codename = _dbContext.Platformes.FirstOrDefault(x => x.Name == collec.Name)?.Codename;
                 collec.CodeName = string.IsNullOrEmpty(codename) ? string.Empty : codename;
                 collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
                 collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
                 collec.Order = plateformeOrder++;
-                dbContext.Collections.Add(collec);
+                _dbContext.Collections.Add(collec);
+                SendNotification(MsgCategory.Create, $"Collection {collec.Name}", $"Collection {collec.Name} ajouté");
             }
             int itemorder = 1;
-            var itemsplateforms = dbContext.Items.Where(x => x.LUPlatformesId == itemplateform.Codename).OrderBy(x => x.Name);
-            if (dbContext.CollectiondItems.Any(x => x.CollectionID == collec.ID))
+            var itemsplateforms = _dbContext.Items.Where(x => x.LUPlatformesId == itemplateform.Codename).OrderBy(x => x.Name);
+            if (_dbContext.CollectiondItems.Any(x => x.CollectionID == collec.ID))
             {
-                var maxorder = dbContext.CollectiondItems.Where(x => x.CollectionID == collec.ID).Max(x => x.Order);
+                var maxorder = _dbContext.CollectiondItems.Where(x => x.CollectionID == collec.ID).Max(x => x.Order);
                 itemorder = maxorder + 1;
             }
             foreach (var item in itemsplateforms)
             {
-                if (!dbContext.CollectiondItems.Any(x => x.ItemID == item.ID && x.CollectionID == collec.ID))
+                if (!_dbContext.CollectiondItems.Any(x => x.ItemID == item.ID && x.CollectionID == collec.ID))
                 {
                     var collecitem = new CollectionItem();
                     collecitem.ID = Guid.NewGuid();
                     collecitem.ItemID = item.ID;
                     collecitem.CollectionID = collec.ID;
                     collecitem.Order = itemorder++;
-                    dbContext.CollectiondItems.Add(collecitem);
+                    _dbContext.CollectiondItems.Add(collecitem);
+                    SendNotification(MsgCategory.Create, $"Ajout Dans {collec.Name} de {item.Name}", $"Ajout Dans {collec.Name} de {item.Name} au rang {collecitem.Order}");
                 }
             }
 
         }
-        dbContext.SaveChanges();
-        notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Create, MessageTitle = "Collection ajouté" });
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.EndTask, $"Fin de Tache", $"Fin de la Creation automatique de Collection à partir des plateformes");
+        //_notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Create, MessageTitle = "Collection ajouté" });
     }
 }

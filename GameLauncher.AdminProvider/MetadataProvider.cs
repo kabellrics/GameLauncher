@@ -222,9 +222,13 @@ public class MetadataProvider : IMetadataProvider
             if (!string.IsNullOrEmpty(cover))
                 item.Covers.Add(cover);
             var logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "fr")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "eu")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "ss")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "wor")?.url ??
                         string.Empty;
             if (!string.IsNullOrEmpty(logo))
                 item.Logos.Add(logo);

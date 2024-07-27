@@ -21,24 +21,21 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace GameLauncher.Services.Implementation
 {
-    public class SteamGameFinderService : ISteamGameFinderService
+    public class SteamGameFinderService : BaseService, ISteamGameFinderService
     {
-        private readonly GameLauncherContext dbContext;
         private readonly IAssetDownloader assetDownloader;
         private readonly ISteamGridDbService steangriddbService;
         private readonly IDevService devService;
         private readonly IEditeurService editService;
         private readonly IGenreService genreService;
-        private readonly IHubContext<SignalRNotificationHub, INotificationService> notifService;
-        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService,IGenreService genreService, IHubContext<SignalRNotificationHub, INotificationService> notifService)
+        public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService
+            , IDevService devService, IEditeurService editService,IGenreService genreService, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
         {
-            this.dbContext = dbContext;
             this.assetDownloader = assetDownloader;
             this.steangriddbService = steangriddbService;
             this.devService = devService;
             this.editService = editService;
             this.genreService = genreService;
-            this.notifService = notifService;
         }
         public async Task CleaningGame()
         {
@@ -49,10 +46,10 @@ namespace GameLauncher.Services.Implementation
                 var appManifestFiles = GetAppManifestFiles(foldersToSearch);
                 var storeIdList = GetStoreIdList(appManifestFiles);
 
-                var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "Steam" && !storeIdList.Contains(x.StoreId));
-                dbContext.Items.RemoveRange(gameToRemoves);
-                dbContext.SaveChanges();
-                await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Suppression de {gameToRemoves.Count()} jeux Steam désintallés", Type = MsgCategory.EndTask });
+                var gameToRemoves = _dbContext.Items.Where(x => x.LUPlatformesId == "Steam" && !storeIdList.Contains(x.StoreId));
+                _dbContext.Items.RemoveRange(gameToRemoves);
+                _dbContext.SaveChanges();
+                SendNotification(MsgCategory.EndTask, "Suppression de Jeux Steam car désinstallés", $"Suppression de {gameToRemoves.Count()} jeux Steam désintallés");
             }
         }
 
@@ -72,7 +69,7 @@ namespace GameLauncher.Services.Implementation
                         var steamId = appVProperty.Value["appid"].ToString();
                         var steamName = appVProperty.Value["name"].ToString();
 
-                        if (!dbContext.Items.Any(x => x.StoreId == steamId))
+                        if (!_dbContext.Items.Any(x => x.StoreId == steamId))
                         {
                             Item game = new Item
                             {
@@ -80,7 +77,7 @@ namespace GameLauncher.Services.Implementation
                                 Name = steamName,
                                 SearchName = steamName,
                                 Path = $"steam://rungameid/{steamId}",
-                                LUPlatformesId = dbContext.Platformes.First(x => x.Name == "Steam").Codename,
+                                LUPlatformesId = _dbContext.Platformes.First(x => x.Name == "Steam").Codename,
                                 AddingDate=DateTime.Now,
                                 Logo = string.Empty,
                                 Cover = string.Empty,
@@ -94,19 +91,19 @@ namespace GameLauncher.Services.Implementation
                                 Editeurs = new List<ItemEditeur>()
                             };
 
-                            dbContext.Items.Add(game);
+                            _dbContext.Items.Add(game);
                             var assetFolder = assetDownloader.CreateItemAssetFolder(game.ID);
                             game = await GetSteamInfos(game, assetFolder);
-                            dbContext.SaveChanges();
-                            await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Ajout de {game.Name} depuis Steam", Type = MsgCategory.Create });
+                            _dbContext.SaveChanges();
+                            SendNotification(MsgCategory.Create, "Ajout d'un Jeux Steam", $"Ajout de {game.Name} depuis Steam");
                         }
                     }
                     catch (Exception ex)
                     {
-                        // Log exception or handle it accordingly
+                        SendNotification(MsgCategory.Error, ex.Message, ex.StackTrace);
                     }
                 }
-                await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Fin de l'ajout de jeux depuis Steam", Type = MsgCategory.EndTask });
+                SendNotification(MsgCategory.EndTask, $"Fin de l'ajout de jeux depuis Steam", $"Fin de l'ajout de jeux depuis Steam");
             }
         }
 
@@ -280,33 +277,6 @@ namespace GameLauncher.Services.Implementation
             foreach (var metagenre in metadatagenres)
             {
                 yield return genreService.AddGenreToItem(metagenre.description, game);
-                //if (!dbContext.Genres.Any(x => x.Name == metagenre.description))
-                //{
-                //    var dbdev = new Genre { ID = Guid.NewGuid(), Name = metagenre.description, Items = new List<ItemGenre>() };
-                //    dbContext.Genres.Add(dbdev);
-                //    var ItemEdit = new ItemGenre();
-                //    ItemEdit.ID = Guid.NewGuid();
-                //    ItemEdit.Genre = dbdev;
-                //    ItemEdit.Item = game;
-                //    ItemEdit.GenreID = dbdev.ID;
-                //    ItemEdit.ItemID = game.ID;
-                //    dbdev.Items.Add(ItemEdit);
-                //    dbContext.GenredItems.Add(ItemEdit);
-                //    yield return ItemEdit;
-                //}
-                //else
-                //{
-                //    var dbdev = dbContext.Genres.First(x => x.Name == metagenre.description);
-                //    var ItemEdit = new ItemGenre();
-                //    ItemEdit.ID = Guid.NewGuid();
-                //    ItemEdit.Genre = dbdev;
-                //    ItemEdit.Item = game;
-                //    ItemEdit.GenreID = dbdev.ID;
-                //    ItemEdit.ItemID = game.ID;
-                //    dbdev.Items.Add(ItemEdit);
-                //    dbContext.GenredItems.Add(ItemEdit);
-                //    yield return ItemEdit;
-                //}
             }
         }
         private IEnumerable<ItemEditeur> ExtractEditor(Data data, Item game)
@@ -315,33 +285,6 @@ namespace GameLauncher.Services.Implementation
             foreach (var dev in devs)
             {
                 yield return editService.AddEditeurToItem(dev, game);
-                //if (!dbContext.Editeurs.Any(x => x.Name == dev))
-                //{
-                //    var dbdev = new Editeur { ID = Guid.NewGuid(), Name = dev, Items = new List<ItemEditeur>() };
-                //    dbContext.Editeurs.Add(dbdev);
-                //    var ItemEdit = new ItemEditeur();
-                //    ItemEdit.ID = Guid.NewGuid();
-                //    ItemEdit.Editeur = dbdev;
-                //    ItemEdit.Item = game;
-                //    ItemEdit.EditeurID = dbdev.ID;
-                //    ItemEdit.ItemID = game.ID;
-                //    dbdev.Items.Add(ItemEdit);
-                //    dbContext.EditeurdItems.Add(ItemEdit);
-                //    yield return ItemEdit;
-                //}
-                //else
-                //{
-                //    var dbdev = dbContext.Editeurs.First(x => x.Name == dev);
-                //    var ItemEdit = new ItemEditeur();
-                //    ItemEdit.ID = Guid.NewGuid();
-                //    ItemEdit.Editeur = dbdev;
-                //    ItemEdit.Item = game;
-                //    ItemEdit.EditeurID = dbdev.ID;
-                //    ItemEdit.ItemID = game.ID;
-                //    dbdev.Items.Add(ItemEdit);
-                //    dbContext.EditeurdItems.Add(ItemEdit);
-                //    yield return ItemEdit;
-                //}
             }
         }
         private IEnumerable<ItemDev> ExtractDev(Data data, Item game) 
@@ -350,33 +293,6 @@ namespace GameLauncher.Services.Implementation
             foreach (var dev in devs)
             {
                 yield return devService.AddDevToItem(dev,game);
-                //if (!dbContext.Editeurs.Any(x => x.Name == dev))
-                //{
-                //    var dbdev = new Develloppeur { ID = Guid.NewGuid(), Name = dev, Items = new List<ItemDev>() };
-                //    dbContext.Develloppeurs.Add(dbdev);
-                //    var ItemEdit = new ItemDev();
-                //    ItemEdit.ID = Guid.NewGuid();
-                //    ItemEdit.Develloppeur = dbdev;
-                //    ItemEdit.Item = game;
-                //    ItemEdit.DevID = dbdev.ID;
-                //    ItemEdit.ItemID = game.ID;
-                //    dbdev.Items.Add(ItemEdit);
-                //    dbContext.DevdItems.Add(ItemEdit);
-                //    yield return ItemEdit;
-                //}
-                //else
-                //{
-                //    var dbdev = dbContext.Develloppeurs.First(x => x.Name == dev);
-                //    var ItemEdit = new ItemDev();
-                //    ItemEdit.ID = Guid.NewGuid();
-                //    ItemEdit.Develloppeur = dbdev;
-                //    ItemEdit.Item = game;
-                //    ItemEdit.DevID = dbdev.ID;
-                //    ItemEdit.ItemID = game.ID;
-                //    dbdev.Items.Add(ItemEdit);
-                //    dbContext.DevdItems.Add(ItemEdit);
-                //    yield return ItemEdit;
-                //}
             }
         }
 

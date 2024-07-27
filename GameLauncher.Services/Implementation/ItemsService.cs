@@ -6,31 +6,30 @@ using System.Threading.Tasks;
 using GameLauncher.DAL;
 using GameLauncher.Models;
 using GameLauncher.Services.Interface;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLauncher.Services.Implementation;
-public class ItemsService : IItemsService
+public class ItemsService : BaseService, IItemsService
 {
-    private readonly GameLauncherContext dbContext;
     private readonly IAssetDownloader assetService;
     private readonly IGenreService genreService;
-    public ItemsService(GameLauncherContext dbContext, IAssetDownloader assetService, IGenreService genreService)
+    public ItemsService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetService, IGenreService genreService) : base(dbContext, notifService)
     {
-        this.dbContext = dbContext;
         this.assetService = assetService;
         this.genreService = genreService;
     }
     public IEnumerable<Item> GetAll()
     {
-        return dbContext.Items.OrderBy(x => x.LUPlatformesId).ThenBy(x => x.Name);
+        return _dbContext.Items.OrderBy(x => x.LUPlatformesId).ThenBy(x => x.Name);
     }
     public IAsyncEnumerable<Item> GetAllAsync()
     {
-        return dbContext.Items.OrderBy(x=>x.LUPlatformesId).ThenBy(x=>x.Name).AsAsyncEnumerable();
+        return _dbContext.Items.OrderBy(x=>x.LUPlatformesId).ThenBy(x=>x.Name).AsAsyncEnumerable();
     }
     public void UpdateItem(Item updateditem)
     {
-        var item = dbContext.Items.FirstOrDefault(x=> x.ID == updateditem.ID);
+        var item = _dbContext.Items.FirstOrDefault(x=> x.ID == updateditem.ID);
         if (item != null)
         {
             item.Name = updateditem.Name;
@@ -45,8 +44,8 @@ public class ItemsService : IItemsService
             item.Logo = updateditem.Logo;
             item.Video = updateditem.Video;
             assetService.RapatrierAsset(item);
-            dbContext.Items.Update(item);
-            dbContext.SaveChanges();
+            _dbContext.Items.Update(item);
+            _dbContext.SaveChanges();
         }
     }
 }

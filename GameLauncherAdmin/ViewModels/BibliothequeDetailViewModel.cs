@@ -114,7 +114,21 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     private ICommand _chooseReconcileCommand;
     private ICommand _chooseReconcileMediaCommand;
     private ICommand _fullSaveCommand;
+    private ICommand _refreshCommand;
+    public ICommand RefreshCommand
+    {
+        get
+        {
+            return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh));
+        }
+    }
 
+    private void Refresh()
+    {
+        var tempitem = Item;
+        Item = null;
+        Item = tempitem;
+    }
     public ICommand ChooseSourceMediaCommand
     {
         get

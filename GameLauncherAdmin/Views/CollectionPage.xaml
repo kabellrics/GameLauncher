@@ -8,12 +8,20 @@
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource HeaderTextBlockStyle}" Text="Liste des Collections"/>
+        <Button Grid.Column="1" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}">
+            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
+        </Button>
         <ListView x:Name="listItem"
-            Grid.Column="0"
+            Grid.Column="0" Grid.Row="1"
             SelectionMode="Single"
             IsTapEnabled="True"
                   Tapped="listItem_Tapped"
@@ -43,7 +51,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <ScrollViewer Grid.Column="1">
+        <ScrollViewer Grid.Column="1" Grid.Row="1">
             <StackPanel Orientation="Vertical">
                 <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Center"
                         Content="Générer des Collections pour toutes les Plateformes" Command="{x:Bind ViewModel.CreateCollectionForPlateformeCommand}"/>

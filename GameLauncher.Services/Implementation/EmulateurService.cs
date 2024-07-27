@@ -10,6 +10,7 @@ using GameFinder.Common;
 using GameLauncher.DAL;
 using GameLauncher.Models;
 using GameLauncher.Models.APIObject;
+using GameLauncher.Models.ScreenScraper;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -17,42 +18,43 @@ using Newtonsoft.Json;
 using NexusMods.Paths;
 
 namespace GameLauncher.Services.Implementation;
-public class EmulateurService : IEmulateurService
+public class EmulateurService : BaseService, IEmulateurService
 {
-    private readonly GameLauncherContext dbContext;
-    private readonly IItemsService itemsService;
-    private readonly IHubContext<SignalRNotificationHub, INotificationService> notifService;
-    private readonly ISteamGridDbService steangriddbService;
-    private readonly IIGDBService igdbService;
-    private readonly IScreenscraperService screenscraperService;
-    private readonly IGenreService genreService;
-    private readonly IDevService devService;
-    private readonly IEditeurService editeurService;
+    private readonly IItemsService _itemsService;
+    private readonly ISteamGridDbService _steangriddbService;
+    private readonly IIGDBService _igdbService;
+    private readonly IScreenscraperService _screenscraperService;
+    private readonly IGenreService _genreService;
+    private readonly IDevService _devService;
+    private readonly IEditeurService _editeurService;
+    private readonly IAssetDownloader _assetDownloader;
     public EmulateurService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, ISteamGridDbService steangriddbService
-        ,IIGDBService igdbService, IScreenscraperService screenscraperService,IItemsService itemsService
-        ,IGenreService genreService,IDevService devService,IEditeurService editeurService)
+        , IIGDBService igdbService, IScreenscraperService screenscraperService, IItemsService itemsService, IAssetDownloader assetDownloader
+        , IGenreService genreService, IDevService devService, IEditeurService editeurService) : base(dbContext, notifService)
     {
-        this.dbContext = dbContext;
-        this.notifService = notifService;
-        this.steangriddbService = steangriddbService;
-        this.igdbService = igdbService;
-        this.screenscraperService = screenscraperService;
-        this.genreService = genreService;
-        this.editeurService = editeurService;
-        this.devService = devService;
-        this.itemsService = itemsService;
+        this._steangriddbService = steangriddbService;
+        this._igdbService = igdbService;
+        this._screenscraperService = screenscraperService;
+        this._genreService = genreService;
+        this._editeurService = editeurService;
+        this._devService = devService;
+        this._itemsService = itemsService;
+        this._assetDownloader = assetDownloader;
     }
     public async Task ScanFolderForRom(ScanProfile scanprofile)
     {
+        SendNotification(MsgCategory.StartTask, "Debut du scan", $"Debut du scan du dossier {scanprofile.FolderPath} à la recherche de rom pour {scanprofile.Platforms} sur l'émulateur {scanprofile.Profile.Name}");
         var filewithcorrectextension = new List<string>();
         foreach (var ext in scanprofile.Profile.ImageExtensions)
         {
             var searchPattern = $"*.{ext}";
             filewithcorrectextension.AddRange(Directory.GetFiles(scanprofile.FolderPath, searchPattern, SearchOption.TopDirectoryOnly));
         }
-        if(filewithcorrectextension.Count == 0) { return; }
+        if (filewithcorrectextension.Count == 0) { return; }
+        SendNotification(MsgCategory.Info, $"{filewithcorrectextension.Count} fichiers trouvés", $"{filewithcorrectextension.Count} fichiers trouvés avec les extensions {string.Join(",", scanprofile.Profile.ImageExtensions)}");
         foreach (var file in filewithcorrectextension)
         {
+            SendNotification(MsgCategory.Info, $"Debut de traitement du fichier {file}", $"Debut du traitement du fichier {file} pour le profile {scanprofile.Profile.Name}");
             Item item = new Item();
             item.Name = Path.GetFileNameWithoutExtension(file);
             item.SearchName = item.Name;
@@ -66,120 +68,141 @@ public class EmulateurService : IEmulateurService
             item.Banner = string.Empty;
             item.Artwork = string.Empty;
             item.Video = string.Empty;
+            SendNotification(MsgCategory.Info, $"Recherche de Metadata pour {item.Name}", $"Recherche de Metadata pour {item.Name} avec le provider {scanprofile.MetaProvider}");
+            Jeux sscpgame = null;
+            if (scanprofile.MetaProvider == MetadataProvider.Screenscraper || scanprofile.LogoProvider == LogoProvider.Screenscraper ||
+                scanprofile.FanartProvider == FanartProvider.Screenscraper || scanprofile.CoverProvider == CoverProvider.Screenscraper ||
+                scanprofile.VideoProvider == VideoProvider.Screenscraper)
+                sscpgame = GetSSCPGame(item);
             if (scanprofile.MetaProvider == MetadataProvider.Screenscraper)
             {
-                GetSSCPMetadata(file, item);
+                GetSSCPMetadata(item, sscpgame);
             }
             else if (scanprofile.MetaProvider == MetadataProvider.IGDB)
             {
                 GetIGDBMetadata(item);
             }
+            SendNotification(MsgCategory.Info, $"Recherche de Logo pour {item.Name}", $"Recherche de Logo pour {item.Name} avec le provider {scanprofile.LogoProvider}");
             if (scanprofile.LogoProvider == LogoProvider.SteamGridDB) { GetSGDBLogo(item); }
-            else if (scanprofile.LogoProvider == LogoProvider.Screenscraper) { }
+            else if (scanprofile.LogoProvider == LogoProvider.Screenscraper)
+            {
+                GetSSCPLogo(item, sscpgame);
+            }
 
+            SendNotification(MsgCategory.Info, $"Recherche de Cover pour {item.Name}", $"Recherche de Cover pour {item.Name} avec le provider {scanprofile.CoverProvider}");
             if (scanprofile.CoverProvider == CoverProvider.SteamGridDB) { GetSGDBCover(item); }
-            else if (scanprofile.CoverProvider == CoverProvider.Screenscraper) { }
+            else if (scanprofile.CoverProvider == CoverProvider.Screenscraper)
+            {
+                GetSSCPCover(item, sscpgame);
+            }
             else if (scanprofile.CoverProvider == CoverProvider.IGDB) { GetIGDBCover(item); }
 
-            if (scanprofile.FanartProvider == FanartProvider.Screenscraper) { }
+            SendNotification(MsgCategory.Info, $"Recherche de Fanart pour {item.Name}", $"Recherche de Fanart pour {item.Name} avec le provider {scanprofile.FanartProvider}");
+            if (scanprofile.FanartProvider == FanartProvider.Screenscraper)
+            {
+                GetSSCPFanart(item, sscpgame);
+            }
             else if (scanprofile.FanartProvider == FanartProvider.IGDB) { GetIGDBFanart(item); }
 
-            if (scanprofile.VideoProvider == VideoProvider.Screenscraper) {  }
+            SendNotification(MsgCategory.Info, $"Recherche de Video pour {item.Name}", $"Recherche de Video pour {item.Name} avec le provider {scanprofile.VideoProvider}");
+            if (scanprofile.VideoProvider == VideoProvider.Screenscraper)
+            {
+                GetSSCPVideo(item, sscpgame);
+            }
             else if (scanprofile.VideoProvider == VideoProvider.IGDB) { }
 
+            SendNotification(MsgCategory.Info, $"Recherche de Heroe pour {item.Name}", $"Recherche de Heroe pour {item.Name} avec le provider SteamGridDB");
             GetSGDBHeroes(item);
-            itemsService.UpdateItem(item);
+            _itemsService.UpdateItem(item);
+            SendNotification(MsgCategory.Create, $"Enregistrement de {item.Name}", $"Enregistrement de {item.Name} pour la plateforme {scanprofile.Profile.Name}");
         }
+        SendNotification(MsgCategory.EndTask, "Fin du scan", $"Fin du scan du dossier {scanprofile.FolderPath}.{filewithcorrectextension.Count} jeux trouvé pour {scanprofile.Platforms} sur l'émulateur {scanprofile.Profile.Name}");
     }
-
-    private void GetSSCPLogo(Item item)
+    private Jeux GetSSCPGame(Item item)
     {
-        var sscpgames = screenscraperService.SearchGameByFileName(item.Path);
-        var game = sscpgames.FirstOrDefault();
+        var sscpgames = _screenscraperService.SearchGameByFileName(item.Path);
+        return sscpgames.FirstOrDefault();
+    }
+    private void GetSSCPLogo(Item item, Jeux game)
+    {
         item.Logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor")?.url ??
                         string.Empty;
     }
-    private void GetSSCPCover(Item item)
+    private void GetSSCPCover(Item item, Jeux game)
     {
-        var sscpgames = screenscraperService.SearchGameByFileName(item.Path);
-        var game = sscpgames.FirstOrDefault();
         item.Cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "eu")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "ss")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "wor")?.url ??
                         string.Empty;
     }
-    private void GetSSCPFanart(Item item)
+    private void GetSSCPFanart(Item item, Jeux game)
     {
-        var sscpgames = screenscraperService.SearchGameByFileName(item.Path);
-        var game = sscpgames.FirstOrDefault();
         var artwork = game.medias.FirstOrDefault(x => x.type == "fanart")?.url ?? string.Empty;
         var screen = game.medias.FirstOrDefault(x => x.type == "ss")?.url ?? string.Empty;
         var screentitle = game.medias.FirstOrDefault(x => x.type == "sstitle")?.url ?? string.Empty;
         var screen169 = game.medias.FirstOrDefault(x => x.type == "ssfronton16-9")?.url ?? string.Empty;
-        if(!string.IsNullOrEmpty(artwork)){item.Artwork = artwork;}
-        else if(!string.IsNullOrEmpty(screen)){item.Artwork = screen; }
-        else if(!string.IsNullOrEmpty(screentitle)){item.Artwork = screentitle; }
-        else if(!string.IsNullOrEmpty(screen169)){item.Artwork = screen169; }
+        if (!string.IsNullOrEmpty(artwork)) { item.Artwork = artwork; }
+        else if (!string.IsNullOrEmpty(screen)) { item.Artwork = screen; }
+        else if (!string.IsNullOrEmpty(screentitle)) { item.Artwork = screentitle; }
+        else if (!string.IsNullOrEmpty(screen169)) { item.Artwork = screen169; }
     }
-    private void GetSSCPVideo(Item item)
+    private void GetSSCPVideo(Item item, Jeux game)
     {
-        var sscpgames = screenscraperService.SearchGameByFileName(item.Path);
-        var game = sscpgames.FirstOrDefault();
         item.Video = game.medias.FirstOrDefault(x => x.type == "video")?.url ?? string.Empty;
     }
     private void GetSGDBCover(Item item)
     {
-        var sgdbsearch = steangriddbService.SearchByName(item.SearchName);
+        var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
         if (sgdbsearch != null)
         {
             var sgdbfirstgame = sgdbsearch.First();
             if (sgdbfirstgame != null)
             {
-                var heroes = steangriddbService.GetGridBoxartForId(sgdbfirstgame.id);
+                var heroes = _steangriddbService.GetGridBoxartForId(sgdbfirstgame.id);
                 item.Cover = heroes.First().url;
             }
         }
     }
     private void GetSGDBLogo(Item item)
     {
-        var sgdbsearch = steangriddbService.SearchByName(item.SearchName);
+        var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
         if (sgdbsearch != null)
         {
             var sgdbfirstgame = sgdbsearch.First();
             if (sgdbfirstgame != null)
             {
-                var heroes = steangriddbService.GetLogoForId(sgdbfirstgame.id);
+                var heroes = _steangriddbService.GetLogoForId(sgdbfirstgame.id);
                 item.Logo = heroes.First().url;
             }
         }
     }
     private void GetSGDBHeroes(Item item)
     {
-        var sgdbsearch = steangriddbService.SearchByName(item.SearchName);
+        var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
         if (sgdbsearch != null)
         {
             var sgdbfirstgame = sgdbsearch.First();
             if (sgdbfirstgame != null)
             {
-                var heroes = steangriddbService.GetHeroesForId(sgdbfirstgame.id);
+                var heroes = _steangriddbService.GetHeroesForId(sgdbfirstgame.id);
                 item.Banner = heroes.First().url;
             }
         }
     }
     private void GetIGDBCover(Item item)
     {
-        var igdbgames = igdbService.GetGameByName(item.SearchName);
-        if(igdbgames != null)
+        var igdbgames = _igdbService.GetGameByName(item.SearchName);
+        if (igdbgames != null)
         {
             var igdbgame = igdbgames.FirstOrDefault();
-            if(igdbgame != null)
+            if (igdbgame != null)
             {
-                var detailgame = igdbService.GetDetailsGame(igdbgame.id);
-                if(detailgame != null)
+                var detailgame = _igdbService.GetDetailsGame(igdbgame.id);
+                if (detailgame != null)
                 {
                     var cover = detailgame.cover?.url ?? string.Empty;
                     if (!string.IsNullOrEmpty(cover))
@@ -193,13 +216,13 @@ public class EmulateurService : IEmulateurService
     }
     private void GetIGDBFanart(Item item)
     {
-        var igdbgames = igdbService.GetGameByName(item.SearchName);
+        var igdbgames = _igdbService.GetGameByName(item.SearchName);
         if (igdbgames != null)
         {
             var igdbgame = igdbgames.FirstOrDefault();
             if (igdbgame != null)
             {
-                var detailgame = igdbService.GetDetailsGame(igdbgame.id);
+                var detailgame = _igdbService.GetDetailsGame(igdbgame.id);
                 if (detailgame != null)
                 {
                     var artwork = detailgame.artworks.FirstOrDefault()?.url ?? string.Empty;
@@ -214,28 +237,28 @@ public class EmulateurService : IEmulateurService
     }
     private void GetIGDBMetadata(Item item)
     {
-        var igdbgames = igdbService.GetGameByName(item.Name);
+        var igdbgames = _igdbService.GetGameByName(item.Name);
         if (igdbgames != null && igdbgames.Any())
         {
-            var game = igdbService.GetDetailsGame(igdbgames.First().id);
+            var game = _igdbService.GetDetailsGame(igdbgames.First().id);
             if (game != null)
             {
                 item.Name = game.name;
                 item.SearchName = game.name;
                 item.Description = game.summary;
                 item.ReleaseDate = ConvertFromIGDB(game.first_release_date);
-                dbContext.Items.Add(item);
+                _dbContext.Items.Add(item);
                 var genres = game.genres.Select(g => g.name);
                 foreach (var genre in genres)
-                    genreService.AddGenreToItem(genre, item, dbContext);
-                var devs = igdbService.GetCompaniesDetail(game.involved_companies.Where(x => x.developer).Select(x => x.company.ToString()));
+                    _genreService.AddGenreToItem(genre, item, _dbContext);
+                var devs = _igdbService.GetCompaniesDetail(game.involved_companies.Where(x => x.developer).Select(x => x.company.ToString()));
                 foreach (var dev in devs)
-                    devService.AddDevToItem(dev.name, item, dbContext);
-                var editeurs = igdbService.GetCompaniesDetail(game.involved_companies.Where(x => x.publisher).Select(x => x.company.ToString()));
+                    _devService.AddDevToItem(dev.name, item, _dbContext);
+                var editeurs = _igdbService.GetCompaniesDetail(game.involved_companies.Where(x => x.publisher).Select(x => x.company.ToString()));
                 foreach (var editeur in editeurs)
-                    editeurService.AddEditeurToItem(editeur.name, item, dbContext);
-                dbContext.Items.Update(item);
-                dbContext.SaveChanges();
+                    _editeurService.AddEditeurToItem(editeur.name, item, _dbContext);
+                _dbContext.Items.Update(item);
+                _dbContext.SaveChanges();
             }
         }
     }
@@ -251,10 +274,8 @@ public class EmulateurService : IEmulateurService
         catch (Exception ex) { }
         return result;
     }
-    private void GetSSCPMetadata(string file, Item item)
+    private void GetSSCPMetadata(Item item, Jeux game)
     {
-        var sscpgames = screenscraperService.SearchGameByFileName(file);
-        var game = sscpgames.FirstOrDefault();
         if (game != null)
         {
             item.Name = game.noms.FirstOrDefault(x => x.region == "fr")?.text ??
@@ -276,14 +297,14 @@ public class EmulateurService : IEmulateurService
             item.Genres = new List<ItemGenre>();
             item.Develloppeurs = new List<ItemDev>();
             item.Editeurs = new List<ItemEditeur>();
-            dbContext.Items.Add(item);
+            _dbContext.Items.Add(item);
             var genres = game.genres.SelectMany(x => x.noms).Where(x => x.langue == "fr");
             foreach (var genre in genres)
-                genreService.AddGenreToItem(genre.text, item, dbContext);
-            devService.AddDevToItem(game.developpeur.text, item, dbContext);
-            editeurService.AddEditeurToItem(game.editeur.text, item, dbContext);
-            dbContext.Items.Update(item);
-            dbContext.SaveChanges();
+                _genreService.AddGenreToItem(genre.text, item, _dbContext);
+            _devService.AddDevToItem(game.developpeur.text, item, _dbContext);
+            _editeurService.AddEditeurToItem(game.editeur.text, item, _dbContext);
+            _dbContext.Items.Update(item);
+            _dbContext.SaveChanges();
         }
     }
     public static DateTime ParseDate(string dateString)
@@ -310,15 +331,15 @@ public class EmulateurService : IEmulateurService
     }
     public IEnumerable<LUEmulateur> GetLocalEmulator()
     {
-        return dbContext.Emulateurs.Where(x => x.IsLocal);
+        return _dbContext.Emulateurs.Where(x => x.IsLocal);
     }
     public IEnumerable<LUProfile> GetLocalEmulatorProfile()
     {
-        var localemus = dbContext.Emulateurs.Where(x => x.IsLocal);
+        var localemus = _dbContext.Emulateurs.Where(x => x.IsLocal);
         var localprofiles = new List<LUProfile>();
         foreach (var emu in localemus)
         {
-            var templocalprofiles = dbContext.Profiles.Where(x => x.LUEmulateurId == emu.Id && x.IsLocal);
+            var templocalprofiles = _dbContext.Profiles.Where(x => x.LUEmulateurId == emu.Id && x.IsLocal);
             foreach (var item in templocalprofiles)
             {
                 var profilename = item.Name;
@@ -330,7 +351,7 @@ public class EmulateurService : IEmulateurService
     }
     public IEnumerable<LUEmulateur> ScanFolderForEmulator(string directoryPath)
     {
-        notifService.Clients.All.SendMessage(new NotificationMessage { Type = Models.APIObject.MsgCategory.StartTask, MessageTitle="Début de Scan d'émulateur", MessageCorps = $"Début du scan dans le dossier {directoryPath}" });
+        SendNotification(MsgCategory.StartTask, "Début de Scan d'émulateur", $"Début du scan dans le dossier {directoryPath}");
         List<LUEmulateur> reponse = new List<LUEmulateur>();
         if (Directory.Exists(directoryPath))
         {
@@ -340,14 +361,14 @@ public class EmulateurService : IEmulateurService
             }
             catch (Exception ex)
             {
-                notifService.Clients.All.SendMessage(new Models.APIObject.NotificationMessage { Type = Models.APIObject.MsgCategory.Error, MessageTitle = ex.ToString(), MessageCorps = ex.Message });
+                SendNotification(MsgCategory.Error, ex.Source, ex.Message);
             }
         }
         else
         {
-            notifService.Clients.All.SendMessage(new Models.APIObject.NotificationMessage { Type = Models.APIObject.MsgCategory.Error, MessageTitle = "Folder Not Found", MessageCorps = $"Le dossier {directoryPath} n'existe pas" });
+            SendNotification(MsgCategory.Error, "Folder Not Found", $"Le dossier {directoryPath} n'existe pas");
         }
-        notifService.Clients.All.SendMessage(new Models.APIObject.NotificationMessage { Type = Models.APIObject.MsgCategory.EndTask, MessageTitle = "Fin de Scan", MessageCorps = $"Fin de Scan d'émulateur dans le dossier {directoryPath}" });
+        SendNotification(MsgCategory.EndTask, "Fin de Scan", $"Fin de Scan d'émulateur dans le dossier {directoryPath}");
         return reponse.GroupBy(x => x.Name).Select(grp => grp.First()).ToList();
     }
     public IEnumerable<LUEmulateur> RecursiveScan(string directoryPath)
@@ -357,36 +378,37 @@ public class EmulateurService : IEmulateurService
 
         foreach (var file in files)
         {
-            var profiles = dbContext.Profiles.ToList();
+            var profiles = _dbContext.Profiles.ToList();
             var filename = Path.GetFileName(file);
             var currentprofiles = profiles.Where(x => DeFormatExe(x.StartupExecutable).Equals(filename, StringComparison.OrdinalIgnoreCase));
             var localprofiles = new List<LUEmulateur>();
             foreach (var profile in currentprofiles)
             {
-                    if (profile.ProfileFiles != null && profile.ProfileFiles.Any())
-                    {
-                        var corepath = Path.Combine(Path.GetDirectoryName(file), profile.ProfileFiles.First().Replace("'",string.Empty));
-                        if (File.Exists(corepath))
-                        {
-                            profile.StartupExecutable = file;
-                            profile.IsLocal = true;
-                        }
-                    }
-                    else
+                if (profile.ProfileFiles != null && profile.ProfileFiles.Any())
+                {
+                    var corepath = Path.Combine(Path.GetDirectoryName(file), profile.ProfileFiles.First().Replace("'", string.Empty));
+                    if (File.Exists(corepath))
                     {
                         profile.StartupExecutable = file;
                         profile.IsLocal = true;
                     }
-                dbContext.Profiles.Update(profile);
-                dbContext.SaveChanges(true);
-                var emu = dbContext.Emulateurs.FirstOrDefault(x => x.Id == profile.LUEmulateurId);
+                }
+                else
+                {
+                    profile.StartupExecutable = file;
+                    profile.IsLocal = true;
+                }
+                _dbContext.Profiles.Update(profile);
+                _dbContext.SaveChanges(true);
+                var emu = _dbContext.Emulateurs.FirstOrDefault(x => x.Id == profile.LUEmulateurId);
                 if (emu != null)
                 {
                     emu.IsLocal = true;
-                    dbContext.Emulateurs.Update(emu);
-                    dbContext.SaveChanges(true);
+                    _dbContext.Emulateurs.Update(emu);
+                    _dbContext.SaveChanges(true);
                     localprofiles.Add(emu);
-                    notifService.Clients.All.SendMessage(new Models.APIObject.NotificationMessage { Type=Models.APIObject.MsgCategory.Create,MessageTitle="Profil d'émulation trouvé", MessageCorps=$"Emulateur {emu.Name}-{profile.Name} enregistré"});
+                    CreateEmuAsItem(emu, profile, _dbContext);
+                    SendNotification(MsgCategory.Create, "Profil d'émulation trouvé", $"Emulateur {emu.Name}-{profile.Name} enregistré");
                 }
             }
             foreach (var localprofile in localprofiles)
@@ -401,26 +423,82 @@ public class EmulateurService : IEmulateurService
                 yield return item;
         }
     }
+
+    private void CreateEmuAsItem(LUEmulateur emu, LUProfile profile, GameLauncherContext dbContext)
+    {
+        if (!_dbContext.Items.Any(x => x.Name == emu.Name))
+        {
+            Item itememu = new Item();
+            itememu.Name = emu.Name;
+            itememu.SearchName = emu.Name;
+            itememu.Path = profile.StartupExecutable;
+            itememu.LUPlatformesId = _dbContext.Platformes.First(x => x.Name == "Emulators").Codename;
+            itememu.AddingDate = DateTime.Now;
+            itememu.Develloppeurs = new List<ItemDev>();
+            itememu.Editeurs = new List<ItemEditeur>();
+            itememu.Genres = new List<ItemGenre>();
+            itememu.StoreId = string.Empty;
+            itememu.Logo = string.Empty;
+            itememu.Cover = string.Empty;
+            itememu.Banner = string.Empty;
+            itememu.Artwork = string.Empty;
+            itememu.Video = string.Empty;
+            itememu.Description = string.Empty;
+            itememu.ReleaseDate = DateTime.MinValue;
+            dbContext.Items.Add(itememu);
+            var listgames = _steangriddbService.SearchByName(itememu.SearchName);
+            var firstgame = listgames.FirstOrDefault();
+            if (firstgame != null)
+            {
+                var assetfolder = _assetDownloader.CreateItemAssetFolder(itememu.ID);
+                var listlogo = _steangriddbService.GetLogoForId(firstgame.id);
+                var listboxart = _steangriddbService.GetGridBoxartForId(firstgame.id);
+                var listhero = _steangriddbService.GetHeroesForId(firstgame.id);
+                var firstlogo = listlogo.FirstOrDefault();
+                var firstboxart = listboxart.FirstOrDefault();
+                var firsthero = listhero.FirstOrDefault();
+                if (firstlogo != null)
+                {
+                    _assetDownloader.DownloadFile(firstlogo.url, Path.Combine(assetfolder, "logo.png"));
+                    itememu.Logo = Path.Combine(assetfolder, "logo.png");
+                }
+                if (firstboxart != null)
+                {
+                    _assetDownloader.DownloadFile(firstboxart.url, Path.Combine(assetfolder, "cover.jpg"));
+                    itememu.Cover = Path.Combine(assetfolder, "cover.jpg");
+                }
+                if (firsthero != null)
+                {
+                    _assetDownloader.DownloadFile(firsthero.url, Path.Combine(assetfolder, "banner.jpg"));
+                    itememu.Banner = Path.Combine(assetfolder, "banner.jpg");
+                }
+            }
+            //dbContext.Items.Update(itememu);
+            SendNotification(MsgCategory.Create, "Ajout d'un emulateur dans les Items", $"Ajout de {itememu.Name} dans les Items");
+            dbContext.SaveChanges();
+        }
+    }
+
     public async IAsyncEnumerable<LUEmulateur> RecursiveScanAsync(string directoryPath)
     {
         // Get all files in the current directory and add them to the database
         var files = Directory.GetFiles(directoryPath, "*.exe");
         foreach (var file in files)
         {
-            var profiles = dbContext.Profiles.ToList();
+            var profiles = _dbContext.Profiles.ToList();
             var filename = Path.GetFileName(file);
             var profile = profiles.FirstOrDefault(x => DeFormatExe(x.StartupExecutable).Equals(filename, StringComparison.OrdinalIgnoreCase));
             if (profile != null)
             {
                 profile.StartupExecutable = file;
-                dbContext.Profiles.Update(profile);
-                dbContext.SaveChanges(true);
-                var emu = dbContext.Emulateurs.FirstOrDefault(x => x.Id == profile.LUEmulateurId);
+                _dbContext.Profiles.Update(profile);
+                _dbContext.SaveChanges(true);
+                var emu = _dbContext.Emulateurs.FirstOrDefault(x => x.Id == profile.LUEmulateurId);
                 if (emu != null)
                 {
                     emu.IsLocal = true;
-                    dbContext.Emulateurs.Update(emu);
-                    dbContext.SaveChanges(true);
+                    _dbContext.Emulateurs.Update(emu);
+                    _dbContext.SaveChanges(true);
                     yield return emu;
                 }
             }

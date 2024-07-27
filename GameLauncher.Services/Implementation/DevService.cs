@@ -5,34 +5,34 @@ using System.Text;
 using System.Threading.Tasks;
 using GameLauncher.DAL;
 using GameLauncher.Models;
+using GameLauncher.Models.APIObject;
 using GameLauncher.Services.Interface;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameLauncher.Services.Implementation;
-public class DevService : IDevService
+public class DevService : BaseService, IDevService
 {
-    private readonly GameLauncherContext dbContext;
-    public DevService(GameLauncherContext dbContext)
+    public DevService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
     {
-        this.dbContext = dbContext;
     }
     public IEnumerable<Develloppeur> GetAll()
     {
-        return dbContext.Develloppeurs;//.Include(x=>x.Items);
+        return _dbContext.Develloppeurs;//.Include(x=>x.Items);
     }
     public IEnumerable<Develloppeur> GetAllForItem(Guid id)
     {
-        return dbContext.Develloppeurs.Where(x => x.Items.Any(item => item.ItemID == id));
+        return _dbContext.Develloppeurs.Where(x => x.Items.Any(item => item.ItemID == id));
     }
     public ItemDev AddDevToItem(string editeurname, Item item)
     {
-        var dbgenre = dbContext.Develloppeurs.FirstOrDefault(x => x.Name == editeurname);
+        var dbgenre = _dbContext.Develloppeurs.FirstOrDefault(x => x.Name == editeurname);
         if (dbgenre == null)
         {
             dbgenre = new Develloppeur();
             dbgenre.Name = editeurname;
             dbgenre.Items = new List<ItemDev>();
-            dbContext.Develloppeurs.Add(dbgenre);
+            _dbContext.Develloppeurs.Add(dbgenre);
         }
         var itemgenre = new ItemDev()
         {
@@ -40,23 +40,24 @@ public class DevService : IDevService
             DevelloppeurID = dbgenre.ID,
             ItemID = item.ID
         };
-        dbContext.DevdItems.Add(itemgenre);
+        _dbContext.DevdItems.Add(itemgenre);
         if (!dbgenre.Items.Contains(itemgenre))
         {
             dbgenre.Items.Add(itemgenre);
         }
-        dbContext.SaveChanges();
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.Create, "Ajout d'un studio pour un jeu", $"Ajout du studio {editeurname} pour {item.Name}");
         return itemgenre;
     }
     public ItemDev AddDevToItem(string editeurname, Item item, DbContext dbcontext)
     {
-        var dbgenre = dbContext.Develloppeurs.FirstOrDefault(x => x.Name == editeurname);
+        var dbgenre = _dbContext.Develloppeurs.FirstOrDefault(x => x.Name == editeurname);
         if (dbgenre == null)
         {
             dbgenre = new Develloppeur();
             dbgenre.Name = editeurname;
             dbgenre.Items = new List<ItemDev>();
-            dbContext.Develloppeurs.Add(dbgenre);
+            _dbContext.Develloppeurs.Add(dbgenre);
         }
         var itemgenre = new ItemDev()
         {
@@ -64,18 +65,19 @@ public class DevService : IDevService
             DevelloppeurID = dbgenre.ID,
             ItemID = item.ID
         };
-        dbContext.DevdItems.Add(itemgenre);
+        _dbContext.DevdItems.Add(itemgenre);
         if (!dbgenre.Items.Contains(itemgenre))
         {
             dbgenre.Items.Add(itemgenre);
         }
-        dbContext.SaveChanges();
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.Create, "Ajout d'un studio pour un jeu", $"Ajout du studio {editeurname} pour {item.Name}");
         return itemgenre;
     }
     public void UpdateDevInItem(Item Item, List<Develloppeur> newDevs)
     {
-        var existingPostTags = dbContext.DevdItems.Where(pt => pt.ItemID == Item.ID);
-        dbContext.DevdItems.RemoveRange(existingPostTags);
+        var existingPostTags = _dbContext.DevdItems.Where(pt => pt.ItemID == Item.ID);
+        _dbContext.DevdItems.RemoveRange(existingPostTags);
         if(Item.Develloppeurs != null)
             Item.Develloppeurs.Clear();
         foreach (var dev in newDevs)
@@ -85,19 +87,21 @@ public class DevService : IDevService
     }
     public void Fusionnage(Guid idToDelete, Guid idToKeep)
     {
-        dbContext.DevdItems.Where(x => x.DevelloppeurID == idToDelete).ForEachAsync(x => x.DevelloppeurID = idToKeep);
-        var deleteItem = dbContext.Develloppeurs.First(x => x.ID == idToDelete);
-        dbContext.Develloppeurs.Remove(deleteItem);
-        dbContext.SaveChanges();
+        _dbContext.DevdItems.Where(x => x.DevelloppeurID == idToDelete).ForEachAsync(x => x.DevelloppeurID = idToKeep);
+        var deleteItem = _dbContext.Develloppeurs.First(x => x.ID == idToDelete);
+        _dbContext.Develloppeurs.Remove(deleteItem);
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.Update, "Fusion effectué", $"Fusion entre Dev effectué");
     }
     public void Update(Develloppeur updateditem)
     {
-        var item = dbContext.Develloppeurs.FirstOrDefault(x => x.ID == updateditem.ID);
+        var item = _dbContext.Develloppeurs.FirstOrDefault(x => x.ID == updateditem.ID);
         if (item != null)
         {
             item.Name = updateditem.Name;
-            dbContext.Develloppeurs.Update(item);
-            dbContext.SaveChanges();
+            _dbContext.Develloppeurs.Update(item);
+            _dbContext.SaveChanges();
+            SendNotification(MsgCategory.Update, "MAJ du Studio", $"Mise à jour de {updateditem.Name}");
         }
     }
 }

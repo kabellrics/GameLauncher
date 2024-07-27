@@ -13,16 +13,17 @@ using GameLauncher.DAL;
 using GameLauncher.Services.Interface;
 using GameLauncher.Models;
 using GameLauncher.Models.EAOrigin;
+using Microsoft.AspNetCore.SignalR;
+using GameLauncher.Models.APIObject;
 
 namespace GameLauncher.Services.Implementation;
-public class EAOriginGameFinderService : IEAOriginGameFinderService
+public class EAOriginGameFinderService : BaseService, IEAOriginGameFinderService
 {
-    private readonly GameLauncherContext dbContext;
+    private readonly GameLauncherContext _dbContext;
     private readonly IAssetDownloader assetDownloader;
     private readonly ISteamGridDbService steangriddbService;
-    public EAOriginGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService)
+    public EAOriginGameFinderService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService) : base(dbContext, notifService)
     {
-        this.dbContext = dbContext;
         this.assetDownloader = assetDownloader;
         this.steangriddbService = steangriddbService;
     }
@@ -32,9 +33,10 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
         var results = handler.FindAllGames();
         var gamesfind = new List<EADesktopGame>();
         var storeIdList = results.Select(x => x.AsT0.EADesktopGameId.Value);
-        var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "EA Play" && !storeIdList.Contains(x.StoreId));
-        dbContext.Items.RemoveRange(gameToRemoves);
-        dbContext.SaveChanges();
+        var gameToRemoves = _dbContext.Items.Where(x => x.LUPlatformesId == "EA Play" && !storeIdList.Contains(x.StoreId));
+        _dbContext.Items.RemoveRange(gameToRemoves);
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.EndTask, "Fin du nettoyage de jeu EA Play", $"Suppression de {gameToRemoves.Count()} jeux EA Play car désintallés");
     }
     public async Task GetGameAsync()
     {
@@ -70,7 +72,7 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
             {
                 foreach (var item in gamesfind)
                 {
-                    if (!dbContext.Items.Any(x => x.StoreId == item.EADesktopGameId.Value))
+                    if (!_dbContext.Items.Any(x => x.StoreId == item.EADesktopGameId.Value))
                     {
                         var ManifestgamePath = Path.Combine(item.BaseInstallPath.GetFullPath(), "__Installer", "installerdata.xml");
                         XmlSerializer serializer = new XmlSerializer(typeof(DiPManifest));
@@ -87,14 +89,14 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
                                 //var notrialexe = dipManifest.runtime.launcher.FirstOrDefault(x => x.trial == 0);
                                 exe.Path = $"{item.BaseInstallPath.GetFullPath()}/{getExeName(notrialexe.filePath)}";
                                 exe.StoreId = item.EADesktopGameId.Value;
-                                exe.LUPlatformesId = dbContext.Platformes.First(x => x.Name == "EA Play").Codename;
+                                exe.LUPlatformesId = _dbContext.Platformes.First(x => x.Name == "EA Play").Codename;
                                 exe.AddingDate = DateTime.Now;
                                 resultlist.Add(exe);
                             }
                         }
                         catch (Exception ex)
                         {
-                            //throw;
+                            SendNotification(MsgCategory.Error, ex.Message, ex.StackTrace);
                         }
                     }
                 }
@@ -112,14 +114,16 @@ public class EAOriginGameFinderService : IEAOriginGameFinderService
                 result.Develloppeurs = new List<ItemDev>();
                 result.Editeurs = new List<ItemEditeur>();
                 result.Genres = new List<ItemGenre>();
-                dbContext.Items.Add(result);
+                _dbContext.Items.Add(result);
+                SendNotification(MsgCategory.Create, "Ajout d'un jeu EA Play", $"Ajout de {result.Name} depuis EA Play");
                 LookForSteamGridDBAsset(result);
+                SendNotification(MsgCategory.Update, "Metadata pour un Jeu EA Play", $"Ajout de Metadata pour {result.Name}");
             }
-            dbContext.SaveChanges();
+            _dbContext.SaveChanges();
         }
         catch (Exception ex)
         {
-            //throw;
+            SendNotification(MsgCategory.Error,ex.Message,ex.StackTrace);
         }
     }
 

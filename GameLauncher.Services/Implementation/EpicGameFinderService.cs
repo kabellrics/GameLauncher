@@ -17,22 +17,19 @@ using NexusMods.Paths;
 using RestSharp;
 
 namespace GameLauncher.Services.Implementation;
-public class EpicGameFinderService : IEpicGameFinderService
+public class EpicGameFinderService : BaseService, IEpicGameFinderService
 {
-    private readonly GameLauncherContext dbContext;
     private readonly IAssetDownloader assetDownloader;
     private readonly ISteamGridDbService steangriddbService;
     private readonly IDevService devService;
     private readonly IEditeurService editService;
-    private readonly IHubContext<SignalRNotificationHub, INotificationService> notifService;
-    public EpicGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService, IDevService devService, IEditeurService editService, IHubContext<SignalRNotificationHub, INotificationService> notifService)
+    public EpicGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService,
+        IDevService devService, IEditeurService editService, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
     {
-        this.dbContext = dbContext;
         this.assetDownloader = assetDownloader;
         this.steangriddbService = steangriddbService;
         this.devService = devService;
         this.editService = editService;
-        this.notifService = notifService;
     }
     public async Task CleaningGame()
     {
@@ -40,10 +37,10 @@ public class EpicGameFinderService : IEpicGameFinderService
         var handler = new EGSHandler(WindowsRegistry.Shared, FileSystem.Shared);
         var results = handler.FindAllGames();
         var storeIdList = results.Select(x => x.AsT0.CatalogItemId.Value);
-        var gameToRemoves = dbContext.Items.Where(x => x.LUPlatformesId == "Epic" && !storeIdList.Contains(x.StoreId));
-        dbContext.Items.RemoveRange(gameToRemoves);
-        dbContext.SaveChanges();
-        await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Suppression de {gameToRemoves.Count()} jeux Epic games désintallés",Type= MsgCategory.EndTask });
+        var gameToRemoves = _dbContext.Items.Where(x => x.LUPlatformesId == "Epic" && !storeIdList.Contains(x.StoreId));
+        _dbContext.Items.RemoveRange(gameToRemoves);
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.EndTask, "Fin du nettoyage de jeu Epic", $"Suppression de {gameToRemoves.Count()} jeux Epic games car désintallés");
     }
     public async Task GetGameAsync()
     {
@@ -52,13 +49,13 @@ public class EpicGameFinderService : IEpicGameFinderService
         var results = handler.FindAllGames();
         foreach (var result in results)
         {
-            if (!dbContext.Items.Any(x => x.StoreId == result.AsT0.CatalogItemId.Value))
+            if (!_dbContext.Items.Any(x => x.StoreId == result.AsT0.CatalogItemId.Value))
             {
                 Item item = new Item();
                 item.Name = result.AsT0.DisplayName;
                 item.SearchName = item.Name;
                 item.StoreId = result.AsT0.CatalogItemId.Value;
-                item.LUPlatformesId = dbContext.Platformes.First(x => x.Name == "Epic Games Store").Codename;
+                item.LUPlatformesId = _dbContext.Platformes.First(x => x.Name == "Epic Games Store").Codename;
                 item.Path = $"com.epicgames.launcher://apps/{item.StoreId}?action=launch&silent=true";
                 item.AddingDate = DateTime.Now;
                 item.Logo = string.Empty;
@@ -71,14 +68,14 @@ public class EpicGameFinderService : IEpicGameFinderService
                 item.Develloppeurs = new List<ItemDev>();
                 item.Editeurs = new List<ItemEditeur>();
                 item.Genres = new List<ItemGenre>();
-                dbContext.Items.Add(item);
+                _dbContext.Items.Add(item);
                 await GetEpicData(item);
-                dbContext.SaveChanges();
-                await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Ajout de {item.Name} depuis Epic Games Store", Type = MsgCategory.Create });
+                _dbContext.SaveChanges();
+                SendNotification(MsgCategory.Create, "Ajout d'un jeu Epic", $"Ajout de {item.Name} depuis Epic Games Store");
             }
         }
-        dbContext.SaveChanges();
-        await notifService.Clients.All.SendMessage(new NotificationMessage() { MessageTitle = $"Fin de l'ajout de jeux depuis Epic Games Store", Type = MsgCategory.EndTask });
+        _dbContext.SaveChanges();
+        SendNotification(MsgCategory.EndTask, "Fin de l'ajout de jeu Epic", $"Fin de l'ajout de jeux depuis Epic Games Store");
     }
 
     private async Task GetEpicData(Item item)
@@ -220,64 +217,4 @@ query searchStoreQuery($allowCountries: String, $category: String, $country: Str
             }
         }
     }
-    //private ItemEditeur ExtractEditor(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
-    //{
-    //    if (!dbContext.Editeurs.Any(x => x.Name == data.Value))
-    //    {
-    //        var dbdev = new Editeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<ItemEditeur>() };
-    //        dbContext.Editeurs.Add(dbdev);
-    //        var ItemEdit = new ItemEditeur();
-    //        ItemEdit.ID = Guid.NewGuid();
-    //        ItemEdit.Editeur = dbdev;
-    //        ItemEdit.Item = game;
-    //        ItemEdit.EditeurID = dbdev.ID;
-    //        ItemEdit.ItemID = game.ID;
-    //        dbdev.Items.Add(ItemEdit);
-    //        dbContext.EditeurdItems.Add(ItemEdit);
-    //        return ItemEdit;
-    //    }
-    //    else
-    //    {
-    //        var dbdev = dbContext.Editeurs.First(x => x.Name == data.Value);
-    //        var ItemEdit = new ItemEditeur();
-    //        ItemEdit.ID = Guid.NewGuid();
-    //        ItemEdit.Editeur = dbdev;
-    //        ItemEdit.Item = game;
-    //        ItemEdit.EditeurID = dbdev.ID;
-    //        ItemEdit.ItemID = game.ID;
-    //        dbdev.Items.Add(ItemEdit);
-    //        dbContext.EditeurdItems.Add(ItemEdit);
-    //        return ItemEdit;
-    //    }
-    //}
-    //private ItemDev ExtractDev(GameLauncher.Models.EpicGame.CustomAttribute data, Item game)
-    //{
-    //    if (!dbContext.Editeurs.Any(x => x.Name == data.Value))
-    //    {
-    //        var dbdev = new Develloppeur { ID = Guid.NewGuid(), Name = data.Value, Items = new List<ItemDev>() };
-    //        dbContext.Develloppeurs.Add(dbdev);
-    //        var ItemEdit = new ItemDev();
-    //        ItemEdit.ID = Guid.NewGuid();
-    //        ItemEdit.Develloppeur = dbdev;
-    //        ItemEdit.Item = game;
-    //        ItemEdit.DevID = dbdev.ID;
-    //        ItemEdit.ItemID = game.ID;
-    //        dbdev.Items.Add(ItemEdit);
-    //        dbContext.DevdItems.Add(ItemEdit);
-    //        return ItemEdit;
-    //    }
-    //    else
-    //    {
-    //        var dbdev = dbContext.Develloppeurs.First(x => x.Name == data.Value);
-    //        var ItemEdit = new ItemDev();
-    //        ItemEdit.ID = Guid.NewGuid();
-    //        ItemEdit.Develloppeur = dbdev;
-    //        ItemEdit.Item = game;
-    //        ItemEdit.DevID = dbdev.ID;
-    //        ItemEdit.ItemID = game.ID;
-    //        dbdev.Items.Add(ItemEdit);
-    //        dbContext.DevdItems.Add(ItemEdit);
-    //        return ItemEdit;
-    //    }
-    //}
 }

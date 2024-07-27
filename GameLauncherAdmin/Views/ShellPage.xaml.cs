@@ -81,4 +81,12 @@ public sealed partial class ShellPage : Page
 
         args.Handled = result;
     }
+
+    private void ListView_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (notiflistview.ActualWidth < 100)
+            notiflistview.ItemTemplate = CompactWidhtTemplate;
+        else
+            notiflistview.ItemTemplate = FullWidhtTemplate;
+    }
 }

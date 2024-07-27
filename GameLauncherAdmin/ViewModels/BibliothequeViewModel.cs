@@ -19,7 +19,19 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
     private readonly INavigationService _navigationService;
     private readonly ISampleDataService _sampleDataService;
     private readonly IItemProvider _itemProvider;
+    private ICommand _refreshCommand;
+    public ICommand RefreshCommand
+    {
+        get
+        {
+            return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh));
+        }
+    }
 
+    private async void Refresh()
+    {
+        await InitializeData(_itemProvider.GetAllItemsStream());
+    }
     public ObservableCollection<ObservableItem> Source { get; } = new ObservableCollection<ObservableItem>();
     public ObservableGroupedCollection<string, ObservableItem> GroupedItems{get; private set;} = new();
     public BibliothequeViewModel(INavigationService navigationService, ISampleDataService sampleDataService, IItemProvider itemProvider)

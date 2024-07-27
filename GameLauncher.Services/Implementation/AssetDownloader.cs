@@ -4,13 +4,18 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GameLauncher.DAL;
 using GameLauncher.Models;
 using GameLauncher.Services.Interface;
+using Microsoft.AspNetCore.SignalR;
 using RestSharp;
 
 namespace GameLauncher.Services.Implementation;
-public class AssetDownloader : IAssetDownloader
+public class AssetDownloader : BaseService, IAssetDownloader
 {
+    public AssetDownloader(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    {
+    }
     public async Task DownloadFile(string url, string targetPath)
     {
         // Créez un client RestSharp
@@ -32,6 +37,7 @@ public class AssetDownloader : IAssetDownloader
         else
         {
             Console.WriteLine("Échec du téléchargement. Statut: " + response.StatusCode);
+            SendNotification(Models.APIObject.MsgCategory.Error, "Échec du téléchargement", response.ErrorMessage);
         }
     }
     public void CopyFile(string url, string targetPath)
@@ -40,7 +46,10 @@ public class AssetDownloader : IAssetDownloader
         {
             File.Copy(url, targetPath, true);
         }
-        catch (Exception ex) { Console.WriteLine(ex.Message); }
+        catch (Exception ex)
+        {
+            SendNotification(Models.APIObject.MsgCategory.Error, "Échec de la copy", ex.Message);
+        }
     }
     public async Task RapatrierAsset(Item item)
     {
