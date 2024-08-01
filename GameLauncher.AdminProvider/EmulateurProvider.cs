@@ -29,7 +29,8 @@ public class EmulateurProvider : IEmulateurProvider
     public async IAsyncEnumerable<ObservableProfile> GetLocalProfilesAsync()
     {
         var rep = await emuconnector.GetLocalProfilesAsync();
-        foreach (var profile in rep) {
+
+        foreach (var profile in rep.OrderBy(x=>x.Name)) {
             if(profile.IsLocal) 
             yield return await FromProfile(profile);
         }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GameLauncher.AdminProvider.Interface;
 using GameLauncher.Connector;
 using GameLauncher.Models;
+using GameLauncher.Models.APIObject;
 using GameLauncher.ObservableObjet;
 using Newtonsoft.Json;
 using RestSharp;
@@ -17,6 +18,18 @@ public class CollectionProvider : ICollectionProvider
     public CollectionProvider()
     {
         colectionconnector = new CollectionConnector("https://localhost:7197");
+    }
+    public async Task<DefaultCollectionMessage> GetDefaultCollectionStatus()
+    {
+        return await colectionconnector.GetDefaultCollectionStatus();
+    }
+    public async Task<DefaultCollectionMessage> CreateDefaultCollection(DefaultCollectionMessage collectionMessage)
+    {
+        return await colectionconnector.CreateDefaultCollection(collectionMessage);
+    }
+    public async Task<IEnumerable<String>> GetPredefineCollection()
+    {
+        return await colectionconnector.GetPredefineCollection();
     }
     public async Task<IEnumerable<ObsCollection>> GetCollectionsAsync()
     {

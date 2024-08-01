@@ -11,7 +11,7 @@
     mc:Ignorable="d">
     <Page.Resources>
         <helper:TimeConverter x:Key="TimeConverter"/>
-
+        <helper:StringToMediaSourceConverter x:Key="StringToMediaSourceConverter"/>
     </Page.Resources>
     <Grid x:Name="ContentArea">
         <Grid.RowDefinitions>
@@ -363,18 +363,44 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <winuicontrols:ConstrainedBox AspectRatio="2:3" Grid.Column="0" Grid.Row="0" Height="500" Margin="10" >
-                                <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Uniform"/>
-                            </winuicontrols:ConstrainedBox>
-                            <winuicontrols:ConstrainedBox AspectRatio="1:1" Grid.Column="1" Grid.Row="0" Height="500" Margin="10">
-                                <Image Source="{x:Bind ViewModel.Item.Logo,Mode=OneWay}" Stretch="Uniform"/>
-                            </winuicontrols:ConstrainedBox>
-                            <winuicontrols:ConstrainedBox AspectRatio="1920:1080" Grid.Column="0" Grid.Row="1" Height="500" Margin="10">
-                                <Image Source="{x:Bind ViewModel.Item.Artwork,Mode=OneWay}" Stretch="Uniform"/>
-                            </winuicontrols:ConstrainedBox>
-                            <winuicontrols:ConstrainedBox AspectRatio="1920:620" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Height="500" Margin="10">
-                                <Image Source="{x:Bind ViewModel.Item.Banner,Mode=OneWay}" Stretch="Uniform"/>
-                            </winuicontrols:ConstrainedBox>
+                            <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
+                                <winuicontrols:ConstrainedBox AspectRatio="2:3" Height="500" Margin="10" >
+                                    <Image Source="{x:Bind ViewModel.Item.Cover,Mode=OneWay}" Stretch="Uniform"/>
+                                </winuicontrols:ConstrainedBox>
+                                <Button Style="{StaticResource AccentButtonStyle}"
+                                Content=" Choisir un fichier Local" Click="PickLocalCover"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0">
+                                <winuicontrols:ConstrainedBox AspectRatio="1:1" Height="500" Margin="10">
+                                    <Image Source="{x:Bind ViewModel.Item.Logo,Mode=OneWay}" Stretch="Uniform"/>
+                                </winuicontrols:ConstrainedBox>
+                                <Button Style="{StaticResource AccentButtonStyle}"
+                                Content=" Choisir un fichier Local" Click="PickLocalLogo"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1">
+                                <winuicontrols:ConstrainedBox AspectRatio="1920:1080" Height="500" Margin="10">
+                                    <Image Source="{x:Bind ViewModel.Item.Artwork,Mode=OneWay}" Stretch="Uniform"/>
+                                </winuicontrols:ConstrainedBox>
+                                <Button Style="{StaticResource AccentButtonStyle}"
+                                Content=" Choisir un fichier Local" Click="PickLocalArtwork"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1">
+                                <winuicontrols:ConstrainedBox AspectRatio="1920:1080" Height="500" Margin="10">
+                                    <MediaPlayerElement x:Name="videoassetplayer" Source="{x:Bind ViewModel.Item.Video,Mode=OneWay,Converter={StaticResource StringToMediaSourceConverter}}"
+                                    PosterSource="{x:Bind ViewModel.Item.Cover}" LostFocus="videoassetplayer_LostFocus"
+                                Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                AutoPlay="False" AreTransportControlsEnabled="True"></MediaPlayerElement>
+                                </winuicontrols:ConstrainedBox>
+                                <Button Style="{StaticResource AccentButtonStyle}"
+                                Content=" Choisir un fichier Local" Click="PickLocalVideo"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
+                                <winuicontrols:ConstrainedBox AspectRatio="1920:620" Height="500" Margin="10">
+                                    <Image Source="{x:Bind ViewModel.Item.Banner,Mode=OneWay}" Stretch="Uniform"/>
+                                </winuicontrols:ConstrainedBox>
+                                <Button Style="{StaticResource AccentButtonStyle}"
+                                Content=" Choisir un fichier Local" Click="PickLocalBanner"/>
+                            </StackPanel>
                             <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" >
                             <Expander Background="Transparent" Padding="0" Margin="0" IsExpanded="{x:Bind ViewModel.ShowMediaSourceExpander,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                Visibility="{x:Bind ViewModel.VisibilityMediaSourceExpander,Mode=OneWay}"

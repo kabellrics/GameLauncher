@@ -106,6 +106,19 @@ public class AssetDownloader : BaseService, IAssetDownloader
             }
             item.Artwork = targetfile;
         }
+        if (!item.Video.Contains(Path.Combine("GameLauncher", "Assets", "Item")))
+        {
+            var targetfile = Path.Combine(folderPath, "video.mp4");
+            if (File.Exists(item.Video))
+            {
+                CopyFile(item.Video, targetfile);
+            }
+            else
+            {
+                await DownloadFile(item.Video, targetfile);
+            }
+            item.Video = targetfile;
+        }
     }
     public async Task RapatrierAsset(Collection item)
     {

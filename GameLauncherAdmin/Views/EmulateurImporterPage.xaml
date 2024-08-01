@@ -178,7 +178,7 @@
                                 <Button HorizontalAlignment="Left" Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.CancelCommand}" Content="Annuler"></Button>
                                 <Button HorizontalAlignment="Right" Style="{StaticResource AccentButtonStyle}"
-                                    Command="{x:Bind ViewModel.StartScanCommand}" Content="Suivant"></Button>
+                                    Command="{x:Bind ViewModel.StartScanCommand}" Content="Rechercher"></Button>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

@@ -28,6 +28,21 @@ public class CollectionController : ControllerBase
     {
         return _Service.GetAllItemInside(id);
     }
+    [HttpGet("GetDefaultCollectionStatus")]
+    public async Task<ActionResult> GetDefaultCollectionStatus()
+    {
+        return Ok(_Service.GetDefaultCollectionStatus());
+    }
+    [HttpGet("GetPredefineCollection")]
+    public async Task<ActionResult> GetPredefineCollection()
+    {
+        return Ok(_Service.GetPredefineCollection());
+    }
+    [HttpPost("CreateDefaultCollection")]
+    public async Task<ActionResult> CreateDefaultCollection([FromBody] DefaultCollectionMessage collectionMessage)
+    {
+        return Ok(_Service.CreateDefaultColection(collectionMessage));
+    }
     [HttpGet("GetAllItemInsideStream/{id}")]
     public async Task StreamJSON(Guid id)
     {

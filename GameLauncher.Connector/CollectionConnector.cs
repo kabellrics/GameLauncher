@@ -6,6 +6,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using GameLauncher.Models;
 using GameLauncher.Models.APIObject;
+using GameLauncher.Models.EpicGame;
 using GameLauncher.Models.IGDB;
 using Newtonsoft.Json;
 using RestSharp;
@@ -35,6 +36,53 @@ public class CollectionConnector
             return new List<Collection>();
         }
     }
+    public async Task<IEnumerable<String>> GetPredefineCollection()
+    {
+        var request = new RestRequest("/api/Collection/GetPredefineCollection", Method.Get);
+        var response = await _client.ExecuteAsync(request);
+
+        if (response.IsSuccessful)
+        {
+            Console.WriteLine("Items: " + response.Content);
+            return JsonConvert.DeserializeObject<IEnumerable<String>>(response.Content);
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+            return new List<String>();
+        }
+    }
+    public async Task<DefaultCollectionMessage> GetDefaultCollectionStatus()
+    {
+        var request = new RestRequest("/api/Collection/GetDefaultCollectionStatus", Method.Get);
+        var response = await _client.ExecuteAsync(request);
+
+        if (response.IsSuccessful)
+        {
+            return JsonConvert.DeserializeObject<DefaultCollectionMessage>(response.Content);
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+            return new DefaultCollectionMessage();
+        }
+    }
+    public async Task<DefaultCollectionMessage> CreateDefaultCollection(DefaultCollectionMessage collectionMessage)
+    {
+        var request = new RestRequest("/api/Collection/CreateDefaultCollection", Method.Post);
+        request.AddJsonBody(collectionMessage);
+        var response = await _client.ExecuteAsync(request);
+
+        if (response.IsSuccessful)
+        {
+            return JsonConvert.DeserializeObject<DefaultCollectionMessage>(response.Content);
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+            return new DefaultCollectionMessage();
+        }
+    }
     public async Task CreateCollectionFromPlateforme()
     {
         var request = new RestRequest($"api/Collection/CreateCollectionFromPlateforme", Method.Get);
@@ -45,18 +93,18 @@ public class CollectionConnector
             throw new Exception(response.Content);
         }
     }
-    public async Task<IEnumerable<Item>> GetAllItemInside(Guid id)
+    public async Task<IEnumerable<Models.Item>> GetAllItemInside(Guid id)
     {
         var request = new RestRequest($"api/Collection/GetAllItemInside/{id}", Method.Get);
         var response = await _client.ExecuteAsync(request);
 
         if (response.IsSuccessful)
         {
-            return JsonConvert.DeserializeObject<IEnumerable<Item>>(response.Content);
+            return JsonConvert.DeserializeObject<IEnumerable<Models.Item>>(response.Content);
         }
         else
         {
-            return new List<Item>();
+            return new List<Models.Item>();
         }
     }
     public async IAsyncEnumerable<ItemInCollection> GetAllItemInsideStream(Guid id)

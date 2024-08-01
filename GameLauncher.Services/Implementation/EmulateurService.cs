@@ -54,70 +54,161 @@ public class EmulateurService : BaseService, IEmulateurService
         SendNotification(MsgCategory.Info, $"{filewithcorrectextension.Count} fichiers trouvés", $"{filewithcorrectextension.Count} fichiers trouvés avec les extensions {string.Join(",", scanprofile.Profile.ImageExtensions)}");
         foreach (var file in filewithcorrectextension)
         {
-            SendNotification(MsgCategory.Info, $"Debut de traitement du fichier {file}", $"Debut du traitement du fichier {file} pour le profile {scanprofile.Profile.Name}");
-            Item item = new Item();
-            item.Name = Path.GetFileNameWithoutExtension(file);
-            item.SearchName = item.Name;
-            item.LUPlatformesId = scanprofile.Platforms.Codename;
-            item.LUProfileId = scanprofile.Profile.Id;
-            item.Path = file;
-            item.AddingDate = DateTime.Now;
-            item.StoreId = string.Empty;
-            item.Logo = string.Empty;
-            item.Cover = string.Empty;
-            item.Banner = string.Empty;
-            item.Artwork = string.Empty;
-            item.Video = string.Empty;
-            SendNotification(MsgCategory.Info, $"Recherche de Metadata pour {item.Name}", $"Recherche de Metadata pour {item.Name} avec le provider {scanprofile.MetaProvider}");
-            Jeux sscpgame = null;
-            if (scanprofile.MetaProvider == MetadataProvider.Screenscraper || scanprofile.LogoProvider == LogoProvider.Screenscraper ||
-                scanprofile.FanartProvider == FanartProvider.Screenscraper || scanprofile.CoverProvider == CoverProvider.Screenscraper ||
-                scanprofile.VideoProvider == VideoProvider.Screenscraper)
-                sscpgame = GetSSCPGame(item);
-            if (scanprofile.MetaProvider == MetadataProvider.Screenscraper)
+            try
             {
-                GetSSCPMetadata(item, sscpgame);
-            }
-            else if (scanprofile.MetaProvider == MetadataProvider.IGDB)
-            {
-                GetIGDBMetadata(item);
-            }
-            SendNotification(MsgCategory.Info, $"Recherche de Logo pour {item.Name}", $"Recherche de Logo pour {item.Name} avec le provider {scanprofile.LogoProvider}");
-            if (scanprofile.LogoProvider == LogoProvider.SteamGridDB) { GetSGDBLogo(item); }
-            else if (scanprofile.LogoProvider == LogoProvider.Screenscraper)
-            {
-                GetSSCPLogo(item, sscpgame);
-            }
+                SendNotification(MsgCategory.Info, $"Debut de traitement du fichier {file}", $"Debut du traitement du fichier {file} pour le profile {scanprofile.Profile.Name}");
+                Item item = new Item();
+                item.ID = Guid.NewGuid();
+                item.Name = Path.GetFileNameWithoutExtension(file);
+                item.SearchName = item.Name;
+                item.LUPlatformesId = scanprofile.Platforms.Codename;
+                item.LUProfileId = scanprofile.Profile.Id;
+                item.Path = file;
+                item.AddingDate = DateTime.Now;
+                item.StoreId = string.Empty;
+                item.Description = string.Empty;
+                item.Logo = string.Empty;
+                item.Cover = string.Empty;
+                item.Banner = string.Empty;
+                item.Artwork = string.Empty;
+                item.Video = string.Empty;
+                item = _itemsService.Insert(item);
+                SendNotification(MsgCategory.Info, $"Recherche de Metadata pour {item.Name}", $"Recherche de Metadata pour {item.Name} avec le provider {scanprofile.MetaProvider}");
+                Jeux sscpgame = null;
+                if (scanprofile.MetaProvider == MetadataProvider.Screenscraper || scanprofile.LogoProvider == LogoProvider.Screenscraper ||
+                    scanprofile.FanartProvider == FanartProvider.Screenscraper || scanprofile.CoverProvider == CoverProvider.Screenscraper ||
+                    scanprofile.VideoProvider == VideoProvider.Screenscraper)
+                    sscpgame = GetSSCPGame(item);
+                if (scanprofile.MetaProvider == MetadataProvider.Screenscraper)
+                {
+                    if (sscpgame != null)
+                        GetSSCPMetadata(item, sscpgame);
+                }
+                else if (scanprofile.MetaProvider == MetadataProvider.IGDB)
+                {
+                    GetIGDBMetadata(item);
+                }
+                LookForLocalMedia(item, scanprofile.FolderPath);
+                if (string.IsNullOrWhiteSpace(item.Logo))
+                {
+                    SendNotification(MsgCategory.Info, $"Recherche de Logo pour {item.Name}", $"Recherche de Logo pour {item.Name} avec le provider {scanprofile.LogoProvider}");
+                    if (scanprofile.LogoProvider == LogoProvider.SteamGridDB) { GetSGDBLogo(item); }
+                    else if (scanprofile.LogoProvider == LogoProvider.Screenscraper)
+                    {
+                        if (sscpgame != null)
+                            GetSSCPLogo(item, sscpgame);
+                    } 
+                }
 
-            SendNotification(MsgCategory.Info, $"Recherche de Cover pour {item.Name}", $"Recherche de Cover pour {item.Name} avec le provider {scanprofile.CoverProvider}");
-            if (scanprofile.CoverProvider == CoverProvider.SteamGridDB) { GetSGDBCover(item); }
-            else if (scanprofile.CoverProvider == CoverProvider.Screenscraper)
-            {
-                GetSSCPCover(item, sscpgame);
-            }
-            else if (scanprofile.CoverProvider == CoverProvider.IGDB) { GetIGDBCover(item); }
+                if (string.IsNullOrWhiteSpace(item.Cover))
+                {
+                    SendNotification(MsgCategory.Info, $"Recherche de Cover pour {item.Name}", $"Recherche de Cover pour {item.Name} avec le provider {scanprofile.CoverProvider}");
+                    if (scanprofile.CoverProvider == CoverProvider.SteamGridDB) { GetSGDBCover(item); }
+                    else if (scanprofile.CoverProvider == CoverProvider.Screenscraper)
+                    {
+                        if (sscpgame != null)
+                            GetSSCPCover(item, sscpgame);
+                    }
+                    else if (scanprofile.CoverProvider == CoverProvider.IGDB) { GetIGDBCover(item); } 
+                }
 
-            SendNotification(MsgCategory.Info, $"Recherche de Fanart pour {item.Name}", $"Recherche de Fanart pour {item.Name} avec le provider {scanprofile.FanartProvider}");
-            if (scanprofile.FanartProvider == FanartProvider.Screenscraper)
-            {
-                GetSSCPFanart(item, sscpgame);
-            }
-            else if (scanprofile.FanartProvider == FanartProvider.IGDB) { GetIGDBFanart(item); }
+                if (string.IsNullOrWhiteSpace(item.Artwork))
+                {
+                    SendNotification(MsgCategory.Info, $"Recherche de Fanart pour {item.Name}", $"Recherche de Fanart pour {item.Name} avec le provider {scanprofile.FanartProvider}");
+                    if (scanprofile.FanartProvider == FanartProvider.Screenscraper)
+                    {
+                        if (sscpgame != null)
+                            GetSSCPFanart(item, sscpgame);
+                    }
+                    else if (scanprofile.FanartProvider == FanartProvider.IGDB) { GetIGDBFanart(item); } 
+                }
 
-            SendNotification(MsgCategory.Info, $"Recherche de Video pour {item.Name}", $"Recherche de Video pour {item.Name} avec le provider {scanprofile.VideoProvider}");
-            if (scanprofile.VideoProvider == VideoProvider.Screenscraper)
-            {
-                GetSSCPVideo(item, sscpgame);
-            }
-            else if (scanprofile.VideoProvider == VideoProvider.IGDB) { }
+                if (string.IsNullOrWhiteSpace(item.Video))
+                {
+                    SendNotification(MsgCategory.Info, $"Recherche de Video pour {item.Name}", $"Recherche de Video pour {item.Name} avec le provider {scanprofile.VideoProvider}");
+                    if (scanprofile.VideoProvider == VideoProvider.Screenscraper)
+                    {
+                        if (sscpgame != null)
+                            GetSSCPVideo(item, sscpgame);
+                    }
+                    else if (scanprofile.VideoProvider == VideoProvider.IGDB) { } 
+                }
 
-            SendNotification(MsgCategory.Info, $"Recherche de Heroe pour {item.Name}", $"Recherche de Heroe pour {item.Name} avec le provider SteamGridDB");
-            GetSGDBHeroes(item);
-            _itemsService.UpdateItem(item);
-            SendNotification(MsgCategory.Create, $"Enregistrement de {item.Name}", $"Enregistrement de {item.Name} pour la plateforme {scanprofile.Profile.Name}");
+                if (string.IsNullOrWhiteSpace(item.Banner))
+                {
+                    SendNotification(MsgCategory.Info, $"Recherche de Heroe pour {item.Name}", $"Recherche de Heroe pour {item.Name} avec le provider SteamGridDB");
+                    GetSGDBHeroes(item); 
+                }
+                _itemsService.UpdateItem(item);
+                SendNotification(MsgCategory.Create, $"Enregistrement de {item.Name}", $"Enregistrement de {item.Name} pour la plateforme {scanprofile.Profile.Name}");
+            }
+            catch (Exception ex)
+            {
+                SendNotification(MsgCategory.Error,ex.Source,ex.Message);
+                //throw;
+            }
         }
         SendNotification(MsgCategory.EndTask, "Fin du scan", $"Fin du scan du dossier {scanprofile.FolderPath}.{filewithcorrectextension.Count} jeux trouvé pour {scanprofile.Platforms} sur l'émulateur {scanprofile.Profile.Name}");
     }
+
+    private void LookForLocalMedia(Item item,string folderpath)
+    {
+        SendNotification(MsgCategory.Info, $"Recherche de media locaux pour {item.Name}", $"Recherche de media locaux pour {item.Name} avec l'arborescence d'EmulationStation");
+        var mediafolder = Path.Combine(folderpath, "media");
+        if (Directory.Exists(mediafolder))
+        {
+            var coverfolder = Path.Combine(mediafolder, "box2dfront");
+            var logofolder = Path.Combine(mediafolder, "wheel");
+            var videofolder = Path.Combine(mediafolder, "videos");
+            var bannerfolder = Path.Combine(mediafolder, "fanart");
+            var artworkfolder = Path.Combine(mediafolder, "screenshot");
+            if (Directory.Exists(coverfolder))
+            {
+                var mediafile = Path.Combine(coverfolder,$"{Path.GetFileNameWithoutExtension(item.Path)}.jpg");
+                if (!File.Exists(mediafile)) { mediafile = Path.Combine(coverfolder, $"{Path.GetFileNameWithoutExtension(item.Path)}.png"); }
+                if (File.Exists(mediafile)) 
+                {
+                    item.Cover = mediafile;
+                }
+            }
+            if (Directory.Exists(logofolder))
+            {
+                var mediafile = Path.Combine(logofolder, $"{Path.GetFileNameWithoutExtension(item.Path)}.png");
+                if (File.Exists(mediafile))
+                {
+                    item.Logo = mediafile;
+                }
+            }
+            if (Directory.Exists(videofolder))
+            {
+                var mediafile = Path.Combine(videofolder, $"{Path.GetFileNameWithoutExtension(item.Path)}.mp4");
+                if (File.Exists(mediafile))
+                {
+                    item.Video = mediafile;
+                }
+            }
+            if (Directory.Exists(bannerfolder))
+            {
+                var mediafile = Path.Combine(bannerfolder, $"{Path.GetFileNameWithoutExtension(item.Path)}.jpg");
+                if (!File.Exists(mediafile)) { mediafile = Path.Combine(bannerfolder, $"{Path.GetFileNameWithoutExtension(item.Path)}.png"); }
+                if (File.Exists(mediafile))
+                {
+                    item.Banner = mediafile;
+                }
+            }
+            if (Directory.Exists(artworkfolder))
+            {
+                var mediafile = Path.Combine(artworkfolder, $"{Path.GetFileNameWithoutExtension(item.Path)}.jpg");
+                if (!File.Exists(mediafile)) { mediafile = Path.Combine(artworkfolder, $"{Path.GetFileNameWithoutExtension(item.Path)}.png"); }
+                if (File.Exists(mediafile))
+                {
+                    item.Artwork = mediafile;
+                }
+            }
+            SendNotification(MsgCategory.Info, $"Fin de la Recherche de media locaux pour {item.Name}", $"Fin de la Recherche de media locaux pour {item.Name} avec l'arborescence d'EmulationStation");
+        }
+    }
+
     private Jeux GetSSCPGame(Item item)
     {
         var sscpgames = _screenscraperService.SearchGameByFileName(item.Path);
@@ -126,9 +217,13 @@ public class EmulateurService : BaseService, IEmulateurService
     private void GetSSCPLogo(Item item, Jeux game)
     {
         item.Logo = game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "fr")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "fr")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "eu")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "eu")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "ss")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "ss")?.url ??
                         game.medias.FirstOrDefault(x => x.type == "wheel-hd" && x.region == "wor")?.url ??
+                        game.medias.FirstOrDefault(x => x.type == "wheel" && x.region == "wor")?.url ??
                         string.Empty;
     }
     private void GetSSCPCover(Item item, Jeux game)
@@ -156,41 +251,62 @@ public class EmulateurService : BaseService, IEmulateurService
     }
     private void GetSGDBCover(Item item)
     {
-        var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
-        if (sgdbsearch != null)
+        try
         {
-            var sgdbfirstgame = sgdbsearch.First();
-            if (sgdbfirstgame != null)
+            var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
+            if (sgdbsearch != null)
             {
-                var heroes = _steangriddbService.GetGridBoxartForId(sgdbfirstgame.id);
-                item.Cover = heroes.First().url;
+                var sgdbfirstgame = sgdbsearch.First();
+                if (sgdbfirstgame != null)
+                {
+                    var heroes = _steangriddbService.GetGridBoxartForId(sgdbfirstgame.id);
+                    item.Cover = heroes.First().url;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            //throw;
         }
     }
     private void GetSGDBLogo(Item item)
     {
-        var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
-        if (sgdbsearch != null)
+        try
         {
-            var sgdbfirstgame = sgdbsearch.First();
-            if (sgdbfirstgame != null)
+            var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
+            if (sgdbsearch != null)
             {
-                var heroes = _steangriddbService.GetLogoForId(sgdbfirstgame.id);
-                item.Logo = heroes.First().url;
+                var sgdbfirstgame = sgdbsearch.First();
+                if (sgdbfirstgame != null)
+                {
+                    var heroes = _steangriddbService.GetLogoForId(sgdbfirstgame.id);
+                    item.Logo = heroes.First().url;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            //throw;
         }
     }
     private void GetSGDBHeroes(Item item)
     {
-        var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
-        if (sgdbsearch != null)
+        try
         {
-            var sgdbfirstgame = sgdbsearch.First();
-            if (sgdbfirstgame != null)
+            var sgdbsearch = _steangriddbService.SearchByName(item.SearchName);
+            if (sgdbsearch != null)
             {
-                var heroes = _steangriddbService.GetHeroesForId(sgdbfirstgame.id);
-                item.Banner = heroes.First().url;
+                var sgdbfirstgame = sgdbsearch.First();
+                if (sgdbfirstgame != null)
+                {
+                    var heroes = _steangriddbService.GetHeroesForId(sgdbfirstgame.id);
+                    item.Banner = heroes.First().url;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            //throw;
         }
     }
     private void GetIGDBCover(Item item)
@@ -258,7 +374,6 @@ public class EmulateurService : BaseService, IEmulateurService
                 foreach (var editeur in editeurs)
                     _editeurService.AddEditeurToItem(editeur.name, item, _dbContext);
                 _dbContext.Items.Update(item);
-                _dbContext.SaveChanges();
             }
         }
     }
@@ -297,14 +412,12 @@ public class EmulateurService : BaseService, IEmulateurService
             item.Genres = new List<ItemGenre>();
             item.Develloppeurs = new List<ItemDev>();
             item.Editeurs = new List<ItemEditeur>();
-            _dbContext.Items.Add(item);
             var genres = game.genres.SelectMany(x => x.noms).Where(x => x.langue == "fr");
             foreach (var genre in genres)
                 _genreService.AddGenreToItem(genre.text, item, _dbContext);
             _devService.AddDevToItem(game.developpeur.text, item, _dbContext);
             _editeurService.AddEditeurToItem(game.editeur.text, item, _dbContext);
             _dbContext.Items.Update(item);
-            _dbContext.SaveChanges();
         }
     }
     public static DateTime ParseDate(string dateString)
@@ -391,15 +504,17 @@ public class EmulateurService : BaseService, IEmulateurService
                     {
                         profile.StartupExecutable = file;
                         profile.IsLocal = true;
+                        _dbContext.Profiles.Update(profile);
+                        _dbContext.SaveChanges(true);
                     }
                 }
-                else
+                else if (profile.ProfileFiles == null || !profile.ProfileFiles.Any())
                 {
                     profile.StartupExecutable = file;
                     profile.IsLocal = true;
+                    _dbContext.Profiles.Update(profile);
+                    _dbContext.SaveChanges(true);
                 }
-                _dbContext.Profiles.Update(profile);
-                _dbContext.SaveChanges(true);
                 var emu = _dbContext.Emulateurs.FirstOrDefault(x => x.Id == profile.LUEmulateurId);
                 if (emu != null)
                 {
@@ -423,7 +538,6 @@ public class EmulateurService : BaseService, IEmulateurService
                 yield return item;
         }
     }
-
     private void CreateEmuAsItem(LUEmulateur emu, LUProfile profile, GameLauncherContext dbContext)
     {
         if (!_dbContext.Items.Any(x => x.Name == emu.Name))
@@ -478,7 +592,6 @@ public class EmulateurService : BaseService, IEmulateurService
             dbContext.SaveChanges();
         }
     }
-
     public async IAsyncEnumerable<LUEmulateur> RecursiveScanAsync(string directoryPath)
     {
         // Get all files in the current directory and add them to the database

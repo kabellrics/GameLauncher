@@ -65,6 +65,8 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
     }
     private async Task InitializeData(IAsyncEnumerable<ObservableItem> asyncitems)
     {
+        Source.Clear();
+        GroupedItems.Clear();
         var dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
         await Task.Run(async () =>
         {

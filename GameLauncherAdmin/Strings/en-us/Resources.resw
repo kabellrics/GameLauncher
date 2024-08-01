@@ -124,4 +124,10 @@
   <data name="Shell_VideoIntro.Content" xml:space="preserve">
     <value>VideoIntro</value>
   </data>
+  <data name="Shell_Preview.Content" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="Shell_PreviewItem.Content" xml:space="preserve">
+    <value>PreviewItem</value>
+  </data>
 </root>

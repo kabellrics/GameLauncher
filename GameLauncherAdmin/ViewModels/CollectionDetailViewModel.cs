@@ -68,13 +68,16 @@ public partial class CollectionDetailViewModel : ObservableRecipient, INavigatio
         await foreach (var item in _itemProvider.GetAllItemsStream())
         {
             if (!ItemCollections.Any(x => x.Id == item.Id))
+            {
+                if(item.Item.LUPlatformesId != "emulator")
                 AddingCollections.Add(item);
+            }
         }
     }
 
     public void AddToCollec(IEnumerable<ObservableItem> items)
     {
-        var order = ItemCollections.Max(x => x.Order);
+        var order = ItemCollections.Any() ? ItemCollections.Max(x => x.Order) : 0;
         foreach (var item in items)
         {
             CollectionItem collecitem = new CollectionItem() { ID = Guid.NewGuid(), CollectionID = Collection.Id, ItemID = item.Id, Order = order++ };

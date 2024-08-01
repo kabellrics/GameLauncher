@@ -13,4 +13,7 @@ public interface ICollectionService
     bool DelteCollectionItem(Guid id);
     bool DelteCollection(Guid id);
     void CreateCollection(Collection collec);
+    DefaultCollectionMessage GetDefaultCollectionStatus();
+    DefaultCollectionMessage CreateDefaultColection(DefaultCollectionMessage collectionMessage);
+    List<String> GetPredefineCollection();
 }

@@ -6,6 +6,7 @@ using GameLauncherAdmin.ViewModels;
 
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.Storage.Pickers;
 
 namespace GameLauncherAdmin.Views;
 
@@ -19,7 +20,35 @@ public sealed partial class BibliothequeDetailPage : Page
     public BibliothequeDetailPage()
     {
         ViewModel = App.GetService<BibliothequeDetailViewModel>();
+        this.Unloaded += BibliothequeDetailPage_Unloaded;
         InitializeComponent();
+    }
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        try
+        {
+            var player = this.videoassetplayer;
+            player.MediaPlayer.Pause();
+            player.MediaPlayer.Dispose();
+        }
+        catch (Exception ex)
+        {
+            //throw;
+        }
+    }
+    private void BibliothequeDetailPage_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        try
+        {
+            var player = this.videoassetplayer;
+            player.MediaPlayer.Pause();
+            player.MediaPlayer.Dispose();
+        }
+        catch (Exception ex)
+        {
+            //throw;
+        }
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -82,5 +111,98 @@ public sealed partial class BibliothequeDetailPage : Page
         var list = (ListView)sender;
         var url = list.SelectedItem.ToString();
         ViewModel.Item.Banner = url;
+    }
+
+    private void videoassetplayer_LostFocus(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        try
+        {
+            var player = sender as MediaPlayerElement;
+            player.MediaPlayer.Pause();
+            player.MediaPlayer.Dispose();
+        }
+        catch (Exception ex)
+        {
+            //throw;
+        }
+    }
+
+    private async void PickLocalCover(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var Picker = new FileOpenPicker();
+        var window = App.MainWindow;
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        WinRT.Interop.InitializeWithWindow.Initialize(Picker, hWnd);
+        Picker.ViewMode = PickerViewMode.Thumbnail;
+        Picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+        Picker.FileTypeFilter.Add(".png");
+        Picker.FileTypeFilter.Add(".jpg");
+        Picker.FileTypeFilter.Add(".jpeg");
+        var file = await Picker.PickSingleFileAsync();
+        if (file != null)
+            ViewModel.Item.Cover = file.Path;
+    }
+
+    private async void PickLocalLogo(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+
+        var Picker = new FileOpenPicker();
+        var window = App.MainWindow;
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        WinRT.Interop.InitializeWithWindow.Initialize(Picker, hWnd);
+        Picker.ViewMode = PickerViewMode.Thumbnail;
+        Picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+        Picker.FileTypeFilter.Add(".png");
+        var file = await Picker.PickSingleFileAsync();
+        if (file != null)
+            ViewModel.Item.Logo = file.Path;
+    }
+
+    private async void PickLocalArtwork(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+
+        var Picker = new FileOpenPicker();
+        var window = App.MainWindow;
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        WinRT.Interop.InitializeWithWindow.Initialize(Picker, hWnd);
+        Picker.ViewMode = PickerViewMode.Thumbnail;
+        Picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+        Picker.FileTypeFilter.Add(".png");
+        Picker.FileTypeFilter.Add(".jpg");
+        Picker.FileTypeFilter.Add(".jpeg");
+        var file = await Picker.PickSingleFileAsync();
+        if (file != null)
+            ViewModel.Item.Artwork = file.Path;
+    }
+
+    private async void PickLocalVideo(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+
+        var Picker = new FileOpenPicker();
+        var window = App.MainWindow;
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        WinRT.Interop.InitializeWithWindow.Initialize(Picker, hWnd);
+        Picker.ViewMode = PickerViewMode.Thumbnail;
+        Picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
+        Picker.FileTypeFilter.Add(".mp4");
+        var file = await Picker.PickSingleFileAsync();
+        if (file != null)
+            ViewModel.Item.Video = file.Path;
+    }
+
+    private async void PickLocalBanner(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var Picker = new FileOpenPicker();
+        var window = App.MainWindow;
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        WinRT.Interop.InitializeWithWindow.Initialize(Picker, hWnd);
+        Picker.ViewMode = PickerViewMode.Thumbnail;
+        Picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+        Picker.FileTypeFilter.Add(".png");
+        Picker.FileTypeFilter.Add(".jpg");
+        Picker.FileTypeFilter.Add(".jpeg");
+        var file = await Picker.PickSingleFileAsync();
+        if (file != null)
+            ViewModel.Item.Banner = file.Path;
     }
 }

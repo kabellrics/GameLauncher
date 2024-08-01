@@ -55,6 +55,37 @@
             <StackPanel Orientation="Vertical">
                 <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Center"
                         Content="Générer des Collections pour toutes les Plateformes" Command="{x:Bind ViewModel.CreateCollectionForPlateformeCommand}"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Ajouter les Collections Standards" Style="{StaticResource TitleTextBlockStyle}"/>
+                    <StackPanel Orientation="Vertical" Grid.Row="1">
+                        <CheckBox Content="Tous les Jeux" IsChecked="{x:Bind ViewModel.HaveCollecAllGames,Mode=TwoWay}" Margin="24,0,0,0" />
+                        <CheckBox Content="Favoris" IsChecked="{x:Bind ViewModel.HaveCollecFavorite,Mode=TwoWay}" Margin="24,0,0,0" />
+                        <CheckBox Content="Jeux jamais joués" IsChecked="{x:Bind ViewModel.HaveCollecNeverPlayed,Mode=TwoWay}" Margin="24,0,0,0" />
+                        <CheckBox Content="Derniers Jeux joués" IsChecked="{x:Bind ViewModel.HaveCollecLastPlayed,Mode=TwoWay}" Margin="24,0,0,0" />
+                        <CheckBox Content="Emulateurs" IsChecked="{x:Bind ViewModel.HaveCollecEmulator,Mode=TwoWay}" Margin="24,0,0,0" />
+                    </StackPanel>
+                    <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Right" Grid.Row="2"
+                        Content="Confirmer" Command="{x:Bind ViewModel.GenerateDefaultCollectionCommand}"/>
+                </Grid>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Créer une nouvelle Collection à partir d'assets prédéfini" Style="{StaticResource SubheaderTextBlockStyle}"/>
+                    <AutoSuggestBox Grid.Row="1" QueryIcon="Find" TextChanged="AutoSuggestBox_TextChanged"
+                                    SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+                                    ItemsSource="{x:Bind ViewModel.SourcePredefinePlaylistFiltered,Mode=OneWay}"
+                                    Text="{x:Bind ViewModel.PredefineSearchValue,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></AutoSuggestBox>
+                    <Button Style="{StaticResource ButtonRevealStyle}" HorizontalAlignment="Right" Grid.Row="2"
+                        Content="Créer cette Collection" Command="{x:Bind ViewModel.GeneratePredefineCollectionCommand}"/>
+                </Grid>
                 <Expander Background="Transparent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                           IsExpanded="{x:Bind ViewModel.ShowCreateCollection,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                     <Expander.HeaderTemplate>

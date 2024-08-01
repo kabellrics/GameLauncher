@@ -82,6 +82,10 @@ public partial class App : Application
             services.AddSingleton<IEmulateurProvider, EmulateurProvider>();
 
             // Views and ViewModels
+            services.AddTransient<PreviewItemViewModel>();
+            services.AddTransient<PreviewItemPage>();
+            services.AddTransient<PreviewViewModel>();
+            services.AddTransient<PreviewPage>();
             services.AddTransient<VideoIntroViewModel>();
             services.AddTransient<VideoIntroPage>();
             services.AddTransient<CollectionDetailViewModel>();

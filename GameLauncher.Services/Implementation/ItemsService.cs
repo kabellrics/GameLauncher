@@ -25,7 +25,14 @@ public class ItemsService : BaseService, IItemsService
     }
     public IAsyncEnumerable<Item> GetAllAsync()
     {
-        return _dbContext.Items.OrderBy(x=>x.LUPlatformesId).ThenBy(x=>x.Name).AsAsyncEnumerable();
+        var items = _dbContext.Items.OrderBy(x=>x.LUPlatformesId).ThenBy(x=>x.Name).AsAsyncEnumerable();
+        return items;
+    }
+    public Item Insert(Item item)
+    {
+        _dbContext.Items.Add(item);
+        _dbContext.SaveChanges();
+        return item;
     }
     public void UpdateItem(Item updateditem)
     {

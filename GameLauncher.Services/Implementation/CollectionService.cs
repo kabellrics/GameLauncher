@@ -72,8 +72,10 @@ public class CollectionService : BaseService, ICollectionService
     }
     public void CreateCollection(Collection collec)
     {
-        collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
-        collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
+        if(string.IsNullOrEmpty(collec.Fanart))
+            collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
+        if (string.IsNullOrEmpty(collec.Logo))
+            collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
         _dbContext.Collections.Add(collec);
         _dbContext.SaveChanges(true);
         SendNotification(MsgCategory.Create, "Collection ajouté", $"Ajout de {collec.Name}");
@@ -101,7 +103,7 @@ public class CollectionService : BaseService, ICollectionService
         }
 
         _dbContext.SaveChanges();
-        SendNotification(MsgCategory.Update,"Collection Item MAJ", "Collection Item mis à jour");
+        SendNotification(MsgCategory.Update, "Collection Item MAJ", "Collection Item mis à jour");
     }
     public void Update(Collection updatedcollection)
     {
@@ -120,11 +122,80 @@ public class CollectionService : BaseService, ICollectionService
             //notifService.SendMessage(new NotificationMessage { Type = MsgType.NeedUpdate, Message = "Collection mis à jour" });
         }
     }
+    public DefaultCollectionMessage GetDefaultCollectionStatus()
+    {
+        DefaultCollectionMessage reponse = new DefaultCollectionMessage();
+        reponse.CollecEmulator = _dbContext.Collections.Any(x => x.CodeName == "emulator");
+        reponse.CollecAllGames = _dbContext.Collections.Any(x => x.CodeName == "auto-allgames");
+        reponse.CollecFavorite = _dbContext.Collections.Any(x => x.CodeName == "auto-favorites");
+        reponse.CollecNeverPlayed = _dbContext.Collections.Any(x => x.CodeName == "auto-neverplayed");
+        reponse.CollecLastPlayed = _dbContext.Collections.Any(x => x.CodeName == "auto-lastplayed");
+        return reponse;
+    }
+    public DefaultCollectionMessage CreateDefaultColection(DefaultCollectionMessage collectionMessage)
+    {
+        if (collectionMessage != null)
+        {
+            try
+            {
+                var plateformeOrder = 0;
+                try
+                {
+                    plateformeOrder = _dbContext.Collections.Max(x => x.Order);
+                }
+                catch (Exception ex)
+                {
+                    //throw;
+                }
+                var collectionsData = new Dictionary<string, (bool IsPresent, string CodeName)>
+        {
+            { "Emulateurs",(collectionMessage.CollecEmulator, "emulator") },
+            { "Tous les Jeux",(collectionMessage.CollecAllGames, "auto-allgames") },
+            { "Favoris",(collectionMessage.CollecFavorite, "auto-favorites") },
+            { "Jamais Joués",(collectionMessage.CollecNeverPlayed, "auto-neverplayed") },
+            { "Joués Recemment",(collectionMessage.CollecLastPlayed, "auto-lastplayed") },
+        };
 
+                foreach (var entry in collectionsData)
+                {
+                    if (entry.Value.IsPresent)
+                    {
+                        var collec = new Collection
+                        {
+                            Name = entry.Key,
+                            CodeName = entry.Value.CodeName,
+                            Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{entry.Value.CodeName}.jpg"),
+                            Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{entry.Value.CodeName}.png"),
+                            Order = plateformeOrder++
+                        };
+                        _dbContext.Collections.Add(collec);
+                        SendNotification(MsgCategory.Create, $"Collection {collec.Name}", $"Collection {collec.Name} ajouté");
+                    }
+                    else
+                    {
+                        var todeletecollec = _dbContext.Collections.FirstOrDefault(x => x.CodeName == entry.Value.CodeName);
+                        if (todeletecollec != null)
+                        {
+                            _dbContext.CollectiondItems.RemoveRange(_dbContext.CollectiondItems.Where(x => x.CollectionID == todeletecollec.ID));
+                            _dbContext.Collections.Remove(todeletecollec);
+                            SendNotification(MsgCategory.Delete, "Collection supprimé", $"Suppression de {todeletecollec.Name}");
+                        }
+                    }
+                }
+                _dbContext.SaveChanges();
+                SendNotification(MsgCategory.EndTask, $"Fin de Tache", $"Fin de la Creation automatique des Collections par default");
+            }
+            catch (Exception ex)
+            {
+                //throw;
+            }
+        }
+        return GetDefaultCollectionStatus();
+    }
     public void CreateCollectionFromPlateforme()
     {
-        var distinctplateforme = _dbContext.Items.GroupBy(x=>x.LUPlatformesId).Select(grp => grp.First().LUPlatformesId).ToList();
-        var plateformes = _dbContext.Platformes.Where(x => distinctplateforme.Contains(x.Codename));
+        var distinctplateforme = _dbContext.Items.GroupBy(x => x.LUPlatformesId).Select(grp => grp.First().LUPlatformesId).ToList();
+        var plateformes = _dbContext.Platformes.Where(x => distinctplateforme.Contains(x.Codename) && x.Codename != "emulator");
         int plateformeOrder = 1;
         foreach (var itemplateform in plateformes.OrderBy(x => x.Name))
         {
@@ -166,5 +237,11 @@ public class CollectionService : BaseService, ICollectionService
         _dbContext.SaveChanges();
         SendNotification(MsgCategory.EndTask, $"Fin de Tache", $"Fin de la Creation automatique de Collection à partir des plateformes");
         //_notifService.Clients.All.SendMessage(new NotificationMessage { Type = MsgCategory.Create, MessageTitle = "Collection ajouté" });
+    }
+    public List<String> GetPredefineCollection()
+    {
+        var playlistAssetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Playlists", "Clear Logo");
+        var files = Directory.GetFiles(playlistAssetPath, "*.png");
+        return files.Select(x=> Path.GetFileNameWithoutExtension(x)).ToList();
     }
 }
