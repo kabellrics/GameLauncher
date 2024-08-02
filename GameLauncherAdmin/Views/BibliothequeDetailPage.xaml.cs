@@ -20,36 +20,23 @@ public sealed partial class BibliothequeDetailPage : Page
     public BibliothequeDetailPage()
     {
         ViewModel = App.GetService<BibliothequeDetailViewModel>();
-        this.Unloaded += BibliothequeDetailPage_Unloaded;
         InitializeComponent();
     }
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
-    {
-        base.OnNavigatedFrom(e);
-        try
-        {
-            var player = this.videoassetplayer;
-            player.MediaPlayer.Pause();
-            player.MediaPlayer.Dispose();
-        }
-        catch (Exception ex)
-        {
-            //throw;
-        }
-    }
-    private void BibliothequeDetailPage_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        try
-        {
-            var player = this.videoassetplayer;
-            player.MediaPlayer.Pause();
-            player.MediaPlayer.Dispose();
-        }
-        catch (Exception ex)
-        {
-            //throw;
-        }
-    }
+    //protected override void OnNavigatedFrom(NavigationEventArgs e)
+    //{
+    //    base.OnNavigatedFrom(e);
+    //    try
+    //    {
+    //        var player = this.videoassetplayer;
+    //        player.MediaPlayer.Pause();
+    //        player.MediaPlayer.Source = null;
+    //        player.MediaPlayer.Dispose();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        //throw;
+    //    }
+    //}
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
@@ -119,7 +106,7 @@ public sealed partial class BibliothequeDetailPage : Page
         {
             var player = sender as MediaPlayerElement;
             player.MediaPlayer.Pause();
-            player.MediaPlayer.Dispose();
+            //player.MediaPlayer.Dispose();
         }
         catch (Exception ex)
         {

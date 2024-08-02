@@ -1,4 +1,5 @@
-﻿using GameLauncherAdmin.ViewModels;
+﻿using GameLauncher.ObservableObjet;
+using GameLauncherAdmin.ViewModels;
 
 using Microsoft.UI.Xaml.Controls;
 
@@ -15,5 +16,11 @@ public sealed partial class BibliothequePage : Page
     {
         ViewModel = App.GetService<BibliothequeViewModel>();
         InitializeComponent();
+    }
+
+    private void Button_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var deletinglist = itemslist.SelectedItems as List<ObservableItem>;
+        ViewModel.DeleteItems(deletinglist);
     }
 }

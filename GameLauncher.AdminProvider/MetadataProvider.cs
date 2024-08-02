@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -259,13 +260,23 @@ public class MetadataProvider : IMetadataProvider
                     game.noms.FirstOrDefault(x => x.region == "ss")?.text ??
                     game.noms.FirstOrDefault(x => x.region == "eu")?.text ??
                     game.noms.FirstOrDefault(x => x.region == "fr")?.text;
-        item.Description = game.synopsis.FirstOrDefault(x => x.langue == "fr")?.text ?? game.synopsis.FirstOrDefault()?.text ?? string.Empty;
-        var stringdate = game.dates.FirstOrDefault(x => x.region == "fr")?.text ??
-                         game.dates.FirstOrDefault(x => x.region == "eu")?.text ??
-                         game.dates.FirstOrDefault(x => x.region == "ss")?.text ??
-                         game.dates.FirstOrDefault(x => x.region == "wor")?.text ?? string.Empty;
+        if (game.synopsis != null)
+        {
+            item.Description = game?.synopsis.FirstOrDefault(x => x.langue == "fr")?.text ?? game.synopsis.FirstOrDefault()?.text ?? string.Empty;
+        }
+        else
+            item.Description = string.Empty;
+        string stringdate;
+        if (game.dates != null)
+        {
+            stringdate = game.dates.FirstOrDefault(x => x.region == "fr")?.text ??
+                     game.dates.FirstOrDefault(x => x.region == "eu")?.text ??
+                     game.dates.FirstOrDefault(x => x.region == "ss")?.text ??
+                     game.dates.FirstOrDefault(x => x.region == "wor")?.text ?? string.Empty; 
+        }else
+            stringdate = string.Empty;
         if (!string.IsNullOrEmpty(stringdate))
-            item.ReleaseDate = DateTime.Parse(stringdate);
+            item.ReleaseDate = ParseDate(stringdate);
         item.Video = game.medias.FirstOrDefault(x => x.type == "video")?.url ?? string.Empty;
         item.Artwork = game.medias.FirstOrDefault(x => x.type == "fanart")?.url ?? string.Empty;
         item.Cover = game.medias.FirstOrDefault(x => x.type == "box-2D" && x.region == "fr")?.url ??
@@ -283,14 +294,39 @@ public class MetadataProvider : IMetadataProvider
         //foreach (var genre in genres)
         //obsItem.Genres.Add(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text, Items = new List<Item>()  });
         obsItem.Genres = new ObservableCollection<ObservableGenre>();
-        var genres = game.genres.SelectMany(x => x.noms).Where(x => x.langue == "fr");
-        foreach (var genre in genres)
-            obsItem.Genres.Add(new ObservableGenre(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text }));
+        if (game.genres != null)
+        {
+            var genres = game?.genres.SelectMany(x => x.noms).Where(x => x.langue == "fr");
+            foreach (var genre in genres)
+                obsItem.Genres.Add(new ObservableGenre(new Models.Genre() { ID = Guid.NewGuid(), Name = genre.text })); 
+        }
         obsItem.Develloppeurs = new ObservableCollection<ObservableDevelloppeur>();// { new Develloppeur { ID = Guid.NewGuid(), Name = game.developpeur.text } };
-        obsItem.Develloppeurs.Add(new ObservableDevelloppeur(new Develloppeur { ID = Guid.NewGuid(), Name = game.developpeur.text }));
+        obsItem.Develloppeurs.Add(new ObservableDevelloppeur(new Develloppeur { ID = Guid.NewGuid(), Name = game?.developpeur?.text ?? string.Empty }));
         obsItem.Editeurs = new ObservableCollection<ObservableEditeur>();// { new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text, Items = new List<Item>() } };
-        obsItem.Editeurs.Add(new ObservableEditeur(new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text }));
+        obsItem.Editeurs.Add(new ObservableEditeur(new Models.Editeur { ID = Guid.NewGuid(), Name = game?.editeur?.text ?? string.Empty }));
         return obsItem;
     }
 
+    public static DateTime ParseDate(string dateString)
+    {
+        DateTime dateValue;
+        var formats = new[] { "yyyy-MM-dd", "yyyy/MM/dd", "yyyy-MM", "yyyy/MM", "yyyy" };
+        var culture = CultureInfo.InvariantCulture;
+        var style = DateTimeStyles.None;
+
+        foreach (var format in formats)
+        {
+            if (DateTime.TryParseExact(dateString, format, culture, style, out dateValue))
+            {
+                // If only the year is provided, set it to the first day of the year
+                if (format == "yyyy")
+                {
+                    dateValue = new DateTime(dateValue.Year, 1, 1);
+                }
+                return dateValue;
+            }
+        }
+
+        throw new FormatException("The date string is not in a recognized format.");
+    }
 }

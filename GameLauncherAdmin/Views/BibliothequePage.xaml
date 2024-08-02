@@ -26,18 +26,25 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource HeaderTextBlockStyle}" Text="Liste des Items"/>
-        <Button Grid.Column="1" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}">
+        <Button Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Click="Button_Click">
+            <StackPanel Orientation="Horizontal">
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
+                <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Supprimer les Items sélectionnés"/>
+            </StackPanel>
+        </Button>
+        <Button Grid.Column="2" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}" HorizontalAlignment="Right">
             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
         </Button>
         <!--ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"-->
-        <controls:AdaptiveGridView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+        <controls:AdaptiveGridView x:Name="itemslist" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
             animations:Connected.ListItemElementName="itemThumbnail"
             animations:Connected.ListItemKey="animationKeyContentGrid"
-            ItemsSource="{x:Bind ItemsViewSource.View,Mode=OneWay}"
+            ItemsSource="{x:Bind ItemsViewSource.View,Mode=OneWay}" HorizontalAlignment="Stretch"
             DesiredWidth="200"
             ItemHeight="360"
             IsItemClickEnabled="True"

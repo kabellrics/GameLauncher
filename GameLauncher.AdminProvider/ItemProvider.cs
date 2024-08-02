@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 using GameLauncher.AdminProvider.Interface;
 using GameLauncher.Connector;
 using GameLauncher.Models;
+using GameLauncher.Models.APIObject;
 using GameLauncher.ObservableObjet;
+using Newtonsoft.Json;
+using RestSharp;
 
 namespace GameLauncher.AdminProvider
 {
@@ -19,6 +22,10 @@ namespace GameLauncher.AdminProvider
         {
             apiconnector = new GameLauncherClient("https://localhost:7197");
             lookconnector = new LookupConnector("https://localhost:7197");
+        }
+        public async Task<StatsObject> GetStatsAsync()
+        {
+            return await apiconnector.GetStatsAsync();
         }
         public async IAsyncEnumerable<ObservableItem> GetAllItemsStream()
         {
@@ -112,6 +119,10 @@ namespace GameLauncher.AdminProvider
         public async Task UpdatesEditsForItem(Item item, List<Editeur> newEdits)
         {
             await apiconnector.UpdateEditForItem(item, newEdits);
+        }
+        public async Task DeleteItem(Guid id)
+        {
+            await apiconnector.DeleteItem(id);
         }
     }
 }

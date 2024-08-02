@@ -84,7 +84,12 @@ public partial class BibliothequeViewModel : ObservableRecipient, INavigationAwa
     public void OnNavigatedFrom()
     {
     }
-
+    public async void DeleteItems(IEnumerable<ObservableItem> items)
+    {
+        foreach (var item in items)
+            await _itemProvider.DeleteItem(item.Id);
+        Refresh();
+    }
     [RelayCommand]
     private void OnItemClick(ObservableItem? clickedItem)
     {

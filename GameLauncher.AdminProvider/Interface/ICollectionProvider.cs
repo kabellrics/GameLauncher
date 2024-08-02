@@ -20,5 +20,7 @@ public interface ICollectionProvider
     Task DeleteCollection(Guid id);
     Task<DefaultCollectionMessage> GetDefaultCollectionStatus();
     Task<DefaultCollectionMessage> CreateDefaultCollection(DefaultCollectionMessage collectionMessage);
-    
+    Task<IEnumerable<FullCollectionItem>> GetFullCollection();
+
+
 }

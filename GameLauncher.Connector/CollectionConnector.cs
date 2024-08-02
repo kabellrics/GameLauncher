@@ -36,6 +36,22 @@ public class CollectionConnector
             return new List<Collection>();
         }
     }
+    public async Task<IEnumerable<FullCollectionItem>> GetFullCollection()
+    {
+        var request = new RestRequest("/api/Collection/GetFullCollection", Method.Get);
+        var response = await _client.ExecuteAsync(request);
+
+        if (response.IsSuccessful)
+        {
+            Console.WriteLine("Items: " + response.Content);
+            return JsonConvert.DeserializeObject<IEnumerable<FullCollectionItem>>(response.Content);
+        }
+        else
+        {
+            Console.WriteLine("Error: " + response.ErrorMessage);
+            return new List<FullCollectionItem>();
+        }
+    }
     public async Task<IEnumerable<String>> GetPredefineCollection()
     {
         var request = new RestRequest("/api/Collection/GetPredefineCollection", Method.Get);

@@ -7,4 +7,5 @@ public interface IItemsService
     void UpdateItem(Item item);
     Item Insert(Item item);
     IAsyncEnumerable<Item> GetAllAsync();
+    void DeleteItem(Guid id);
 }

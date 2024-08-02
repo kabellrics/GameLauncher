@@ -31,6 +31,10 @@ public class CollectionProvider : ICollectionProvider
     {
         return await colectionconnector.GetPredefineCollection();
     }
+    public async Task<IEnumerable<FullCollectionItem>> GetFullCollection()
+    {
+        return await colectionconnector.GetFullCollection();
+    }
     public async Task<IEnumerable<ObsCollection>> GetCollectionsAsync()
     {
         var collecs = await colectionconnector.GetCollectionsAsync();

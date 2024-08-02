@@ -16,4 +16,5 @@ public interface ICollectionService
     DefaultCollectionMessage GetDefaultCollectionStatus();
     DefaultCollectionMessage CreateDefaultColection(DefaultCollectionMessage collectionMessage);
     List<String> GetPredefineCollection();
+    Task<IEnumerable<FullCollectionItem>> GetAllFull();
 }

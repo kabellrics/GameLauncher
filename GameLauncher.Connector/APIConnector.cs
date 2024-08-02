@@ -38,6 +38,21 @@ namespace GameLauncher.Connector
                 return new List<Item>();
             }
         }
+        // Méthode pour obtenir des stats
+        public async Task<StatsObject> GetStatsAsync()
+        {
+            var request = new RestRequest("/api/Statistique", Method.Get);
+            var response = await _client.ExecuteAsync(request);
+
+            if (response.IsSuccessful)
+            {
+                return JsonConvert.DeserializeObject<StatsObject>(response.Content);
+            }
+            else
+            {
+                return new StatsObject();
+            }
+        }
         // Méthode pour obtenir des items
         public async IAsyncEnumerable<Item> GetItemsStreamAsync()
         {
@@ -152,6 +167,15 @@ namespace GameLauncher.Connector
             var request = new RestRequest($"/api/Editeurs/ChangeEditeurForItem", Method.Post);
             var itemmessage = new UpdateEditeurMessage() { newEditeurs = newEdits, Item = item };
             request.AddJsonBody(itemmessage); var response = await _client.ExecuteAsync(request);
+            if (!response.IsSuccessful)
+            {
+                //throw new Exception("Update Failed");
+            }
+        }
+        public async Task DeleteItem(Guid id)
+        {
+            var request = new RestRequest($"/api/Items/{id}", Method.Delete);
+            var response = await _client.ExecuteAsync(request);
             if (!response.IsSuccessful)
             {
                 //throw new Exception("Update Failed");

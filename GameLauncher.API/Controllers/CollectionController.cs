@@ -33,6 +33,11 @@ public class CollectionController : ControllerBase
     {
         return Ok(_Service.GetDefaultCollectionStatus());
     }
+    [HttpGet("GetFullCollection")]
+    public async Task<ActionResult> GetFullColection()
+    {
+        return Ok(_Service.GetAllFull());
+    }
     [HttpGet("GetPredefineCollection")]
     public async Task<ActionResult> GetPredefineCollection()
     {

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using NexusMods.Paths;
 
 namespace GameLauncher.API.Controllers;
 [Route("api/[controller]")]
@@ -59,6 +60,21 @@ public class ItemsController : ControllerBase
         try
         {
             _itemService.UpdateItem(todoItem);
+            return Ok();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw;
+        }
+
+        return NoContent();
+    }
+    [HttpDelete("{id}")]
+    public ActionResult DeleteItem(Guid id)
+    {
+        try
+        {
+            _itemService.DeleteItem(id);
             return Ok();
         }
         catch (DbUpdateConcurrencyException)

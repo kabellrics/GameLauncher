@@ -114,12 +114,20 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
     private ICommand _chooseReconcileCommand;
     private ICommand _chooseReconcileMediaCommand;
     private ICommand _fullSaveCommand;
+    private ICommand _deleteCurrentCommand;
     private ICommand _refreshCommand;
     public ICommand RefreshCommand
     {
         get
         {
             return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh));
+        }
+    }
+    public ICommand DeleteCurrentCommand
+    {
+        get
+        {
+            return _deleteCurrentCommand ?? (_deleteCurrentCommand = new RelayCommand(DeleteCurrent));
         }
     }
 
@@ -309,6 +317,11 @@ public partial class BibliothequeDetailViewModel : ObservableRecipient, INavigat
         {
         }
 
+    }
+    public async void DeleteCurrent()
+    {
+        await _itemService.DeleteItem(Item.Id);
+        _navigationService.NavigateTo(typeof(BibliothequeViewModel).FullName!);
     }
     private void GetReconcileMediaChoice()
     {

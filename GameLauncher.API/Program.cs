@@ -31,6 +31,7 @@ public class Program
         builder.Services.AddScoped<IDevService, DevService>();
         builder.Services.AddScoped<ICollectionService, CollectionService>();
         builder.Services.AddScoped<IAssetDownloader, AssetDownloader>();
+        builder.Services.AddScoped<IStatService, StatService>();
         //builder.Services.AddScoped<INotificationService, NotificationService>();
         //builder.Services.AddScoped<INotificationService, SignalRNotificationHub>();
         builder.Services.AddScoped<IStartingService, StartingService>();
