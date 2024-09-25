@@ -13,7 +13,8 @@ using RestSharp;
 namespace GameLauncher.Services.Implementation;
 public class AssetDownloader : BaseService, IAssetDownloader
 {
-    public AssetDownloader(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    //public AssetDownloader(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    public AssetDownloader(GameLauncherContext dbContext) : base(dbContext)
     {
     }
     public async Task DownloadFile(string url, string targetPath)
@@ -38,6 +39,20 @@ public class AssetDownloader : BaseService, IAssetDownloader
         {
             Console.WriteLine("Échec du téléchargement. Statut: " + response.StatusCode);
             SendNotification(Models.APIObject.MsgCategory.Error, "Échec du téléchargement", response.ErrorMessage);
+        }
+    }
+    public async Task GetIntroVideo(string url, string targetPath)
+    {
+        try
+        {
+            if (File.Exists(url))
+                CopyFile(url, targetPath);
+            else
+                await DownloadFile(url, targetPath);
+        }
+        catch (Exception ex)
+        {
+            SendNotification(Models.APIObject.MsgCategory.Error, "Échec de la récupération", ex.Message);
         }
     }
     public void CopyFile(string url, string targetPath)

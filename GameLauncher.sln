@@ -10,23 +10,31 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncher.DAL", "GameLau
 		{86DD001A-4C43-42BB-86EF-4176B1E5DC90} = {86DD001A-4C43-42BB-86EF-4176B1E5DC90}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLauncher.API", "GameLauncher.API\GameLauncher.API.csproj", "{CAC77C58-5899-48EE-B5F8-AF4A2717DD74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncher.API", "GameLauncher.API\GameLauncher.API.csproj", "{CAC77C58-5899-48EE-B5F8-AF4A2717DD74}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6C00E673-8703-4ED0-BB2E-2E1DBA79E3AB} = {6C00E673-8703-4ED0-BB2E-2E1DBA79E3AB}
 		{86DD001A-4C43-42BB-86EF-4176B1E5DC90} = {86DD001A-4C43-42BB-86EF-4176B1E5DC90}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLauncher.Services", "GameLauncher.Services\GameLauncher.Services.csproj", "{8E517718-8455-4FC7-A998-B62E9AC2CD62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncher.Services", "GameLauncher.Services\GameLauncher.Services.csproj", "{8E517718-8455-4FC7-A998-B62E9AC2CD62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLauncher.Connector", "GameLauncher.Connector\GameLauncher.Connector.csproj", "{656B89A7-1EAF-4D99-8B53-4E9BE5EB2DE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncher.Connector", "GameLauncher.Connector\GameLauncher.Connector.csproj", "{656B89A7-1EAF-4D99-8B53-4E9BE5EB2DE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLauncher.ObservableObjet", "GameLauncher.ObservableObjet\GameLauncher.ObservableObjet.csproj", "{C2250F65-7360-46B2-9656-E14E642806AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncher.ObservableObjet", "GameLauncher.ObservableObjet\GameLauncher.ObservableObjet.csproj", "{C2250F65-7360-46B2-9656-E14E642806AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLauncher.AdminProvider", "GameLauncher.AdminProvider\GameLauncher.AdminProvider.csproj", "{45858CE7-8BE7-4546-95EA-E5D6BB22363D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncher.AdminProvider", "GameLauncher.AdminProvider\GameLauncher.AdminProvider.csproj", "{45858CE7-8BE7-4546-95EA-E5D6BB22363D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8E517718-8455-4FC7-A998-B62E9AC2CD62} = {8E517718-8455-4FC7-A998-B62E9AC2CD62}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncherAdmin", "GameLauncherAdmin\GameLauncherAdmin.csproj", "{5C989B47-9680-4971-8B2F-1E20ABD814A6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6C00E673-8703-4ED0-BB2E-2E1DBA79E3AB} = {6C00E673-8703-4ED0-BB2E-2E1DBA79E3AB}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncherAdmin.Core", "GameLauncherAdmin.Core\GameLauncherAdmin.Core.csproj", "{3F920CE5-9EEE-4A7E-8D82-276F8F43A738}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameLauncher.Front", "GameLauncher.Front\GameLauncher.Front.csproj", "{60E48E79-927A-44A7-B221-B8D1A201B11F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -192,6 +200,30 @@ Global
 		{3F920CE5-9EEE-4A7E-8D82-276F8F43A738}.Release|x64.Build.0 = Release|x64
 		{3F920CE5-9EEE-4A7E-8D82-276F8F43A738}.Release|x86.ActiveCfg = Release|x86
 		{3F920CE5-9EEE-4A7E-8D82-276F8F43A738}.Release|x86.Build.0 = Release|x86
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|Any CPU.Build.0 = Debug|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|arm64.ActiveCfg = Debug|arm64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|arm64.Build.0 = Debug|arm64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|arm64.Deploy.0 = Debug|arm64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|x64.ActiveCfg = Debug|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|x64.Build.0 = Debug|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|x64.Deploy.0 = Debug|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|x86.ActiveCfg = Debug|x86
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|x86.Build.0 = Debug|x86
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Debug|x86.Deploy.0 = Debug|x86
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|Any CPU.ActiveCfg = Release|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|Any CPU.Build.0 = Release|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|Any CPU.Deploy.0 = Release|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|arm64.ActiveCfg = Release|arm64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|arm64.Build.0 = Release|arm64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|arm64.Deploy.0 = Release|arm64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|x64.ActiveCfg = Release|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|x64.Build.0 = Release|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|x64.Deploy.0 = Release|x64
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|x86.ActiveCfg = Release|x86
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|x86.Build.0 = Release|x86
+		{60E48E79-927A-44A7-B221-B8D1A201B11F}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,9 +4,69 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helper="using:GameLauncherAdmin.Helpers"
+    xmlns:models="using:GameLauncher.ObservableObjet"
+    xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
+    <Page.Resources>
+        <helper:TimeConverter x:Key="TimeConverter"/>
+        <helper:StringToMediaSourceConverter x:Key="StringToMediaSourceConverter"/>
+    </Page.Resources>
 
     <Grid x:Name="ContentArea">
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource HeaderTextBlockStyle}" Text="Liste des Items"/>
+        <Button Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Click="Button_Click">
+            <StackPanel Orientation="Horizontal">
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE710;"/>
+                <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Ajouter Une Vidéo"/>
+            </StackPanel>
+        </Button>
+        <Button Grid.Column="2" Grid.Row="0" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
+                <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Supprimer les Items sélectionnés"/>
+            </StackPanel>
+        </Button>
+        <Button Grid.Column="3" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}" HorizontalAlignment="Right">
+            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
+        </Button>
+        <controls:AdaptiveGridView x:Name="itemslist" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
+                                   ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
+                                    SelectionMode="Multiple" DesiredWidth="400"
+                                    ItemHeight="400"
+                                    StretchContentForSingleRow="False">
+            <controls:AdaptiveGridView.ItemTemplate>
+                <DataTemplate x:DataType="models:ObservableIntroVideo">
+                    <Grid
+            x:Name="itemThumbnail"
+            Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <winuicontrols:ConstrainedBox AspectRatio="1920:1080">
+                                <MediaPlayerElement x:Name="videoassetplayer" Source="{x:Bind Path,Mode=OneWay,Converter={StaticResource StringToMediaSourceConverter}}"
+                                                    Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                    AutoPlay="False" AreTransportControlsEnabled="True"></MediaPlayerElement>
+                            </winuicontrols:ConstrainedBox>
+                            <TextBlock Height="60"
+                    Margin="{StaticResource XXSmallTopMargin}"
+                    HorizontalAlignment="Center"
+                    Style="{ThemeResource BodyTextStyle}"
+                    Text="{x:Bind Name}" />
+                            <ToggleSwitch OffContent="Pas Utilisé" OnContent="Utilisé" IsOn="{x:Bind IsUsed,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </controls:AdaptiveGridView.ItemTemplate>
+        </controls:AdaptiveGridView>
     </Grid>
 </Page>

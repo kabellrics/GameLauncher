@@ -12,7 +12,7 @@ namespace GameLauncher.ObservableObjet
     public partial class ObservableItem : ObservableObject
     {
         public Item Item;
-        public override string ToString() =>Name;
+        public override string ToString() =>$"{Name} - {Systemname}";
 
         public ObservableItem(Item item)
         {
@@ -162,6 +162,8 @@ namespace GameLauncher.ObservableObjet
             }
         }
 
+        [ObservableProperty]
+        public string _systemname;
         public ObservableCollection<ObservableEditeur> Editeurs;
         public ObservableCollection<ObservableDevelloppeur> Develloppeurs;
         public ObservableCollection<ObservableGenre> Genres;

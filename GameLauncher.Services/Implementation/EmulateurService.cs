@@ -28,9 +28,9 @@ public class EmulateurService : BaseService, IEmulateurService
     private readonly IDevService _devService;
     private readonly IEditeurService _editeurService;
     private readonly IAssetDownloader _assetDownloader;
-    public EmulateurService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, ISteamGridDbService steangriddbService
+    public EmulateurService(GameLauncherContext dbContext, ISteamGridDbService steangriddbService
         , IIGDBService igdbService, IScreenscraperService screenscraperService, IItemsService itemsService, IAssetDownloader assetDownloader
-        , IGenreService genreService, IDevService devService, IEditeurService editeurService) : base(dbContext, notifService)
+        , IGenreService genreService, IDevService devService, IEditeurService editeurService) : base(dbContext)
     {
         this._steangriddbService = steangriddbService;
         this._igdbService = igdbService;

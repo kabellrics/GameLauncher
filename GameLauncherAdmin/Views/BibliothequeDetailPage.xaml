@@ -79,7 +79,7 @@
                         RelativePanel.AlignRightWithPanel="True">
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
                     </Button>
-                    <StackPanel x:Name="propertiesGroup1" RelativePanel.Below="itemHero">
+                    <StackPanel Orientation="Vertical" x:Name="propertiesGroup1" RelativePanel.Below="itemHero">
                         <StackPanel x:Name="statusGroup" Margin="{StaticResource SmallTopMargin}">
                             <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Path :" />
                             <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Item.Path}" />
@@ -94,6 +94,36 @@
                             <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Id dans le store" />
                             <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Item.StoreId}" />
                         </StackPanel>
+
+                        <ToggleSwitch x:Name="FavoriteToggleSwitch" Margin="{StaticResource SmallTopMargin}"
+                      IsOn="{x:Bind ViewModel.Item.IsFavorite,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                            <ToggleSwitch.Header>
+                                <TextBlock Text="Favoris" FontSize="20" FontWeight="Bold"/>
+                            </ToggleSwitch.Header>
+
+                            <!-- On Content: Filled Star -->
+                            <ToggleSwitch.OnContent>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE735;" FontFamily="Segoe MDL2 Assets" FontSize="20" />
+                                    <TextBlock Text="Oui" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ToggleSwitch.OnContent>
+
+                            <!-- Off Content: Outline Star -->
+                            <ToggleSwitch.OffContent>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE734;" FontFamily="Segoe MDL2 Assets" FontSize="20" />
+                                    <TextBlock Text="Non" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ToggleSwitch.OffContent>
+                        </ToggleSwitch>
+
+                        <Button Background="Green" Margin="{StaticResource SmallTopMargin}">
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Glyph="&#xEDB5;" FontFamily="Segoe MDL2 Assets" FontSize="20" />
+                                <TextBlock Text="Démarrer" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </RelativePanel>
                 <Pivot>

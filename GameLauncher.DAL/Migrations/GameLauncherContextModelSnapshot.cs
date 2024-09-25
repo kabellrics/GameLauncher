@@ -101,6 +101,28 @@ namespace GameLauncher.DAL.Migrations
                     b.ToTable("Editeurs");
                 });
 
+            modelBuilder.Entity("GameLauncher.Models.FrontApp", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("FrontEnds");
+                });
+
             modelBuilder.Entity("GameLauncher.Models.Genre", b =>
                 {
                     b.Property<Guid>("ID")
@@ -114,6 +136,28 @@ namespace GameLauncher.DAL.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Genres");
+                });
+
+            modelBuilder.Entity("GameLauncher.Models.IntroVideo", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("IntroVideos");
                 });
 
             modelBuilder.Entity("GameLauncher.Models.Item", b =>

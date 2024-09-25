@@ -29,7 +29,7 @@ namespace GameLauncher.Services.Implementation
         private readonly IEditeurService editService;
         private readonly IGenreService genreService;
         public SteamGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService
-            , IDevService devService, IEditeurService editService,IGenreService genreService, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+            , IDevService devService, IEditeurService editService,IGenreService genreService) : base(dbContext)
         {
             this.assetDownloader = assetDownloader;
             this.steangriddbService = steangriddbService;

@@ -25,6 +25,12 @@ public class ItemsController : ControllerBase
     {        
         return Ok(_itemService.GetAll());
     }
+    [HttpGet("ToggleFav/{id}")]
+    public async Task<ActionResult> ToggleFav(Guid id)
+    {
+        _itemService.ToggleItemFavorite(id);
+        return Ok();
+    }
     [HttpGet("Stream")]
     public async IAsyncEnumerable<Item> Stream()
     {        

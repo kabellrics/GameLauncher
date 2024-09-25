@@ -7,59 +7,71 @@ using GameLauncher.AdminProvider.Interface;
 using GameLauncher.Connector;
 using GameLauncher.Models;
 using GameLauncher.ObservableObjet;
+using GameLauncher.Services.Interface;
 using Newtonsoft.Json;
 using RestSharp;
 
 namespace GameLauncher.AdminProvider;
 public class LookupProvider : ILookupProvider
 {
-    private readonly LookupConnector lookupconnector;
-    public LookupProvider()
+    //private readonly LookupConnector lookupconnector;
+    private readonly IGenreService genreService;
+    private readonly IDevService devService;
+    private readonly IEditeurService editService;
+    private readonly IPlateformeService plateformeService;
+    public LookupProvider(IGenreService genre, IDevService dev, IEditeurService edit, IPlateformeService plateforme)
     {
-        lookupconnector = new LookupConnector("https://localhost:7197");
+        genreService = genre;
+        devService = dev;
+        editService = edit;
+        plateformeService = plateforme;
+        //lookupconnector = new LookupConnector("https://localhost:7197");
     }
     public async Task<IEnumerable<Develloppeur>> GetDevsAsync()
     {
-        return await lookupconnector.GetDevsAsync();
+        return devService.GetAll();
     }
     public async Task<IEnumerable<Editeur>> GetEditeursAsync()
     {
-        return await lookupconnector.GetEditeursAsync();
+        return editService.GetAll();
     }
     public async Task<IEnumerable<Genre>> GetGenresAsync()
     {
-        return await lookupconnector.GetGenresAsync();
+        return genreService.GetAll();
     }
     public async Task<IEnumerable<LUPlatformes>> GetPlatformesAsync()
     {
-        return await lookupconnector.GetPlatformesAsync();
+        return plateformeService.GetAll();
     }
     public async Task<bool> FusionDev(Guid idToDelete, Guid idToKeep)
     {
-        return await lookupconnector.FusionDev(idToDelete, idToKeep);
+        devService.Fusionnage(idToDelete, idToKeep);
+        return true;
     }
     public async Task<bool> FusionEditeur(Guid idToDelete, Guid idToKeep)
     {
-        return await lookupconnector.FusionEditeur(idToDelete, idToKeep);
+        editService.Fusionnage(idToDelete, idToKeep);
+        return true;
     }
     public async Task<bool> FusionGenre(Guid idToDelete, Guid idToKeep)
     {
-        return await lookupconnector.FusionGenre(idToDelete, idToKeep);
+        genreService.Fusionnage(idToDelete, idToKeep);
+        return true;
     }
     public async Task UpdateDev(ObservableDevelloppeur item)
     {
-        await lookupconnector.UpdateDevAsync(item.Item);
+        devService.Update(item.Item);
     }
     public async Task UpdateEditeur(ObservableEditeur item)
     {
-        await lookupconnector.UpdateEditeurAsync(item.Item);
+        editService.Update(item.Item);
     }
     public async Task UpdateGenre(ObservableGenre item)
     {
-        await lookupconnector.UpdateGenreAsync(item.Item);
+        genreService.Update(item.Item);
     }
     public async Task<LUPlatformes> GetPlateformebycodename(string codename)
     {
-        return await lookupconnector.GetPlateformebycodename(codename);
+        return plateformeService.Get(codename);
     }
 }

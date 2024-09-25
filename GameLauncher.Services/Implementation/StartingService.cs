@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GameFinder.Common;
 using GameLauncher.DAL;
 using GameLauncher.Services.Interface;
 using Microsoft.AspNetCore.SignalR;
@@ -13,8 +14,9 @@ using SharpDX.XInput;
 namespace GameLauncher.Services.Implementation;
 public class StartingService : BaseService, IStartingService
 {
+    static XInputWatcher watcher = new XInputWatcher();
 
-    public StartingService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    public StartingService(GameLauncherContext dbContext) : base(dbContext)
     {
     }
     public async Task StartITem(Guid itemid)
@@ -22,17 +24,90 @@ public class StartingService : BaseService, IStartingService
         var item = _dbContext.Items.FirstOrDefault(x => x.ID == itemid);
         if (item != null)
         {
-            if (item.LUProfileId == null)
+            try
             {
-                var ps = new ProcessStartInfo(item.Path)
+                if (item.LUProfileId == null)
                 {
-                    UseShellExecute = true,
-                    Verb = "open"
-                };
-                Process.Start(ps);
+                    var ps = new ProcessStartInfo(item.Path)
+                    {
+                        UseShellExecute = true,
+                        Verb = "open"
+                    };
+                    Process.Start(ps);
+                }
+                else if (item.LUProfileId != null)
+                {
+                    var profile = _dbContext.Profiles.FirstOrDefault(x => x.Id == item.LUProfileId);
+                    if (profile != null)
+                    {
+                        var emulatorpath = profile.StartupExecutable;
+                        if (!File.Exists(emulatorpath))
+                        {
+                            return;
+                        }
+                        var emulatorargs = profile.StartupArguments;
+                        var argsWithItemPath = RemoveFirstAndLastCharacter(emulatorargs.Replace("\"{ImagePath}\"", QuotePathIfNeeded(item.Path)));
+                        var ps = new ProcessStartInfo(emulatorpath)
+                        {
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            WorkingDirectory = Path.GetDirectoryName(emulatorpath),
+                            Verb = "open",
+                            Arguments = argsWithItemPath
+                        };
+                        var targetProcess = Process.Start(ps);
+                        //var targetProcess = Process.Start(emulatorpath, argsWithItemPath);
+                        item.NbStart++;
+                        item.LastStartDate = DateTime.Now;
+                        _dbContext.Items.Update(item);
+                        _dbContext.SaveChanges();
+                        await IsEscapeCombinationSend(targetProcess);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //throw;
             }
         }
     }
+    public string RemoveFirstAndLastCharacter(string input)
+    {
+        // Vérifie si la chaîne est nulle ou si elle contient moins de deux caractères
+        if (string.IsNullOrEmpty(input) || input.Length < 2)
+        {
+            return string.Empty; // Retourne une chaîne vide si les conditions ne sont pas remplies
+        }
+
+        // Retire le premier et le dernier caractères en utilisant la méthode Substring
+        return input.Substring(1, input.Length - 2);
+    }
+    string QuotePathIfNeeded(string path)
+    {
+        if (path.Contains(" "))
+        {
+            return $"\"{path}\"";
+        }
+        return path;
+    }
+    async Task IsEscapeCombinationSend(Process process)
+    {
+        await Task.Run(() =>
+        {
+            while (!process.HasExited)
+            {
+                watcher.Update();
+                if (
+                    (watcher.gamepad.Buttons == (SharpDX.XInput.GamepadButtonFlags.Start | SharpDX.XInput.GamepadButtonFlags.Back))
+                  )
+                {
+                    process.Kill(true);
+                    return;
+                }
+            }
+        });
+    }
+
 }
 public class XInputWatcher
 {

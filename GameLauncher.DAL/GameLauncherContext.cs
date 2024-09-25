@@ -52,6 +52,14 @@ namespace GameLauncher.DAL
         {
             get;set;
         }
+        public DbSet<IntroVideo> IntroVideos
+        {
+            get;set;
+        }
+        public DbSet<FrontApp> FrontEnds
+        {
+            get;set;
+        }
 
         public GameLauncherContext(DbContextOptions<GameLauncherContext> options)
         : base(options)

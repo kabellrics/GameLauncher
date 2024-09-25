@@ -13,7 +13,8 @@ using Microsoft.EntityFrameworkCore;
 namespace GameLauncher.Services.Implementation;
 public class DevService : BaseService, IDevService
 {
-    public DevService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    //public DevService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    public DevService(GameLauncherContext dbContext) : base(dbContext)
     {
     }
     public IEnumerable<Develloppeur> GetAll()

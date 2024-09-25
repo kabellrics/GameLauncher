@@ -19,51 +19,33 @@ namespace GameLauncher.Services.Implementation;
 public class CollectionService : BaseService, ICollectionService
 {
     private readonly IAssetDownloader assetService;
-    public CollectionService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetService) : base(dbContext, notifService)
+    private readonly IGenreService genreService;
+    private readonly IDevService devService;
+    private readonly IEditeurService editService;
+    private readonly IPlateformeService plateformeService;
+    //public CollectionService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetService
+    //    , IGenreService genreService, IDevService devService, IEditeurService editService, IPlateformeService plateformeService)
+    //    : base(dbContext, notifService)
+        public CollectionService(GameLauncherContext dbContext, IAssetDownloader assetService
+        , IGenreService genreService, IDevService devService, IEditeurService editService, IPlateformeService plateformeService)
+        : base(dbContext)
     {
         this.assetService = assetService;
+        this.genreService = genreService;
+        this.devService = devService;
+        this.editService = editService;
+        this.plateformeService = plateformeService;
     }
     public IEnumerable<Collection> GetAll()
     {
         return _dbContext.Collections;
     }
-    public async Task<IEnumerable<FullCollectionItem>> GetAllFull()
+    public async Task<IEnumerable<FullCollectionTrueItem>> GetAllFull()
     {
-        List<FullCollectionItem> response = new();
+        List<FullCollectionTrueItem> response = new();
         if (!_dbContext.Collections.Any())
         {
-            var fullcollec = new FullCollectionItem();
-            var collec = new Collection();
-            collec.Name = "Tous les Jeux";
-            collec.CodeName = "auto-allgames";
-            collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
-            collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
-            fullcollec.Collection = collec;
-            fullcollec.Items = new();
-            foreach(var item in _dbContext.Items.OrderBy(x => x.Name))
-            {
-                fullcollec.Items.Add(new ItemInCollection() { CollectionItem=null,Item=item});
-            }
-            response.Add(fullcollec);
-            return response;
-        }
-
-            var collections = _dbContext.Collections;
-            foreach (var collection in collections)
-            {
-                var fullcollec = new FullCollectionItem();
-                fullcollec.Collection = collection;
-                fullcollec.Items = new();
-                await foreach (var item in GetAllItemInside(collection.ID))
-                {
-                    fullcollec.Items.Add(item);
-                }
-                response.Add(fullcollec);
-            }
-        var defaultcollecStatus = GetDefaultCollectionStatus();
-        if (defaultcollecStatus.CollecAllGames)
-        {
-            var fullcollec = new FullCollectionItem();
+            var fullcollec = new FullCollectionTrueItem();
             var collec = new Collection();
             collec.Name = "Tous les Jeux";
             collec.CodeName = "auto-allgames";
@@ -73,78 +55,92 @@ public class CollectionService : BaseService, ICollectionService
             fullcollec.Items = new();
             foreach (var item in _dbContext.Items.OrderBy(x => x.Name))
             {
-                fullcollec.Items.Add(new ItemInCollection() { CollectionItem = null, Item = item });
+                var trueitem = InitTrueItem(item);
+                fullcollec.Items.Add(new TrueItemInCollection() { CollectionItem = null, Item = trueitem });
             }
             response.Add(fullcollec);
-        }
-        if (defaultcollecStatus.CollecEmulator)
-        {
-            var fullcollec = new FullCollectionItem();
-            var collec = new Collection();
-            collec.Name = "Emulateurs";
-            collec.CodeName = "emulator";
-            collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
-            collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
-            fullcollec.Collection = collec;
-            fullcollec.Items = new();
-            foreach (var item in _dbContext.Items.Where(x=>x.LUPlatformesId=="emulator").OrderBy(x => x.Name))
-            {
-                fullcollec.Items.Add(new ItemInCollection() { CollectionItem = null, Item = item });
-            }
-            response.Add(fullcollec);
-        }
-        if (defaultcollecStatus.CollecNeverPlayed)
-        {
-            var fullcollec = new FullCollectionItem();
-            var collec = new Collection();
-            collec.Name = "Jamais Joués";
-            collec.CodeName = "auto-neverplayed";
-            collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
-            collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
-            fullcollec.Collection = collec;
-            fullcollec.Items = new();
-            foreach (var item in _dbContext.Items.Where(x=>x.NbStart == 0).OrderBy(x => x.Name).Take(10))
-            {
-                fullcollec.Items.Add(new ItemInCollection() { CollectionItem = null, Item = item });
-            }
-            response.Add(fullcollec);
-        }
-        if (defaultcollecStatus.CollecLastPlayed)
-        {
-            var fullcollec = new FullCollectionItem();
-            var collec = new Collection();
-            collec.Name = "Joués Recemment";
-            collec.CodeName = "auto-lastplayed";
-            collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
-            collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
-            fullcollec.Collection = collec;
-            fullcollec.Items = new();
-            foreach (var item in _dbContext.Items.OrderByDescending(x => x.LastStartDate).Take(10))
-            {
-                fullcollec.Items.Add(new ItemInCollection() { CollectionItem = null, Item = item });
-            }
-            response.Add(fullcollec);
-        }
-        if (defaultcollecStatus.CollecFavorite)
-        {
-            var fullcollec = new FullCollectionItem();
-            var collec = new Collection();
-            collec.Name = "Favoris";
-            collec.CodeName = "auto-favorites";
-            collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
-            collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
-            fullcollec.Collection = collec;
-            fullcollec.Items = new();
-            foreach (var item in _dbContext.Items.Where(x=>x.IsFavorite).OrderBy(x => x.Name))
-            {
-                fullcollec.Items.Add(new ItemInCollection() { CollectionItem = null, Item = item });
-            }
-            response.Add(fullcollec);
+            return response;
         }
 
+        var collections = _dbContext.Collections;
+        foreach (var collection in collections)
+        {
+            var fullcollec = new FullCollectionTrueItem();
+            fullcollec.Collection = collection;
+            fullcollec.Items = new();
+            await foreach (var item in GetAllTrueItemInside(collection.ID))
+            {
+                fullcollec.Items.Add(item);
+            }
+            if (collection.CodeName == "auto-favorites")
+            {
+                foreach (var item in _dbContext.Items.Where(x => x.IsFavorite).OrderByDescending(x => x.NbStart))
+                {
+                    var trueitem = InitTrueItem(item);
+                    fullcollec.Items.Add(new TrueItemInCollection() { CollectionItem = null, Item = trueitem });
+                }
+            }
+            if (collection.CodeName == "auto-allgames")
+            {
+                foreach (var item in _dbContext.Items.Where(x => x.LUPlatformesId != "emulator").OrderBy(x => x.Name))
+                {
+                    var trueitem = InitTrueItem(item);
+                    fullcollec.Items.Add(new TrueItemInCollection() { CollectionItem = null, Item = trueitem });
+                }
+            }
+            if (collection.CodeName == "emulator")
+            {
+                foreach (var item in _dbContext.Items.Where(x => x.LUPlatformesId == "emulator").OrderBy(x => x.Name))
+                {
+                    var trueitem = InitTrueItem(item);
+                    fullcollec.Items.Add(new TrueItemInCollection() { CollectionItem = null, Item = trueitem });
+                }
+            }
+            if (collection.CodeName == "auto-neverplayed")
+            {
+                foreach (var item in _dbContext.Items.Where(x => x.LUPlatformesId != "emulator").Where(x => x.NbStart == 0).Take(10).OrderBy(x => x.Name))
+                {
+                    var trueitem = InitTrueItem(item);
+                    fullcollec.Items.Add(new TrueItemInCollection() { CollectionItem = null, Item = trueitem });
+                }
+            }
+            if (collection.CodeName == "auto-lastplayed")
+            {
+                foreach (var item in _dbContext.Items.Where(x => x.LUPlatformesId != "emulator").OrderByDescending(x => x.LastStartDate).Take(10))
+                {
+                    var trueitem = InitTrueItem(item);
+                    fullcollec.Items.Add(new TrueItemInCollection() { CollectionItem = null, Item = trueitem });
+                }
+            }
+            response.Add(fullcollec);
+        }
         response = response.OrderBy(x => x.Collection.Order).ToList();
         return response;
     }
+    public async IAsyncEnumerable<TrueItemInCollection> GetAllTrueItemInside(Guid id)
+    {
+        var collecItems = _dbContext.CollectiondItems.Where(x => x.CollectionID == id);
+        foreach (var collecittem in collecItems.OrderBy(x => x.Order))
+        {
+            var item = _dbContext.Items.FirstOrDefault(x => x.ID == collecittem.ItemID);
+            if (item != null)
+            {
+                var trueitem = InitTrueItem(item);
+                yield return new TrueItemInCollection { Item = trueitem, CollectionItem = collecittem };
+            }
+        }
+    }
+
+    private ItemCompleteInfo InitTrueItem(Item? item)
+    {
+        var trueitem = new ItemCompleteInfo(item);
+        trueitem.GenreValue = string.Join(",", genreService.GetAllForItem(trueitem.ID).Select(x => x.Name));
+        trueitem.DevelloppeurValue = string.Join(",", devService.GetAllForItem(trueitem.ID).Select(x => x.Name));
+        trueitem.EditeurValue = string.Join(",", editService.GetAllForItem(trueitem.ID).Select(x => x.Name));
+        trueitem.PlateformeValue = plateformeService.Get(item.LUPlatformesId).Name;
+        return trueitem;
+    }
+
     public async IAsyncEnumerable<ItemInCollection> GetAllItemInside(Guid id)
     {
         var collecItems = _dbContext.CollectiondItems.Where(x => x.CollectionID == id);
@@ -152,7 +148,9 @@ public class CollectionService : BaseService, ICollectionService
         {
             var item = _dbContext.Items.FirstOrDefault(x => x.ID == collecittem.ItemID);
             if (item != null)
+            {
                 yield return new ItemInCollection { Item = item, CollectionItem = collecittem };
+            }
         }
     }
     public void AddToCollectionEnd(Guid id, Guid gameid)
@@ -190,7 +188,7 @@ public class CollectionService : BaseService, ICollectionService
     }
     public void CreateCollection(Collection collec)
     {
-        if(string.IsNullOrEmpty(collec.Fanart))
+        if (string.IsNullOrEmpty(collec.Fanart))
             collec.Fanart = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "background", $"{collec.CodeName}.jpg");
         if (string.IsNullOrEmpty(collec.Logo))
             collec.Logo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Collection V2", $"{collec.CodeName}.png");
@@ -360,6 +358,6 @@ public class CollectionService : BaseService, ICollectionService
     {
         var playlistAssetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher", "Assets", "Playlists", "Clear Logo");
         var files = Directory.GetFiles(playlistAssetPath, "*.png");
-        return files.Select(x=> Path.GetFileNameWithoutExtension(x)).ToList();
+        return files.Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
     }
 }

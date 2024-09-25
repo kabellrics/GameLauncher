@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace GameLauncher.Services.Implementation;
 public class StatService : BaseService, IStatService
 {
-    public StatService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    public StatService(GameLauncherContext dbContext) : base(dbContext)
     {
     }
 

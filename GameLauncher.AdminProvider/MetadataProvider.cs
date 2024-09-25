@@ -13,32 +13,39 @@ using GameLauncher.Models.IGDB;
 using GameLauncher.Models.ScreenScraper;
 using GameLauncher.Models.SteamGridDB;
 using GameLauncher.ObservableObjet;
+using GameLauncher.Services.Interface;
 using Newtonsoft.Json;
 using RestSharp;
 
 namespace GameLauncher.AdminProvider;
 public class MetadataProvider : IMetadataProvider
 {
-    private readonly MetadataConnector apiconnector;
-    public MetadataProvider()
+    //private readonly MetadataConnector apiconnector;
+    private readonly IIGDBService igdbService;
+    private readonly IScreenscraperService screenscraperService;
+    private readonly ISteamGridDbService steamGridService;
+    public MetadataProvider(IIGDBService igdb, IScreenscraperService screenscraper, ISteamGridDbService steamGrid)
     {
-        apiconnector = new MetadataConnector("https://localhost:7197");
+        //apiconnector = new MetadataConnector("https://localhost:7197");
+        igdbService = igdb;
+        screenscraperService = screenscraper;
+        steamGridService = steamGrid;
     }
     public async Task<IEnumerable<DataSearch>> SearchSteamGridDBGameByName(string name)
     {
-        return await apiconnector.SearchSteamGridDBGameByName(name);
+        return steamGridService.SearchByName(name);
     }
     public async Task<IEnumerable<ImgResult>> SearchSteamGridDBBannerFor(int gameId)
     {
-        return await apiconnector.SearchSteamGridDBBannerFor(gameId);
+        return steamGridService.GetGridBannerForId(gameId);
     }
     public async Task<IEnumerable<ImgResult>> SearchSteamGridDBLogoFor(int gameId)
     {
-        return await apiconnector.SearchSteamGridDBLogoFor(gameId);
+        return steamGridService.GetLogoForId(gameId);
     }
     public async Task<IEnumerable<ImgResult>> SearchSteamGridDBBoxartFor(int gameId)
     {
-        return await apiconnector.SearchSteamGridDBBoxartFor(gameId);
+        return steamGridService.GetGridBoxartForId(gameId);
     }
     public async Task<ObservableMediaItem> GetSteamGridDBMediaItem(DataSearch game)
     {
@@ -59,7 +66,7 @@ public class MetadataProvider : IMetadataProvider
     public async Task<IEnumerable<ObservableMediaItem>> GetIGDBMediaGameByName(string name)
     {
         var result = new List<ObservableMediaItem>();
-        var callresult = await apiconnector.GetIGDBGameByName(name);
+        var callresult = igdbService.GetGameByName(name);
         foreach (var item in callresult)
             result.Add(await MediaItemFromIGDBGame(item));
         return result;
@@ -67,44 +74,44 @@ public class MetadataProvider : IMetadataProvider
     public async Task<IEnumerable<ObservableItem>> GetIGDBGameByName(string name)
     {
         var result = new List<ObservableItem>();
-        var callresult = await apiconnector.GetIGDBGameByName(name);
+        var callresult = igdbService.GetGameByName(name);
         foreach (var item in callresult)
             result.Add(await ItemFromIGDBGame(item));
         return result;
     }
     public async IAsyncEnumerable<ObservableItem> GetIGDBGameByNameAsync(string name)
     {
-        var callresult = await apiconnector.GetIGDBGameByName(name);
+        var callresult = igdbService.GetGameByName(name);
         foreach (var item in callresult)
             yield return await ItemFromIGDBGame(item);
     }
     public async Task<IEnumerable<Video>> GetIGDBVideosByGameId(int id)
     {
-        return await apiconnector.GetIGDBVideosByGameId(id);
+        return igdbService.GetVideosByGameId(id);
     }
     public async Task<ObservableItem> GetIGDBDetailsGame(int id)
     {
-        var igdbGame = await apiconnector.GetIGDBDetailsGame(id);
+        var igdbGame = igdbService.GetDetailsGame(id);
         return await ItemFromIGDBGame(igdbGame);
     }
     public async Task<IEnumerable<ObservableItem>> GetSearchScreenscraperGameByFileName(string filename)
     {
         var result = new List<ObservableItem>();
-        var callresult = await apiconnector.SearchScreenscraperGameByFileName(filename);
+        var callresult = screenscraperService.SearchGameByFileName(filename);
         foreach (var item in callresult)
             result.Add(await ItemFromScreenscraperGame(item));
         return result;
     }
     public async IAsyncEnumerable<ObservableItem> SearchScreenscraperGameByNameAsync(string name)
     {
-        var callresult = await apiconnector.SearchScreenscraperGameByName(name);
+        var callresult = screenscraperService.SearchGameByName(name);
         foreach (var item in callresult)
             yield return await ItemFromScreenscraperGame(item);
     }
     public async Task<IEnumerable<ObservableItem>> SearchScreenscraperGameByName(string name)
     {
         var result = new List<ObservableItem>();
-        var callresult = await apiconnector.SearchScreenscraperGameByName(name);
+        var callresult = screenscraperService.SearchGameByName(name);
         foreach (var item in callresult)
             result.Add(await ItemFromScreenscraperGame(item));
         return result;
@@ -112,7 +119,7 @@ public class MetadataProvider : IMetadataProvider
     public async Task<IEnumerable<ObservableMediaItem>> SearchScreenscraperGameMediaByName(string name)
     {
         var result = new List<ObservableMediaItem>();
-        var callresult = await apiconnector.SearchScreenscraperGameByName(name);
+        var callresult = screenscraperService.SearchGameByName(name);
         foreach (var item in callresult)
             result.Add(await MediaItemFromScreenscraperGame(item));
         return result;
@@ -169,13 +176,13 @@ public class MetadataProvider : IMetadataProvider
         catch (Exception ex) {/*throw;*/}
         try
         {
-            var devs = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.developer).ToList());
+            var devs = igdbService.GetCompaniesDetail(game.involved_companies.Where(x => x.developer).Select(x=>x.company.ToString()).ToList());
             obsItem.Develloppeurs = new ObservableCollection<ObservableDevelloppeur>(devs.Select(x =>new ObservableDevelloppeur( new Develloppeur { ID = Guid.NewGuid(), Name = x.name})));
         }
         catch (Exception ex) { /*throw;*/ }
         try
         {
-            var edits = await apiconnector.GetIGDBCompany(game.involved_companies.Where(x => x.publisher).ToList());
+            var edits = igdbService.GetCompaniesDetail(game.involved_companies.Where(x => x.publisher).Select(x => x.company.ToString()).ToList());
             obsItem.Editeurs = new ObservableCollection<ObservableEditeur>(edits.Select(x => new ObservableEditeur(new Models.Editeur { ID = Guid.NewGuid(), Name = x.name })));
         }
         catch (Exception ex) { /*throw;*/ }
@@ -304,6 +311,7 @@ public class MetadataProvider : IMetadataProvider
         obsItem.Develloppeurs.Add(new ObservableDevelloppeur(new Develloppeur { ID = Guid.NewGuid(), Name = game?.developpeur?.text ?? string.Empty }));
         obsItem.Editeurs = new ObservableCollection<ObservableEditeur>();// { new Models.Editeur { ID = Guid.NewGuid(), Name = game.editeur.text, Items = new List<Item>() } };
         obsItem.Editeurs.Add(new ObservableEditeur(new Models.Editeur { ID = Guid.NewGuid(), Name = game?.editeur?.text ?? string.Empty }));
+        obsItem.Systemname = game.systeme.text ?? string.Empty;
         return obsItem;
     }
 

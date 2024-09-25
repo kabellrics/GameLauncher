@@ -30,6 +30,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Core" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Primitives" Version="7.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
@@ -38,7 +39,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameLauncher.AdminProvider\GameLauncher.AdminProvider.csproj" />
+    <ProjectReference Include="..\GameLauncher.DAL\GameLauncher.DAL.csproj" />
     <ProjectReference Include="..\GameLauncher.ObservableObjet\GameLauncher.ObservableObjet.csproj" />
+    <ProjectReference Include="..\GameLauncher.Services\GameLauncher.Services.csproj" />
     <ProjectReference Include="..\GameLauncherAdmin.Core\GameLauncherAdmin.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

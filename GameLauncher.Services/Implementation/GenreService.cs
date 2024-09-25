@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GameLauncher.Services.Implementation;
 public class GenreService : BaseService, IGenreService
 {
-    public GenreService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    public GenreService(GameLauncherContext dbContext) : base(dbContext)
     {
     }
     public IEnumerable<Genre> GetAll()

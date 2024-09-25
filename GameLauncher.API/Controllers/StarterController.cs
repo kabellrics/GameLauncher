@@ -14,8 +14,9 @@ public class StarterController : ControllerBase
         _Service = Service;
     }
     [HttpGet("{id}")]
-    public async Task<ActionResult> Get(Guid id)
+    public async Task<ActionResult> Start(Guid id)
     {
-        return Ok(_Service.StartITem(id));
+        await _Service.StartITem(id);
+        return Ok();
     }
 }

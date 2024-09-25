@@ -15,7 +15,7 @@ public class ItemsService : BaseService, IItemsService
 {
     private readonly IAssetDownloader assetService;
     private readonly IGenreService genreService;
-    public ItemsService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetService, IGenreService genreService) : base(dbContext, notifService)
+    public ItemsService(GameLauncherContext dbContext, IAssetDownloader assetService, IGenreService genreService) : base(dbContext)
     {
         this.assetService = assetService;
         this.genreService = genreService;
@@ -77,6 +77,16 @@ public class ItemsService : BaseService, IItemsService
             item.Video = updateditem.Video;
             item.IsFavorite = updateditem.IsFavorite;
             assetService.RapatrierAsset(item);
+            _dbContext.Items.Update(item);
+            _dbContext.SaveChanges();
+        }
+    }   
+    public void ToggleItemFavorite(Guid updateditemID)
+    {
+        var item = _dbContext.Items.FirstOrDefault(x=> x.ID == updateditemID);
+        if (item != null)
+        {
+            item.IsFavorite = !item.IsFavorite;
             _dbContext.Items.Update(item);
             _dbContext.SaveChanges();
         }

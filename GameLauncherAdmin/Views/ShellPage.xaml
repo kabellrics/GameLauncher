@@ -184,14 +184,19 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE714;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Preview" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.PreviewViewModel">
+                <!--<NavigationViewItem x:Uid="Shell_Preview" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.PreviewViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE990;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>-->
+                <NavigationViewItem x:Uid="Shell_FrontSettings" helpers:NavigationHelper.NavigateTo="GameLauncherAdmin.ViewModels.FrontSettingsViewModel">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe713;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.PaneFooter>
-                <Grid Height="500">
+                <Grid Height="450">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
@@ -256,7 +261,7 @@
                     </behaviors:NavigationViewHeaderBehavior.DefaultHeaderTemplate>
                 </behaviors:NavigationViewHeaderBehavior>
             </i:Interaction.Behaviors>-->
-            <Grid Margin="{StaticResource NavigationViewPageContentMargin}">
+            <Grid>
                 <Frame x:Name="NavigationFrame" />
             </Grid>
         </NavigationView>

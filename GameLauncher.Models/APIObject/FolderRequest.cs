@@ -12,6 +12,17 @@ public class FolderRequest
         get; set;
     }
 }
+public class FileRequest
+{
+    public string SourceFile
+    {
+        get; set;
+    }
+    public string NameFile
+    {
+        get; set;
+    }
+}
 public enum MetadataProvider
 {
     IGDB,
@@ -37,4 +48,15 @@ public enum VideoProvider
 {
     IGDB,
     Screenscraper
+}
+public enum CollectionDisplay
+{
+    Defaut,
+    SemanticFlip
+}
+public enum ItemDisplay
+{
+    Defaut,
+    ArtworkNoDesc,
+    SteamLike
 }

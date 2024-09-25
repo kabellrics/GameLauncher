@@ -9,4 +9,8 @@ public class ItemInCollection
 {
     public Item Item { get; set; }
     public CollectionItem CollectionItem { get; set; }
+}public class TrueItemInCollection
+{
+    public ItemCompleteInfo Item { get; set; }
+    public CollectionItem CollectionItem { get; set; }
 }

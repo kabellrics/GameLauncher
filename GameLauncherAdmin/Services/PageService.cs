@@ -29,6 +29,7 @@ public class PageService : IPageService
         Configure<VideoIntroViewModel, VideoIntroPage>();
         Configure<PreviewViewModel, PreviewPage>();
         Configure<PreviewItemViewModel, PreviewItemPage>();
+        Configure<FrontSettingsViewModel, FrontSettingsPage>();
     }
 
     public Type GetPageType(string key)

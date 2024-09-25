@@ -8,43 +8,46 @@ using GameLauncher.Connector;
 using GameLauncher.Models;
 using GameLauncher.Models.APIObject;
 using GameLauncher.ObservableObjet;
+using GameLauncher.Services.Interface;
 using Newtonsoft.Json;
 using RestSharp;
 
 namespace GameLauncher.AdminProvider;
 public class CollectionProvider : ICollectionProvider
 {
-    private readonly CollectionConnector colectionconnector;
-    public CollectionProvider()
+    //private readonly CollectionConnector colectionconnector;
+    private readonly ICollectionService colectionconnector;
+    public CollectionProvider(ICollectionService connector)
     {
-        colectionconnector = new CollectionConnector("https://localhost:7197");
+        colectionconnector = connector;
+        //colectionconnector = new CollectionConnector("https://localhost:7197");
     }
     public async Task<DefaultCollectionMessage> GetDefaultCollectionStatus()
     {
-        return await colectionconnector.GetDefaultCollectionStatus();
+        return colectionconnector.GetDefaultCollectionStatus();
     }
     public async Task<DefaultCollectionMessage> CreateDefaultCollection(DefaultCollectionMessage collectionMessage)
     {
-        return await colectionconnector.CreateDefaultCollection(collectionMessage);
+        return colectionconnector.CreateDefaultColection(collectionMessage);
     }
     public async Task<IEnumerable<String>> GetPredefineCollection()
     {
-        return await colectionconnector.GetPredefineCollection();
+        return colectionconnector.GetPredefineCollection();
     }
-    public async Task<IEnumerable<FullCollectionItem>> GetFullCollection()
-    {
-        return await colectionconnector.GetFullCollection();
-    }
+    //public async Task<IEnumerable<FullCollectionItem>> GetFullCollection()
+    //{
+    //    return await colectionconnector.GetAllFull();
+    //}
     public async Task<IEnumerable<ObsCollection>> GetCollectionsAsync()
     {
-        var collecs = await colectionconnector.GetCollectionsAsync();
+        var collecs = colectionconnector.GetAll();
         var obscollecs = new List<ObsCollection>();
         foreach (var colle in collecs.OrderBy(x=>x.Order)) { obscollecs.Add(new ObsCollection(colle)); }
         return obscollecs;
     }
     public async IAsyncEnumerable<ObsCollection> GetCollectionsAsyncEnumerable()
     {
-        var collecs = await colectionconnector.GetCollectionsAsync();
+        var collecs = colectionconnector.GetAll();
         foreach (var colle in collecs.OrderBy(x=>x.Order))
         {
             var obsitem = new ObsCollection(colle);
@@ -53,45 +56,45 @@ public class CollectionProvider : ICollectionProvider
     }
     public async Task<IEnumerable<Item>> GetAllItemInside(Guid id)
     {
-        return await colectionconnector.GetAllItemInside(id);
+        return null;// colectionconnector.GetAllItemInside(id);
     }
     public async IAsyncEnumerable<ObservableItem> GetAllItemInsideAsync(Guid id)
     {
-        var items = await colectionconnector.GetAllItemInside(id);
-        foreach (var item in items)
-            yield return new ObservableItem(item);
+        var items = colectionconnector.GetAllItemInside(id);
+        await foreach (var item in items)
+            yield return new ObservableItem(item.Item);
     }
     public async IAsyncEnumerable<ObservableItemInCollection> GetAllItemInsideAsyncStream(Guid id)
     {
-        await foreach (var item in colectionconnector.GetAllItemInsideStream(id))
+        await foreach (var item in colectionconnector.GetAllItemInside(id))
             yield return new ObservableItemInCollection(item.Item,item.CollectionItem);
     }
     public async Task CreateCollectionFromPlateforme()
     {
-        await colectionconnector.CreateCollectionFromPlateforme();
+        colectionconnector.CreateCollectionFromPlateforme();
     }
     public async Task AddToCollectionEnd(Guid id, Guid gameid)
     {
-        await colectionconnector.AddToCollectionEnd(id, gameid);
+        colectionconnector.AddToCollectionEnd(id, gameid);
     }
     public async Task UpdateCollectionItemOrder(Guid id, Guid gameid, int newOrder)
     {
-        await colectionconnector.UpdateCollectionItemOrder(id, gameid, newOrder);
+        colectionconnector.UpsertCollectionItem(id, gameid, newOrder);
     }
     public async Task UpdateCollection(ObsCollection item)
     {
-        await colectionconnector.UpdateCollection(item._collection);
+        colectionconnector.Update(item._collection);
     }
     public async Task DeleteCollectionItem(Guid id)
     {
-        await colectionconnector.DeleteCollectionItem(id);
+        colectionconnector.DelteCollectionItem(id);
     }
     public async Task DeleteCollection(Guid id)
     {
-        await colectionconnector.DeleteCollection(id);
+        colectionconnector.DelteCollection(id);
     }
     public async Task CreateCollection(Collection item)
     {
-        await colectionconnector.CreateCollection(item);
+        colectionconnector.CreateCollection(item);
     }
 }

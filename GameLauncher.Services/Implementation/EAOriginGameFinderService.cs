@@ -22,7 +22,7 @@ public class EAOriginGameFinderService : BaseService, IEAOriginGameFinderService
     private readonly GameLauncherContext _dbContext;
     private readonly IAssetDownloader assetDownloader;
     private readonly ISteamGridDbService steangriddbService;
-    public EAOriginGameFinderService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService) : base(dbContext, notifService)
+    public EAOriginGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService) : base(dbContext)
     {
         this.assetDownloader = assetDownloader;
         this.steangriddbService = steangriddbService;

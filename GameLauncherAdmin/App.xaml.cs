@@ -1,6 +1,8 @@
 ﻿using GameLauncher.AdminProvider;
 using GameLauncher.AdminProvider.Interface;
-
+using GameLauncher.DAL;
+using GameLauncher.Services.Implementation;
+using GameLauncher.Services.Interface;
 using GameLauncherAdmin.Activation;
 using GameLauncherAdmin.Contracts.Services;
 using GameLauncherAdmin.Core.Contracts.Services;
@@ -10,7 +12,7 @@ using GameLauncherAdmin.Models;
 using GameLauncherAdmin.Services;
 using GameLauncherAdmin.ViewModels;
 using GameLauncherAdmin.Views;
-
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
@@ -51,11 +53,20 @@ public partial class App : Application
         //this.AddOtherProvider(new Microsoft.UI.Xaml.XamlTypeInfo.XamlControlsXamlMetaDataProvider());
         //this.AddOtherProvider(new AClassLibrary1.AClassLibrary1_XamlTypeInfo.XamlMetaDataProvider());
 
+
+        var dbfolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher");
+        Directory.CreateDirectory(dbfolder);
+        var strcon = Path.Combine(dbfolder, "gamelauncher.db");
+        var constr = $"Data Source={strcon}";
+
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
         ConfigureServices((context, services) =>
         {
+            services.AddDbContext<GameLauncherContext>(options =>
+                options.UseSqlite(constr));
+
             // Default Activation Handler
             services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
 
@@ -70,7 +81,26 @@ public partial class App : Application
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<INavigationService, NavigationService>();
 
-            // Core Services
+            // Business Service
+            services.AddScoped<ISteamGameFinderService, SteamGameFinderService>();
+            services.AddScoped<IEAOriginGameFinderService, EAOriginGameFinderService>();
+            services.AddScoped<IEpicGameFinderService, EpicGameFinderService>();
+            services.AddScoped<ISteamGridDbService, SteamGridDbService>();
+            services.AddScoped<IScreenscraperService, ScreenscraperService>();
+            services.AddScoped<IIGDBService, IGDBService>();
+            services.AddScoped<IItemsService, ItemsService>();
+            services.AddScoped<IPlateformeService, PlateformeService>();
+            services.AddScoped<IGenreService, GenreService>();
+            services.AddScoped<IEditeurService, EditeurService>();
+            services.AddScoped<IDevService, DevService>();
+            services.AddScoped<ICollectionService, CollectionService>();
+            services.AddScoped<IAssetDownloader, AssetDownloader>();
+            services.AddScoped<IStatService, StatService>();
+            services.AddScoped<IStartingService, StartingService>();
+            services.AddScoped<IEmulateurService, EmulateurService>();
+            services.AddScoped<IVideoIntroService, VideoIntroService>();
+
+            // Core Provider
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<IItemProvider, ItemProvider>();
@@ -80,8 +110,11 @@ public partial class App : Application
             services.AddSingleton<ILookupProvider, LookupProvider>();
             services.AddSingleton<IHostedService, NotificationBackgroundTask>();
             services.AddSingleton<IEmulateurProvider, EmulateurProvider>();
+            services.AddSingleton<IIntroVideoProvider, IntroVideoProvider>();
 
             // Views and ViewModels
+            services.AddTransient<FrontSettingsViewModel>();
+            services.AddTransient<FrontSettingsPage>();
             services.AddTransient<PreviewItemViewModel>();
             services.AddTransient<PreviewItemPage>();
             services.AddTransient<PreviewViewModel>();

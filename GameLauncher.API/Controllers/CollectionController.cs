@@ -36,7 +36,7 @@ public class CollectionController : ControllerBase
     [HttpGet("GetFullCollection")]
     public async Task<ActionResult> GetFullColection()
     {
-        return Ok(_Service.GetAllFull());
+        return Ok(await _Service.GetAllFull());
     }
     [HttpGet("GetPredefineCollection")]
     public async Task<ActionResult> GetPredefineCollection()

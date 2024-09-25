@@ -8,4 +8,5 @@ public interface IItemsService
     Item Insert(Item item);
     IAsyncEnumerable<Item> GetAllAsync();
     void DeleteItem(Guid id);
+    void ToggleItemFavorite(Guid updateditemID);
 }

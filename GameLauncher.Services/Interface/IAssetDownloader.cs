@@ -9,4 +9,5 @@ public interface IAssetDownloader
     Task RapatrierAsset(Item item);
     Task RapatrierAsset(Collection item);
     string CreateItemAssetFolder(Guid guid);
+    Task GetIntroVideo(string url, string targetPath);
 }

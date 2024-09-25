@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "GameLauncher.Front (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "GameLauncher.Front (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}

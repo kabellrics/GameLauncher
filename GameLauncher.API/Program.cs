@@ -11,13 +11,21 @@ public class Program
 {
     public static void Main(string[] args)
     {
+
+        var dbfolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GameLauncher");
+        Directory.CreateDirectory(dbfolder);
+        var strcon = Path.Combine(dbfolder, "gamelauncher.db");
+        var constr = $"Data Source={strcon}";
+
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
         // Add services to the container.
         builder.Services.AddSignalR();
 
         builder.Services.AddDbContext<GameLauncherContext>(options =>
-            options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlite(constr));
+        //builder.Services.AddDbContext<GameLauncherContext>(options =>
+        //    options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddScoped<ISteamGameFinderService, SteamGameFinderService>();
         builder.Services.AddScoped<IEAOriginGameFinderService, EAOriginGameFinderService>();
         builder.Services.AddScoped<IEpicGameFinderService, EpicGameFinderService>();
@@ -32,10 +40,9 @@ public class Program
         builder.Services.AddScoped<ICollectionService, CollectionService>();
         builder.Services.AddScoped<IAssetDownloader, AssetDownloader>();
         builder.Services.AddScoped<IStatService, StatService>();
-        //builder.Services.AddScoped<INotificationService, NotificationService>();
-        //builder.Services.AddScoped<INotificationService, SignalRNotificationHub>();
         builder.Services.AddScoped<IStartingService, StartingService>();
         builder.Services.AddScoped<IEmulateurService, EmulateurService>();
+        builder.Services.AddScoped<IVideoIntroService, VideoIntroService>();
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();

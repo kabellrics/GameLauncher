@@ -13,7 +13,8 @@ using Microsoft.EntityFrameworkCore;
 namespace GameLauncher.Services.Implementation;
 public class EditeurService : BaseService, IEditeurService
 {
-    public EditeurService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    //public EditeurService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    public EditeurService(GameLauncherContext dbContext) : base(dbContext)
     {
     }
     public IEnumerable<Editeur> GetAll()

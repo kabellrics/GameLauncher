@@ -24,7 +24,7 @@ public class EpicGameFinderService : BaseService, IEpicGameFinderService
     private readonly IDevService devService;
     private readonly IEditeurService editService;
     public EpicGameFinderService(GameLauncherContext dbContext, IAssetDownloader assetDownloader, ISteamGridDbService steangriddbService,
-        IDevService devService, IEditeurService editService, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+        IDevService devService, IEditeurService editService) : base(dbContext)
     {
         this.assetDownloader = assetDownloader;
         this.steangriddbService = steangriddbService;

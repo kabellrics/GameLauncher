@@ -5,38 +5,45 @@ using System.Text;
 using System.Threading.Tasks;
 using GameLauncher.AdminProvider.Interface;
 using GameLauncher.Connector;
+using GameLauncher.Services.Interface;
 using RestSharp;
 
 namespace GameLauncher.AdminProvider;
 public class StoreProvider : IStoreProvider
 {
     private readonly StoreConnector storeconnector;
-    public StoreProvider()
+    private readonly IEpicGameFinderService epicService;
+    private readonly IEAOriginGameFinderService EAOriginService;
+    private readonly ISteamGameFinderService steamService;
+    public StoreProvider(IEpicGameFinderService epic, IEAOriginGameFinderService EAOrigin, ISteamGameFinderService steam)
     {
-        storeconnector = new StoreConnector("https://localhost:7197");
+        //storeconnector = new StoreConnector("https://localhost:7197");
+        epicService = epic;
+        EAOriginService = EAOrigin;
+        steamService = steam;
     }
     public async Task GetSteamGameAsync()
     {
-        await storeconnector.GetSteamGameAsync();
+        await steamService.GetGameAsync();
     }
     public async Task GetEAOriginGameAsync()
     {
-        await storeconnector.GetEAOriginGameAsync();
+        await EAOriginService.GetGameAsync();
     }
     public async Task GetEpicGameAsync()
     {
-        await storeconnector.GetEpicGameAsync();
+        await epicService.GetGameAsync();
     }
     public async Task CleaningSteamGameAsync()
     {
-        await storeconnector.CleaningSteamGameAsync();
+        await steamService.CleaningGame();
     }
     public async Task CleaningEpicGameAsync()
     {
-        await storeconnector.CleaningEpicGameAsync();
+        await epicService.CleaningGame();
     }
     public async Task CleaningEAGameAsync()
     {
-        await storeconnector.CleaningEAGameAsync();
+        await EAOriginService.CleaningGame();
     }
 }

@@ -4,19 +4,102 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:helper="using:GameLauncherAdmin.Helpers"
     mc:Ignorable="d">
+    <Page.Resources>
+        <CollectionViewSource
+            x:Name="ItemsViewSource"
+            IsSourceGrouped="True"
+            Source="{x:Bind ViewModel.GroupedItems, Mode=OneWay}" />
+        <helper:StringToMediaSourceConverter x:Key="StringToMediaSourceConverter"/>
+    </Page.Resources>
 
     <Grid x:Name="ContentArea">
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{Binding ElementName=CollectionList,Path=SelectedItem.Collection.Fanart,Mode=OneWay}">
+            </ImageBrush>
+        </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0"></Grid>
+        <Border Grid.Row="0" Grid.RowSpan="2">
+            <Rectangle Fill="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}" Opacity="0.9" />
+        </Border>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Grid.ColumnSpan="3">
+                <Image Source="{Binding ElementName=ItemList,Path=SelectedItem.Item.Banner,Mode=OneWay}" Stretch="UniformToFill"></Image>
+            </Grid>
+            <Grid Grid.Column="0">
+                <Image Source="{Binding ElementName=ItemList,Path=SelectedItem.Item.Logo,Mode=OneWay}" Stretch="Uniform"></Image>
+            </Grid>
+            <MediaPlayerElement Margin="10" Grid.Column="2"
+                x:Name="MyMediaPlayer"
+                    Source="{Binding ElementName=ItemList,Path=SelectedItem.Item.Video,Mode=OneWay,Converter={StaticResource StringToMediaSourceConverter}}"
+                Stretch="Uniform"
+                Visibility="Collapsed"/>
+        </Grid>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
+            <ListView x:Name="CollectionList"
+                      SelectionMode="Single" Margin="0" Grid.Row="0"
+                      ScrollViewer.HorizontalScrollMode="Enabled"
+                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                      ScrollViewer.VerticalScrollMode="Disabled"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                      IsItemClickEnabled="True"
+                      SelectionChanged="CollectionList_SelectionChanged"
+                      KeyDown="CollectionList_KeyDown"
+                      XYFocusDown="{x:Bind ItemList}"
+                      XYFocusDownNavigationStrategy="NavigationDirectionDistance" IsTabStop="True" TabIndex="0"
+                      ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsStackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ConstrainedBox AspectRatio="5:2" Margin="5">
+                            <Image Source="{Binding Collection.Logo,Mode=OneWay}" Stretch="Uniform"/>
+                        </controls:ConstrainedBox>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <ListView x:Name="ItemList"
+                      XYFocusUp="{x:Bind CollectionList}"
+                      XYFocusDownNavigationStrategy="NavigationDirectionDistance"
+                      Grid.Row="1" SelectionMode="Single" Margin="0"
+                      ScrollViewer.HorizontalScrollMode="Enabled"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.VerticalScrollMode="Disabled"
+                      KeyDown="ItemList_KeyDown"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden" IsTabStop="True" TabIndex="1"
+                      ItemsSource="{Binding ElementName=CollectionList,Path=SelectedItem.Items,Mode=OneWay}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsStackPanel
+                            Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ConstrainedBox AspectRatio="2:3" CornerRadius="25" Margin="5">
+                            <Image Source="{Binding Item.Cover,Mode=OneWay}" Stretch="UniformToFill"/>
+                        </controls:ConstrainedBox>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Grid>
     </Grid>
 </Page>

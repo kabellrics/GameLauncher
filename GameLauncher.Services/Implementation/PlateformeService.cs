@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace GameLauncher.Services.Implementation;
 public class PlateformeService : BaseService, IPlateformeService
 {
-    public PlateformeService(GameLauncherContext dbContext, IHubContext<SignalRNotificationHub, INotificationService> notifService) : base(dbContext, notifService)
+    public PlateformeService(GameLauncherContext dbContext) : base(dbContext)
     {
     }
     public IEnumerable<LUPlatformes> GetAll()

@@ -9,6 +9,7 @@ using GameLauncher.Connector;
 using GameLauncher.Models;
 using GameLauncher.Models.APIObject;
 using GameLauncher.ObservableObjet;
+using GameLauncher.Services.Interface;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -16,30 +17,42 @@ namespace GameLauncher.AdminProvider
 {
     public class ItemProvider : IItemProvider
     {
-        private readonly GameLauncherClient apiconnector;
-        private readonly LookupConnector lookconnector;
-        public ItemProvider()
+        //private readonly GameLauncherClient apiconnector;
+        private readonly IItemsService apiconnector;
+        private readonly IStatService statsService;
+        private readonly IGenreService genreService;
+        private readonly IDevService devService;
+        private readonly IEditeurService editService;
+        private readonly IPlateformeService plateformeService;
+        //private readonly LookupConnector lookconnector;
+        public ItemProvider(IItemsService api, IStatService stats, IGenreService genre, IDevService dev, IEditeurService edit, IPlateformeService plateforme)
         {
-            apiconnector = new GameLauncherClient("https://localhost:7197");
-            lookconnector = new LookupConnector("https://localhost:7197");
+            apiconnector = api;
+            statsService = stats;
+            genreService = genre;
+            devService = dev;
+            editService = edit;
+            plateformeService = plateforme;
+            //apiconnector = new GameLauncherClient("https://localhost:7197");
+            //lookconnector = new LookupConnector("https://localhost:7197");
         }
         public async Task<StatsObject> GetStatsAsync()
         {
-            return await apiconnector.GetStatsAsync();
+            return statsService.GetStatistiques();
         }
         public async IAsyncEnumerable<ObservableItem> GetAllItemsStream()
         {
-            await foreach (var item in apiconnector.GetItemsStreamAsync())
+            await foreach (var item in apiconnector.GetAllAsync())
             {
                 var obsItem = new ObservableItem(item);
-                obsItem.Platforme = await lookconnector.GetPlateformebycodename(item.LUPlatformesId);
-                var devs = await apiconnector.GetDevsByItemAsync(item.ID);
+                obsItem.Platforme = plateformeService.Get(item.LUPlatformesId);
+                var devs = devService.GetAllForItem(item.ID);
                 foreach (var dev in devs.OrderBy(x => x.Name))
                     obsItem.Develloppeurs.Add(new ObservableDevelloppeur(dev));
-                var edits = await apiconnector.GetEditeursByItemAsync(item.ID);
+                var edits = editService.GetAllForItem(item.ID);
                 foreach (var edit in edits.OrderBy(x => x.Name))
                     obsItem.Editeurs.Add(new ObservableEditeur(edit));
-                var genres = await apiconnector.GetGenresByItemAsync(item.ID);
+                var genres = genreService.GetAllForItem(item.ID);
                 foreach (var genre in genres.OrderBy(x => x.Name))
                     obsItem.Genres.Add(new ObservableGenre(genre));
                 yield return obsItem;
@@ -47,17 +60,17 @@ namespace GameLauncher.AdminProvider
         }
         public async IAsyncEnumerable<ObservableItem> GetAllItemsAsyncEnumerable()
         {
-            var items = await apiconnector.GetItemsAsync();
+            var items = apiconnector.GetAll();
             foreach (var item in items.OrderBy(x=>x.LUPlatformesId).ThenBy(x=>x.Name))
             {
                 var obsItem = new ObservableItem(item);
-                var devs = await apiconnector.GetDevsByItemAsync(item.ID);
+                var devs = devService.GetAllForItem(item.ID);
                 foreach (var dev in devs.OrderBy(x => x.Name))
                     obsItem.Develloppeurs.Add(new ObservableDevelloppeur(dev));
-                var edits = await apiconnector.GetEditeursByItemAsync(item.ID);
+                var edits = editService.GetAllForItem(item.ID);
                 foreach (var edit in edits.OrderBy(x => x.Name))
                     obsItem.Editeurs.Add(new ObservableEditeur(edit));
-                var genres = await apiconnector.GetGenresByItemAsync(item.ID);
+                var genres = genreService.GetAllForItem(item.ID);
                 foreach (var genre in genres.OrderBy(x => x.Name))
                     obsItem.Genres.Add(new ObservableGenre(genre));
                 yield return obsItem;
@@ -66,17 +79,17 @@ namespace GameLauncher.AdminProvider
         public async Task<IEnumerable<ObservableItem>> GetAllItemsAsync()
         {
             var obsitems = new List<ObservableItem>();
-            var items = await apiconnector.GetItemsAsync();
+            var items = apiconnector.GetAll();
             foreach (var item in items.OrderBy(x => x.LUPlatformesId).ThenBy(x => x.Name))
             {
                 var obsItem = new ObservableItem(item);
-                var devs = await apiconnector.GetDevsByItemAsync(item.ID);
+                var devs = devService.GetAllForItem(item.ID);
                 foreach (var dev in devs.OrderBy(x => x.Name))
                     obsItem.Develloppeurs.Add(new ObservableDevelloppeur(dev));
-                var edits = await apiconnector.GetEditeursByItemAsync(item.ID);
+                var edits = editService.GetAllForItem(item.ID);
                 foreach (var edit in edits.OrderBy(x => x.Name))
                     obsItem.Editeurs.Add(new ObservableEditeur(edit));
-                var genres = await apiconnector.GetGenresByItemAsync(item.ID);
+                var genres = genreService.GetAllForItem(item.ID);
                 foreach (var genre in genres.OrderBy(x => x.Name))
                     obsItem.Genres.Add(new ObservableGenre(genre));
                 obsitems.Add(obsItem);
@@ -85,18 +98,18 @@ namespace GameLauncher.AdminProvider
         }
         public async Task<IEnumerable<ObservableGroupItem>> GetAllItemsGrouped()
         {
-            var items = await apiconnector.GetItemsAsync();
+            var items = apiconnector.GetAll();
             var obsitems = new List<ObservableItem>();
             foreach (var item in items.OrderBy(x => x.LUPlatformesId).ThenBy(x => x.Name))
             {
                 var obsItem = new ObservableItem(item);
-                var devs = await apiconnector.GetDevsByItemAsync(item.ID);
+                var devs = devService.GetAllForItem(item.ID);
                 foreach (var dev in devs.OrderBy(x => x.Name))
                     obsItem.Develloppeurs.Add(new ObservableDevelloppeur(dev));
-                var edits = await apiconnector.GetEditeursByItemAsync(item.ID);
+                var edits = editService.GetAllForItem(item.ID);
                 foreach (var edit in edits.OrderBy(x => x.Name))
                     obsItem.Editeurs.Add(new ObservableEditeur(edit));
-                var genres = await apiconnector.GetGenresByItemAsync(item.ID);
+                var genres = genreService.GetAllForItem(item.ID);
                 foreach (var genre in genres.OrderBy(x => x.Name))
                     obsItem.Genres.Add(new ObservableGenre(genre));
                 obsitems.Add(obsItem);
@@ -106,23 +119,26 @@ namespace GameLauncher.AdminProvider
         }
         public async Task UpdateItem(ObservableItem item)
         {
-            await apiconnector.UpdateItemAsync(item.Item);
+            apiconnector.UpdateItem(item.Item);
         }
         public async Task UpdatesGenresForItem(Item item, List<Genre> newGenres)
         {
-            await apiconnector.UpdateGenreForItem(item,newGenres);
+            genreService.UpdateGenreInItem(item, newGenres);
+            //await apiconnector.UpdateGenreForItem(item,newGenres);
         }
         public async Task UpdatesDevsForItem(Item item, List<Develloppeur> newDevs)
         {
-            await apiconnector.UpdateDevForItem(item, newDevs);
+            devService.UpdateDevInItem(item, newDevs);
+            //await apiconnector.UpdateDevForItem(item, newDevs);
         }
         public async Task UpdatesEditsForItem(Item item, List<Editeur> newEdits)
         {
-            await apiconnector.UpdateEditForItem(item, newEdits);
+            editService.UpdateEditeurInItem(item, newEdits);
+            //await apiconnector.UpdateEditForItem(item, newEdits);
         }
         public async Task DeleteItem(Guid id)
         {
-            await apiconnector.DeleteItem(id);
+            apiconnector.DeleteItem(id);
         }
     }
 }
