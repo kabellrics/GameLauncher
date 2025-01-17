@@ -24,7 +24,7 @@ public class BooleanToStarColorConverter : IValueConverter
             {
                 return true;
             }
-            else if (brush.Color == Colors.Transparent)
+            else if (brush.Color == Colors.WhiteSmoke)
             {
                 return false;
             }

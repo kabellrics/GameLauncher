@@ -24,14 +24,19 @@ public partial class ListCollectionViewModel : ObservableRecipient, INavigationA
     [ObservableProperty]
     private ObsItem _currentItem;
     [ObservableProperty]
+    private ObsCollection _currentCollection;
+    [ObservableProperty]
     private int _currentItemListIndex;
     [ObservableProperty]
     private int _currentCollectionListIndex;
+    [ObservableProperty]
+    private CollectionDisplay _currentdisplay;
     public ListCollectionViewModel(INavigationService navigationService, ICollectionService collectionService, IStartingService startingService)
     {
         _navigationService = navigationService;
         _collectionService = collectionService;
         _startingService = startingService;
+        Currentdisplay = CollectionDisplay.GridHub;
     }
     public void OnNavigatedFrom()
     {
@@ -44,6 +49,10 @@ public partial class ListCollectionViewModel : ObservableRecipient, INavigationA
             await GetAllCollectionAsync(items);
         }
     }
+    partial void OnCurrentCollectionChanged(ObsCollection value)
+    {
+        InitListItem(CurrentCollection);
+    }
     private async Task GetAllCollectionAsync(IEnumerable<FullCollectionTrueItem> collec)
     {
         Source.Clear();
@@ -54,19 +63,19 @@ public partial class ListCollectionViewModel : ObservableRecipient, INavigationA
             try
             {
                 Source.Add(item);
+                SourceCollection.Add(new ObsCollection(item.Collection));
+                if (isFirstIteration)
+                {
+                    CurrentCollectionListIndex = 0;
+                    InitListItem(SourceCollection.FirstOrDefault());
+                    isFirstIteration = false;
+                }
             }
             catch (Exception ex)
             {
                 //throw;
             }
-            SourceCollection.Add(new ObsCollection(item.Collection));
-            if (isFirstIteration)
-            {
-                CurrentCollectionListIndex = 0;
-                InitListItem(SourceCollection.FirstOrDefault());
-                isFirstIteration = false;
-            }
-            await Task.Delay(100);
+            //await Task.Delay(100);
         }
     }
     public async Task GotoDetail(ItemCompleteInfo item)
@@ -93,6 +102,14 @@ public partial class ListCollectionViewModel : ObservableRecipient, INavigationA
             _navigationService.NavigateTo(typeof(ItemDetailViewModel).FullName!, clickedItem);
         }
     }
+    [RelayCommand]
+    private void OnItemClick(TrueItemInCollection? clickedItem)
+    {
+        if (clickedItem != null)
+        {
+            _navigationService.NavigateTo(typeof(ItemDetailViewModel).FullName!, clickedItem);
+        }
+    }
 
     private async void InitListItem(ObsCollection? clickedItem)
     {
@@ -108,7 +125,6 @@ public partial class ListCollectionViewModel : ObservableRecipient, INavigationA
                     CurrentItemListIndex = 0;
                     CurrentItem = SourceItem.First();
                 }
-                await Task.Delay(100);
             }
 
         }

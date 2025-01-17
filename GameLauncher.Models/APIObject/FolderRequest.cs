@@ -52,11 +52,13 @@ public enum VideoProvider
 public enum CollectionDisplay
 {
     Defaut,
-    SemanticFlip
+    SemanticFlip,
+    GridHub
 }
 public enum ItemDisplay
 {
     Defaut,
     ArtworkNoDesc,
-    SteamLike
+    SteamLike,
+    XBox
 }

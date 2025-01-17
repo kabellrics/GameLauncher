@@ -99,6 +99,7 @@ public partial class App : Application
             services.AddScoped<IStartingService, StartingService>();
             services.AddScoped<IEmulateurService, EmulateurService>();
             services.AddScoped<IVideoIntroService, VideoIntroService>();
+            services.AddScoped<IFrontAppService, FrontAppService>();
 
             // Core Provider
             services.AddSingleton<ISampleDataService, SampleDataService>();

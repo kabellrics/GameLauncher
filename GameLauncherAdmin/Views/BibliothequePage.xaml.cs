@@ -20,7 +20,7 @@ public sealed partial class BibliothequePage : Page
 
     private void Button_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        var deletinglist = itemslist.SelectedItems as List<ObservableItem>;
-        ViewModel.DeleteItems(deletinglist);
+        //var deletinglist = itemslist.SelectedItems as List<ObservableItem>;
+        //ViewModel.DeleteItems(deletinglist);
     }
 }

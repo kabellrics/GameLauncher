@@ -7,7 +7,6 @@
     xmlns:helper="using:GameLauncherAdmin.Helpers"
     xmlns:models="using:GameLauncher.ObservableObjet"
     xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
     <Page.Resources>
         <helper:TimeConverter x:Key="TimeConverter"/>
@@ -41,14 +40,12 @@
         <Button Grid.Column="3" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}" HorizontalAlignment="Right">
             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
         </Button>
-        <controls:AdaptiveGridView x:Name="itemslist" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
+        <GridView x:Name="itemslist" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
                                    ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-                                    SelectionMode="Multiple" DesiredWidth="400"
-                                    ItemHeight="400"
-                                    StretchContentForSingleRow="False">
-            <controls:AdaptiveGridView.ItemTemplate>
+                                    SelectionMode="Multiple">
+            <GridView.ItemTemplate>
                 <DataTemplate x:DataType="models:ObservableIntroVideo">
-                    <Grid
+                    <Grid Height="400" Width="400"
             x:Name="itemThumbnail"
             Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -66,7 +63,7 @@
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
-            </controls:AdaptiveGridView.ItemTemplate>
-        </controls:AdaptiveGridView>
+            </GridView.ItemTemplate>
+        </GridView>
     </Grid>
 </Page>

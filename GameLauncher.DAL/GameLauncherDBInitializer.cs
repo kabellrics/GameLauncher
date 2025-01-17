@@ -12,9 +12,21 @@ public static class GameLauncherDBInitializer
     public static void Iniatialize(GameLauncherContext dbcontext)
     {
         dbcontext.Database.EnsureCreated();
+        InitFrontAppDefault(dbcontext);
         SeedPlatformsData(dbcontext);
         SeedEmulatorAndProfile(dbcontext);
     }
+
+    private static void InitFrontAppDefault(GameLauncherContext dbContext)
+    {
+        if (!dbContext.FrontEnds.Any())
+        {
+            var frontapp = new FrontApp();
+            dbContext.FrontEnds.Add(frontapp);
+            dbContext.SaveChanges();
+        }
+    }
+
     public static void SeedPlatformsData(GameLauncherContext dbContext)
     {
         if (!dbContext.Platformes.Any())

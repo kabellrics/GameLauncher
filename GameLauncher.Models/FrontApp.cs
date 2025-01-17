@@ -10,7 +10,7 @@ namespace GameLauncher.Models;
 public class FrontApp
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid ID
+    public int ID
     {
         get; set;
     }
@@ -33,5 +33,12 @@ public class FrontApp
     public ItemDisplay ItemDisplay
     {
         get;set;
+    }
+    public FrontApp()
+    {
+        CollectionDisplay = CollectionDisplay.Defaut;
+        ItemDisplay = ItemDisplay.Defaut;
+        Path = string.Empty;
+        Name = string.Empty;
     }
 }

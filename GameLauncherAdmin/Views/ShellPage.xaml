@@ -84,7 +84,7 @@
                Text="{Binding MessageCorps}"></TextBlock>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:Name="CompactWidhtTemplate">
+        <DataTemplate x:Name="CompactWidthTemplate">
             <Grid Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="{Binding Icon}" ContextFlyout="{StaticResource notifFlyout}">
                     <!--<FontIcon.ContextFlyout>

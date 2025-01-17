@@ -39,6 +39,10 @@ public class MetadataProvider : IMetadataProvider
     {
         return steamGridService.GetGridBannerForId(gameId);
     }
+    public async Task<IEnumerable<ImgResult>> SearchSteamGridDBHeroFor(int gameId)
+    {
+        return steamGridService.GetHeroesForId(gameId);
+    }
     public async Task<IEnumerable<ImgResult>> SearchSteamGridDBLogoFor(int gameId)
     {
         return steamGridService.GetLogoForId(gameId);
@@ -58,7 +62,7 @@ public class MetadataProvider : IMetadataProvider
         var boxarts = await SearchSteamGridDBBoxartFor(game.id);
         foreach (var item in boxarts)
             mediaItem.Covers.Add(item.url);
-        var banners = await SearchSteamGridDBBannerFor(game.id);
+        var banners = await SearchSteamGridDBHeroFor(game.id);
         foreach (var item in banners)
             mediaItem.Banners.Add(item.url);
         return mediaItem;

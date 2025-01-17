@@ -7,21 +7,16 @@
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="*"/>
-		</Grid.ColumnDefinitions>
-		<StackPanel Grid.Column="0" Orientation="Vertical">
-			<TextBlock	Margin="{StaticResource XXSmallTopMargin}"
-						Style="{ThemeResource TitleTextBlockStyle}"
-						Text="Disposition des Collections"
-						HorizontalAlignment="Center"/>
-		</StackPanel>
-			<StackPanel Grid.Column="1" Orientation="Vertical">
-			<TextBlock	Margin="{StaticResource XXSmallTopMargin}"
-						Style="{ThemeResource TitleTextBlockStyle}"
-						Text="Disposition d'un Item" 
-                        HorizontalAlignment="Center"/>			
-		</StackPanel>
+        <StackPanel  Orientation="Vertical">
+            <TextBlock Text="Nom du FrontEnd" Style="{StaticResource SubheaderTextBlockStyle}"/>
+            <TextBox  Text="{x:Bind ViewModel.Current.Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <TextBlock Text="Chemin du FrontEnd" Style="{StaticResource SubheaderTextBlockStyle}"/>
+            <TextBox  Text="{x:Bind ViewModel.Current.Path,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <StackPanel Orientation="Horizontal">
+                <ComboBox Header="Affichage des Collections" ItemsSource="{x:Bind ViewModel.CollectionDisplays}"></ComboBox>
+                <ComboBox Header="Affichage d'un élément" ItemsSource="{x:Bind ViewModel.ItemDisplays}"></ComboBox>
+            </StackPanel>
+
+        </StackPanel>
     </Grid>
 </Page>

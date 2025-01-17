@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
-using CommunityToolkit.WinUI.UI.Animations;
-
+using CommunityToolkit.WinUI.Animations;
 using GameLauncherAdmin.Contracts.Services;
 using GameLauncherAdmin.Contracts.ViewModels;
 using GameLauncherAdmin.Helpers;

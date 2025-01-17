@@ -2,8 +2,7 @@
 
 using Microsoft.UI.Xaml.Controls;
 using Windows.System;
-using CommunityToolkit.WinUI;
-using CommunityToolkit.WinUI.UI;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace GameLauncher.Front.Views;
 
@@ -19,59 +18,26 @@ public sealed partial class ListCollectionPage : Page
         ViewModel = App.GetService<ListCollectionViewModel>();
         InitializeComponent();
     }
-    private void CollectionList_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs e)
     {
-        var isfocused = CollectionList.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
-    }
-
-    private void CollectionList_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
-    {
-        if (e.Key == VirtualKey.Down || e.Key == VirtualKey.GamepadDPadDown)
+        base.OnNavigatedTo(e);
+        if (ViewModel.Currentdisplay == Models.APIObject.CollectionDisplay.Defaut)
         {
-            var isfocused = ItemsList.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
-            ItemsList.SelectedIndex = ViewModel.CurrentItemListIndex;
+            defaultlayout.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            semanticlayout.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            gridhublayout.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         }
-    }
-
-    private void ItemsList_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
-    {
-        if (e.Key == VirtualKey.Up || e.Key == VirtualKey.GamepadDPadUp)
+        else if (ViewModel.Currentdisplay == Models.APIObject.CollectionDisplay.SemanticFlip)
         {
-            var isfocused = CollectionList.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
-            CollectionList.SelectedIndex = ViewModel.CurrentCollectionListIndex;
+            defaultlayout.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            semanticlayout.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            gridhublayout.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         }
-    }
-
-    private async void CollectionList_SelectionChanged(object sender, Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs e)
-    {
-        try
+        else if (ViewModel.Currentdisplay == Models.APIObject.CollectionDisplay.GridHub)
         {
-            await CollectionList.SmoothScrollIntoViewWithIndexAsync(CollectionList.SelectedIndex, ScrollItemPlacement.Center, false, true);
+            defaultlayout.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            semanticlayout.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            gridhublayout.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
         }
-        catch (NullReferenceException ex)
-        {
-            //throw;
-        }
-        catch (Exception ex)
-        {
-            //throw;
-        }
-    }
-
-    private async void ItemsList_SelectionChanged(object sender, Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs e)
-    {
-        try
-        {
-            await ItemsList.SmoothScrollIntoViewWithIndexAsync(ItemsList.SelectedIndex, ScrollItemPlacement.Center, false, true);
-        }
-        catch (NullReferenceException ex)
-        {
-            //throw;
-        }
-        catch (Exception ex)
-        {
-            //throw;
-        }
-
     }
 }

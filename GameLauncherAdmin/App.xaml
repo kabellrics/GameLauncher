@@ -2,8 +2,7 @@
     x:Class="GameLauncherAdmin.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls">
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

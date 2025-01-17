@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ public class FullCollectionItem
     public Collection Collection
     {
     get; set;}
-    public List<TrueItemInCollection> Items { get; set;}
+    public ObservableCollection<TrueItemInCollection> Items { get; set;}
 }
 public class ItemCompleteInfo : Item
 {

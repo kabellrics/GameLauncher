@@ -14,6 +14,7 @@ public interface IMetadataProvider
     Task<IEnumerable<ObservableItem>> GetSearchScreenscraperGameByFileName(string filename);
     Task<IEnumerable<ObservableItem>> SearchScreenscraperGameByName(string name);
     IAsyncEnumerable<ObservableItem> SearchScreenscraperGameByNameAsync(string name);
+    Task<IEnumerable<ImgResult>> SearchSteamGridDBHeroFor(int gameId);
     Task<IEnumerable<ImgResult>> SearchSteamGridDBBannerFor(int gameId);
     Task<IEnumerable<ImgResult>> SearchSteamGridDBBoxartFor(int gameId);
     Task<IEnumerable<DataSearch>> SearchSteamGridDBGameByName(string name);

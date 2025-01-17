@@ -13,7 +13,19 @@
 	<Nullable>enable</Nullable>
 	<UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <UserSecretsId>263dbd51-be65-4039-b64d-27b58fe524e3</UserSecretsId>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Styles\ResourceDataTemplate.xaml" />
+    <None Remove="Views\CollectionPage\Layout\Default.xaml" />
+    <None Remove="Views\CollectionPage\Layout\GridHub.xaml" />
+    <None Remove="Views\CollectionPage\Layout\Semantic.xaml" />
+    <None Remove="Views\CustomControls\HTMLRenderText.xaml" />
+    <None Remove="Views\ItemPage\Layout\Artwork.xaml" />
+    <None Remove="Views\ItemPage\Layout\Default.xaml" />
+    <None Remove="Views\ItemPage\Layout\SteamLike.xaml" />
+    <None Remove="Views\ItemPage\Layout\Xbox.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
@@ -24,22 +36,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="CommunityToolkit.WinUI" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.1.240821" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Core" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Primitives" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Media" Version="7.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240802000" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.0.240109" />
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.0.240109" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.0.240109" />
+    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
+    <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
+    <PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.0.240109" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
-    <PackageReference Include="WinUIEx" Version="2.3.4" />
+    <PackageReference Include="WinUIEx" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,8 +68,63 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\ItemPage\" />
-    <Folder Include="Views\CollectionPage\" />
+    <Content Update="Assets\saturne.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Styles\ResourceDataTemplate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\CollectionPage\Layout\GridHub.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ItemPage\Layout\Xbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\CollectionPage\Layout\Semantic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\CollectionPage\Layout\Default.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ItemPage\Layout\SteamLike.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ItemPage\Layout\Artwork.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ItemPage\Layout\Default.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\CustomControls\HTMLRenderText.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">

@@ -5,13 +5,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:GameLauncher.ObservableObjet"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
     <Page.Resources>
         <DataTemplate x:Key="ItemTemplate" x:DataType="models:ObservableItem">
             <Grid
-        x:Name="itemThumbnail"
+        x:Name="itemThumbnail" Height="360" Width="200"
         Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <winuicontrols:ConstrainedBox AspectRatio="2:3">
@@ -58,122 +58,163 @@
         </Button>
         <ScrollViewer VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible" Grid.Row="1">
             <StackPanel Orientation="Vertical">
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans descriptions :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutDescription,Mode=OneWay}"
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans descriptions :"/>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutDescription,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"   
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans date de sortie :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutReleaseDate,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                    </Expander.Content>
+                </Expander>
+
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans date de sortie :"/>
+                    </Expander.Header>
+                    <Expander.Content>
+                <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutReleaseDate,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"    
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans genres :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutGenres,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                    </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans genres :"/>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutGenres,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"  
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Studio :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutDevelloppeurs,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                    </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Studio :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutDevelloppeurs,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible" 
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Editeurs :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutEditeurs,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Editeurs :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutEditeurs,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"  
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Cover :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutCover,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Cover :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutCover,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"    
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Logo :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutLogo,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Logo :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutLogo,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"  
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Artwork :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutArtwork,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Artwork :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutArtwork,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"   
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Banner :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutBanner,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Banner :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutBanner,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"     
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Video :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutVideo,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Items sans Video :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.ItemsWithoutVideo,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="200"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"     
                                             ItemTemplate="{StaticResource ItemTemplate}"
                                             IsItemClickEnabled="True"
-                                            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Collections sans Logo :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.CollectionsWithoutLogo,Mode=OneWay}"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Collections sans Logo :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.CollectionsWithoutLogo,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="600"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"   
                                             ItemTemplate="{StaticResource CollectionTemplate}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
-                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Collections sans Fanart :"/>
-                <controls:AdaptiveGridView  ItemsSource="{x:Bind ViewModel.CollectionsWithoutArtwork,Mode=OneWay}"
+                                            IsItemClickEnabled="True"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Collections sans Fanart :"/>
+                </Expander.Header>
+                <Expander.Content>
+                    <GridView  ItemsSource="{x:Bind ViewModel.CollectionsWithoutArtwork,Mode=OneWay}"
                                             ScrollViewer.HorizontalScrollMode="Enabled"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"                                            
-                                            ItemHeight="360" DesiredWidth="600"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible"  
                                             ItemTemplate="{StaticResource CollectionTemplate}"
-                                            StretchContentForSingleRow="False"
-                                            OneRowModeEnabled="True"></controls:AdaptiveGridView>
+                                            IsItemClickEnabled="True"
+                                            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"></GridView>
+                </Expander.Content>
+                </Expander>
             </StackPanel>
         </ScrollViewer>
     </Grid>

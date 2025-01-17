@@ -1,12 +1,13 @@
 ﻿<Page
     x:Class="GameLauncherAdmin.Views.BibliothequePage"
+    x:Name="bibliopage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:models="using:GameLauncher.ObservableObjet"
     xmlns:collections="using:CommunityToolkit.Common.Collections"
     xmlns:collections1="using:CommunityToolkit.Mvvm.Collections"
@@ -17,6 +18,22 @@
             x:Name="ItemsViewSource"
             IsSourceGrouped="True"
             Source="{x:Bind ViewModel.GroupedItems, Mode=OneWay}" />
+        <DataTemplate x:Key="ItemTemplate" x:DataType="models:ObservableItem">
+            <Grid
+        x:Name="itemThumbnail" Height="360" Width="200"
+        Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <winuicontrols:ConstrainedBox AspectRatio="2:3">
+                        <Image Source="{Binding Cover,Mode=OneWay}" Stretch="Fill"/>
+                    </winuicontrols:ConstrainedBox>
+                    <TextBlock Height="60"
+                Margin="{StaticResource XXSmallTopMargin}"
+                HorizontalAlignment="Center"
+                Style="{ThemeResource BodyTextStyle}"
+                Text="{x:Bind Name}" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
 
     </Page.Resources>
 
@@ -31,27 +48,28 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource HeaderTextBlockStyle}" Text="Liste des Items"/>
-        <Button Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Click="Button_Click">
+        <!--<Button Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Click="Button_Click">
             <StackPanel Orientation="Horizontal">
                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                 <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="Supprimer les Items sélectionnés"/>
             </StackPanel>
-        </Button>
+        </Button>-->
         <Button Grid.Column="2" Grid.Row="0" Command="{x:Bind ViewModel.RefreshCommand}" HorizontalAlignment="Right">
             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;"/>
         </Button>
-        <!--ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"-->
-        <controls:AdaptiveGridView x:Name="itemslist" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+        <!--ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
+            StretchContentForSingleRow="False"
+            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
+            DesiredWidth="200"
+            ItemHeight="360"-->
+        <!--<GridView x:Name="itemslist" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
             animations:Connected.ListItemElementName="itemThumbnail"
             animations:Connected.ListItemKey="animationKeyContentGrid"
             ItemsSource="{x:Bind ItemsViewSource.View,Mode=OneWay}" HorizontalAlignment="Stretch"
-            DesiredWidth="200"
-            ItemHeight="360"
             IsItemClickEnabled="True"
-            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-            SelectionMode="Multiple"
-            StretchContentForSingleRow="False">
-            <controls:AdaptiveGridView.GroupStyle>
+            ui:ListViewExtensions.Command="{x:Bind ViewModel.ItemClickCommand}"
+            SelectionMode="Multiple">
+            <GridView.GroupStyle>
                 <GroupStyle HidesIfEmpty="True">
                     <GroupStyle.HeaderTemplate>
                         <DataTemplate x:DataType="collections1:IReadOnlyObservableGroup">
@@ -62,10 +80,10 @@
                         </DataTemplate>
                     </GroupStyle.HeaderTemplate>
                 </GroupStyle>
-            </controls:AdaptiveGridView.GroupStyle>
-            <controls:AdaptiveGridView.ItemTemplate>
+            </GridView.GroupStyle>
+            <GridView.ItemTemplate>
                 <DataTemplate x:DataType="models:ObservableItem">
-                    <Grid
+                    <Grid Height="360" Width="200"
                         x:Name="itemThumbnail"
                         Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -80,7 +98,27 @@
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
-            </controls:AdaptiveGridView.ItemTemplate>
-        </controls:AdaptiveGridView>
+            </GridView.ItemTemplate>
+        </GridView>-->
+        <ListView  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+            ItemsSource="{x:Bind ViewModel.GroupedItems,Mode=OneWay}" HorizontalAlignment="Stretch">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" FontSize="20" Margin="5,0" Text="{Binding Key}"/>
+                        </Expander.Header>
+                        <Expander.Content>
+                            <GridView  ItemsSource="{Binding}"
+                            ScrollViewer.HorizontalScrollMode="Enabled"
+                            ScrollViewer.HorizontalScrollBarVisibility="Visible"   
+                            ItemTemplate="{StaticResource ItemTemplate}"
+                            IsItemClickEnabled="True"
+                            ui:ListViewExtensions.Command="{Binding ElementName=bibliopage, Path=ViewModel.ItemClickCommand}"></GridView>
+                        </Expander.Content>
+                    </Expander>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Page>

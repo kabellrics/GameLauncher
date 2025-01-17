@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuicontrols="using:CommunityToolkit.WinUI.Controls"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:GameLauncher.ObservableObjet"
     mc:Ignorable="d">
 
@@ -147,18 +146,15 @@
                         <Button Grid.Column="1" Content="Ajouter les jeux sélectionnés" Style="{StaticResource ButtonRevealStyle}"
                                 Click="Button_Click_1"/>
                     </Grid>
-                    <controls:AdaptiveGridView
+                    <GridView
                         x:Name="proposalItem"
                         ItemsSource="{x:Bind ViewModel.AddingCollections,Mode=OneWay}"
-                        DesiredWidth="200"
-                        ItemHeight="360"
                         IsItemClickEnabled="True"
-                        SelectionMode="Multiple"
-                        StretchContentForSingleRow="False">     
-                        <controls:AdaptiveGridView.ItemTemplate>
+                        SelectionMode="Multiple">     
+                        <GridView.ItemTemplate>
                             <DataTemplate x:DataType="models:ObservableItem">
                                 <Grid
-                x:Name="itemThumbnail"
+                x:Name="itemThumbnail" Width="200" Height="360"
                 Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
                                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <winuicontrols:ConstrainedBox AspectRatio="2:3">
@@ -172,8 +168,8 @@
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>
-                        </controls:AdaptiveGridView.ItemTemplate>
-                    </controls:AdaptiveGridView>
+                        </GridView.ItemTemplate>
+                    </GridView>
                 </StackPanel>
             </Expander>
         </Grid>
